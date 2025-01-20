@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Transactions</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Root Variables from Theme */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-shadow: rgba(0, 0, 0, 0.1);
+            --primary-dark: #1a3d37;
+            --primary-light: #2c5851;
+            --accent-gold: #d4af37;
+            --success: #2c7a51;
+            --info: #2c5178;
+            --warning: #7a632c;
+            --danger: #7a2c2c;
+            --text-primary: #2d3436;
+            --text-light: rgba(255, 255, 255, 0.9);
+            --blur-amount: 12px;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: rgba(26, 61, 55, 0.95);
+            backdrop-filter: blur(var(--blur-amount));
+            padding: 20px;
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Ensure the sidebar takes full height */
+            overflow-y: auto; /* Make the sidebar scrollable */
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin-top: 40px;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu a i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: var(--accent-gold);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Content Section */
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        h2.manage-users-header {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid var(--glass-border);
+        }
+
+        th {
+            background-color: rgba(26, 61, 55, 0.1);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        button {
+            padding: 6px 12px;
+            border: none;
+            background: var(--accent-gold);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        button.reject {
+            background: var(--danger);
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* Totals Box Styles */
+        .totals {
+            width: 90%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .totals p {
+            font-size: 18px;
+            color: #333;
+            margin: 5px 0;
+        }
+
+
+        /* Flex Layout for Sidebar and Content */
+        .main-container {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh; /* Full height */
+            overflow-y: auto; /* Allow scrolling if content is long */
+        }
+
+        .content {
+            flex-grow: 1;
+        }
+         /* Cards Grid */
+         .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* Themed Card */
+        .card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-title {
+            color: var(--primary-light);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .card-value {
+            color: var(--primary-dark);
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(212, 175, 55, 0.2),
+                rgba(212, 175, 55, 0.3),
+                rgba(212, 175, 55, 0.2),
+                transparent
+            );
+            transform: skewX(-25deg);
+            transition: 1s ease;
+            opacity: 0;
+        }
+
+        .card:hover::after {
+            left: 150%;
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.2),
+                0 0 40px rgba(212, 175, 55, 0.15);
+            background: rgba(255, 255, 255, 0.35);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Admin Panel</h2>
+            <ul class="sidebar-menu">
+                <li><a href="{% url 'transaction_list' %}" class="active" data-section="dashboard">
+                    <i class="fas fa-home"></i> Dashboard
+                </a></li>
+                <li><a href="{% url 'admin-user-list' %}" data-section="users">
+                    <i class="fas fa-users"></i> Admins
+                </a></li>
+                <li><a href="{% url 'create_transaction' %}">
+                    <i class="fas fa-exchange-alt"></i> Transactions
+                </a></li>
+                <li><a href="{% url 'admin_user_home' %}" data-section="admins">
+                    <i class="fas fa-user-shield"></i> Users
+                </a></li>
+                <li><a href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a></li>
+            </ul>
+        </div>
+
+        <!-- Content Section -->
+        <div class="content">
+           
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-title">Total Credit</div>
+                    <div class="card-value">${{ credit_total }}</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Total Debit</div>
+                    <div class="card-value">${{ total_withdrawal }}</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Total Returns</div>
+                    <div class="card-value">${{ total_amount }}</div>
+                </div>
+            </div>
+            <!-- Manage Transactions Section - Heading above the table -->
+            <h2 class="manage-users-header">Transaction List</h2>
+
+            <!-- Transactions Table -->
+            <table>
+                <tr>
+                    <th>Sl.No</th>
+                    <th>Date</th>
+                    <th>Username</th>
+                    <th>Particulars</th>
+                    <th>Narration</th>
+                    <th>Amount Type</th>
+                    <th>Amount</th>
+                    <th>Receipt</th>
+                    <th>Approval</th> <!-- New column for approval -->
+                </tr>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ transaction.date }}</td>
+                    <td>{{ transaction.user.username }}</td>
+                    <td>{{ transaction.particulars }}</td>
+                    <td>{{ transaction.narration }}</td>
+                    <td>{{ transaction.amount_type }}</td>
+                    <td>{{ transaction.amount }}</td>
+                    <td>
+                        {% if transaction.transaction_receipt %}
+                            <img src="{{ transaction.transaction_receipt.url }}" alt="Receipt" style="max-width: 150px; max-height: 150px;">
+                        {% else %}
+                            No Receipt
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if transaction.status == 'approved' %}
+                            <span style="color: green;">Approved</span>
+                        {% elif transaction.status == 'rejected' %}
+                            <span style="color: red;">Rejected</span>
+                        {% else %}
+                            <form method="post" action="{% url 'approve_transaction' transaction.id %}">
+                                {% csrf_token %}
+                                <button type="submit">Approve</button>
+                            </form>
+                            <form method="post" action="{% url 'reject_transaction' transaction.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="reject">Reject</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <!-- Totals Section -->
+          
+        </div>
+    </div>
+</body>
+</html>

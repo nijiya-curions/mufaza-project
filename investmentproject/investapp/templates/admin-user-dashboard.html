@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Section</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Root Variables from your theme */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-shadow: rgba(0, 0, 0, 0.1);
+            --primary-dark: #1a3d37;
+            --primary-light: #2c5851;
+            --accent-gold: #d4af37;
+            --text-primary: #2d3436;
+            --blur-amount: 12px;
+        }
+
+        .users-container {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 25px;
+        }
+
+        .user-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(212, 175, 55, 0.2),
+                rgba(212, 175, 55, 0.3),
+                rgba(212, 175, 55, 0.2),
+                transparent
+            );
+            transform: skewX(-25deg);
+            transition: 1s ease;
+            opacity: 0;
+        }
+
+        .user-card:hover::after {
+            left: 150%;
+            opacity: 1;
+        }
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .info-group {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: var(--primary-dark);
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .view-icon {
+            font-size: 22px;
+            width: 50px;
+            height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            color: var(--primary-dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .view-icon:hover {
+            transform: translateY(-3px);
+            color: var(--accent-gold);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin: 5% auto;
+            padding: 25px;
+            width: 80%;
+            max-width: 1000px;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.4s ease;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 25px;
+            top: 25px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--primary-dark);
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--accent-gold);
+            transform: rotate(90deg);
+        }
+
+        /* Table Styles */
+        .ledger-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+        }
+
+        .ledger-table th,
+        .ledger-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .ledger-table th {
+            background: rgba(26, 61, 55, 0.1);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .ledger-table tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="users-container">
+        {% for user in user_data %}
+        <div class="user-card">
+    <div class="user-header">
+        <h3>{{ user.username }}</h3>
+        <i class="fas fa-eye view-icon" onclick="showLedger({{ user.user_id }})"></i>
+    </div>
+    <div class="user-info">
+        <div class="info-group">
+            <div class="info-label">User ID</div>
+            <div class="info-value">#{{ user.user_id }}</div>
+        </div>
+        <div class="info-group">
+            <div class="info-label">Total Invested</div>
+            <div class="info-value">${{ user.debit_total }}</div>
+        </div>
+        <div class="info-group">
+            <div class="info-label">Total Returns</div>
+            <div class="info-value">${{ user.total_returns }}</div>
+        </div>
+        <div class="info-group">
+            <div class="info-label">Status</div>
+            <div class="info-value">{{ user.status }}</div>
+        </div>
+    </div>
+
+    <!-- User Ledger Data as JSON -->
+    <div id="user_ledger-{{ user.user_id }}"  data-ledger="{{ user.ledger_data|safe }}">
+    </div>
+</div>
+
+        
+        {% endfor %}
+    </div>
+    
+    <!-- Modal -->
+    <div id="ledgerModal" class="modal">
+        <div class="modal-content">
+            <i class="fas fa-times close-modal" onclick="closeModal()"></i>
+            <h2 id="modalTitle">User Ledger</h2>
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Particulars</th>
+                        <th>Narration</th>
+                        <th>Debit</th>
+                        <th>Credit</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody id="ledgerBody">
+                    <!-- Ledger data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        function showLedger(userId) {
+    const ledgerDataElement = document.getElementById(`user_ledger-${userId}`);
+    if (!ledgerDataElement) {
+        console.error("Ledger data not found for user ID:", userId);
+        return;
+    }
+
+    // Parse the ledger data from the HTML data attribute
+    const ledgerData = JSON.parse(ledgerDataElement.getAttribute('data-ledger'));
+    
+    console.log("Ledger data for user:", ledgerData); // Debugging line
+    
+    const modal = document.getElementById('ledgerModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const ledgerBody = document.getElementById('ledgerBody');
+
+    // Update modal title
+    modalTitle.textContent = `User #${userId}'s Ledger`;
+
+    // Clear and populate the ledger table
+    ledgerBody.innerHTML = '';
+    ledgerData.forEach(entry => {
+        ledgerBody.innerHTML += `
+            <tr>
+                <td>${entry.date}</td>
+                <td>${entry.particulars}</td>
+                <td>${entry.narration}</td>
+                <td>${entry.debit}</td>
+                <td>${entry.credit}</td>
+                <td>${entry.balance}</td>
+            </tr>
+        `;
+    });
+
+    // Show the modal
+    modal.style.display = 'block';
+}
+
+    
+        function closeModal() {
+            document.getElementById('ledgerModal').style.display = 'none';
+        }
+    
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('ledgerModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body></html>    

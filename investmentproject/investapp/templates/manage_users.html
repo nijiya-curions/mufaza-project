@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Root Variables from Theme */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-shadow: rgba(0, 0, 0, 0.1);
+            --primary-dark: #1a3d37;
+            --primary-light: #2c5851;
+            --accent-gold: #d4af37;
+            --success: #2c7a51;
+            --info: #2c5178;
+            --warning: #7a632c;
+            --danger: #7a2c2c;
+            --text-primary: #2d3436;
+            --text-light: rgba(255, 255, 255, 0.9);
+            --blur-amount: 12px;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: rgba(26, 61, 55, 0.95);
+            backdrop-filter: blur(var(--blur-amount));
+            padding: 20px;
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Ensure the sidebar takes full height */
+            overflow-y: auto; /* Make the sidebar scrollable */
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin-top: 40px;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu a i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: var(--accent-gold);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Main Content Area (Flexbox Layout) */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* Heading directly on top of the table */
+        h2.manage-users-header {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        /* Table Styles */
+        .ledger-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+        }
+
+        .ledger-table th, .ledger-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .ledger-table th {
+            background: rgba(26, 61, 55, 0.1);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .ledger-table tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Buttons and form styles */
+        button {
+            padding: 6px 12px;
+            border: none;
+            background: var(--accent-gold);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background: var(--primary-light);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <ul class="sidebar-menu">
+            <li><a href="{% url 'transaction_list' %}" class="active" data-section="dashboard">
+                <i class="fas fa-home"></i> Dashboard
+            </a></li>
+            <li><a href="{% url 'admin-user-list' %}" data-section="users">
+                <i class="fas fa-users"></i> Admins
+            </a></li>
+            <li><a href="{% url 'create_transaction' %}">
+                <i class="fas fa-exchange-alt"></i> Transactions
+            </a></li>
+            <li><a href="{% url 'admin_user_home' %}" data-section="admins">
+                <i class="fas fa-user-shield"></i> Users
+            </a></li>
+            <li><a href="{% url 'logout' %}">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content Area (Table and Heading) -->
+    <div class="main-content">
+        <!-- Manage Users Section - Heading above the table -->
+        <h2 class="manage-users-header">Manage Users</h2>
+
+        <!-- Users Table -->
+        <table class="ledger-table">
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Username</th>
+                    <th>Phone Number</th>
+                    <th>Address</th>
+                    <th>Approved</th>
+                    <th>Actions</th>
+                </tr> 
+            </thead>
+            <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.first_name }}</td>
+                <td>{{ user.last_name }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.phone_number }}</td>
+                <td>{{ user.address }}</td>
+                <td>{{ user.is_approved }}</td>
+                <td> 
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <button type="submit" name="action" value="activate">Activate</button>
+                        <button type="submit" name="action" value="deactivate">Deactivate</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %} 
+            </tbody>
+            
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mafaza - Home</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <style>
+        /* Including the theme CSS */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-shadow: rgba(0, 0, 0, 0.1);
+            --primary-dark: #1a3d37;
+            --primary-light: #2c5851;
+            --accent-gold: #d4af37;
+            --text-primary: #2d3436;
+            --text-light: rgba(255, 255, 255, 0.9);
+        }
+
+        button a {
+            all: unset; /* Resets all styles for the <a> tag */
+            display: block; /* Ensures the <a> tag behaves properly within the button */
+            width: 100%; /* Makes <a> fill the button if necessary */
+            height: 100%; /* Ensures full clickability */
+        }
+
+
+        body {
+            background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: var(--primary-light);
+            margin-bottom: 30px;
+        }
+
+        .hero-text {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            max-width: 800px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+        }
+
+        /* Carousel Styles */
+        .carousel-section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .swiper {
+            width: 100%;
+            padding: 50px 0;
+        }
+
+        .swiper-slide {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .swiper-slide:hover {
+            transform: translateY(-10px);
+        }
+
+        .project-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .project-title {
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .project-description {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        /* Button Styles (from theme) */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            margin-right: 15px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--primary-dark);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-glass:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+            color: var(--accent-gold);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--accent-gold), #b39429);
+            color: white;
+            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <h1 style="color: var(--primary-dark);">Mafaza</h1>
+        </div>
+        <div class="auth-buttons">
+            <button class="btn btn-glass">
+                <a href="{% url 'login' %}">Login</a>
+            </button>
+            <button class="btn btn-gold">
+                <a href="{% url 'signup' %}">Sign Up</a>
+            </button>
+            
+        </button>
+        </div>
+        
+    </header>
+
+    <section class="hero-section">
+        <h1 class="hero-title">Welcome to Mafaza</h1>
+        <h2 class="hero-subtitle">Building Tomorrow's Solutions Today</h2>
+        <p class="hero-text">
+            Discover innovative solutions and cutting-edge projects that transform industries. 
+            At Mafaza, we combine expertise with creativity to deliver exceptional results 
+            that exceed expectations.
+        </p>
+    </section>
+
+    <section class="carousel-section">
+        <div class="swiper">
+            <div class="swiper-wrapper">
+                <!-- Project 1 -->
+                <div class="swiper-slide">
+                    <img src="https://placehold.co/400x200" alt="Project 1" class="project-image">
+                    <h3 class="project-title">Smart City Solutions</h3>
+                    <p class="project-description">Innovative urban development projects implementing smart technology.</p>
+                </div>
+                <!-- Project 2 -->
+                <div class="swiper-slide">
+                    <img src="https://placehold.co/400x200" alt="Project 2" class="project-image">
+                    <h3 class="project-title">Sustainable Architecture</h3>
+                    <p class="project-description">Eco-friendly building designs for a sustainable future.</p>
+                </div>
+                <!-- Project 3 -->
+                <div class="swiper-slide">
+                    <img src="https://placehold.co/400x200" alt="Project 3" class="project-image">
+                    <h3 class="project-title">Digital Infrastructure</h3>
+                    <p class="project-description">Next-generation digital solutions for modern businesses.</p>
+                </div>
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </section>
+
+    <script>
+        const swiper = new Swiper('.swiper', {
+            effect: 'cards',
+            grabCursor: true,
+            centeredSlides: true,
+            slidesPerView: 'auto',
+            spaceBetween: 30,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            autoplay: {
+                delay: 3000,
+                disableOnInteraction: false,
+            },
+        });
+    </script>
+</body>
+</html>

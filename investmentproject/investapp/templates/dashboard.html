@@ -1,0 +1,330 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mafaza - User Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* Theme Variables */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-shadow: rgba(0, 0, 0, 0.1);
+            --primary-dark: #1a3d37;
+            --primary-light: #2c5851;
+            --accent-gold: #d4af37;
+            --text-primary: #2d3436;
+            --text-light: rgba(255, 255, 255, 0.9);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .welcome-section {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        .welcome-title {
+            color: var(--primary-dark);
+            margin: 0;
+            font-size: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Themed Icon */
+        .icon {
+            font-size: 22px;
+            width: 50px;
+            height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            color: var(--primary-dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon:hover {
+            transform: translateY(-3px);
+            color: var(--accent-gold);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* Themed Card */
+        .card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-title {
+            color: var(--primary-light);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .card-value {
+            color: var(--primary-dark);
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(212, 175, 55, 0.2),
+                rgba(212, 175, 55, 0.3),
+                rgba(212, 175, 55, 0.2),
+                transparent
+            );
+            transform: skewX(-25deg);
+            transition: 1s ease;
+            opacity: 0;
+        }
+
+        .card:hover::after {
+            left: 150%;
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.2),
+                0 0 40px rgba(212, 175, 55, 0.15);
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        /* Button */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--accent-gold), #b39429);
+            color: white;
+            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Ledger Section */
+        .ledger-section {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        .ledger-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .ledger-title {
+            color: var(--primary-dark);
+            margin: 0;
+        }
+
+        .ledger-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .ledger-table th,
+        .ledger-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .ledger-table th {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .ledger-table tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mafaza - User Dashboard</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+        <style>
+            /* CSS styles remain unchanged */
+            /* (Keep your original CSS styles for a consistent appearance) */
+        </style>
+    </head>
+    <body>
+        <div class="dashboard-container">
+            <div class="welcome-section">
+                <h1 class="welcome-title">
+                    Welcome Back, {{ request.user.first_name }}!
+                    <a href="{% url 'logout' %}" class="btn btn-gold">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                    <i class="icon fas fa-cog" onclick="openSettings()"></i>
+                </h1>
+                <a href="{% url 'manage_investment' %}">Create Transaction</a>
+            </div>
+    
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-title">Total Credit</div>
+                    <div class="card-value">${{ total_credit }}</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Total Debit</div>
+                    <div class="card-value">${{ total_debit }}</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Total Returns</div>
+                    <div class="card-value">${{ total_returns }}</div>
+                </div>
+            </div>
+            
+    
+            <div class="ledger-section">
+                <div class="ledger-header">
+                    <h2 class="ledger-title">Your Transactions</h2>
+                    <button class="btn btn-gold" onclick="exportPDF()">
+                        <i class="fas fa-download"></i> Export PDF
+                    </button>
+                </div>
+                <div id="ledger-content">
+                    {% if transactions %}
+                    <table class="ledger-table">
+                        <thead>
+                            <tr>
+                                <th>Sl.No</th>
+                                <th>Date</th>
+                                <th>Particulars</th>
+                                <th>Narration</th>
+                                <th>Amount Type</th>
+                                <th>Amount</th>
+                                <th>Receipt</th>
+                                <th>Status</th> <!-- New column for status -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                            <tr>
+                                <td>{{ transaction.id }}</td>
+                                <td>{{ transaction.date }}</td>
+                                <td>{{ transaction.particulars }}</td>
+                                <td>{{ transaction.narration }}</td>
+                                <td>{{ transaction.amount_type }}</td>
+                                <td>{{ transaction.amount }}</td>
+                                <td>
+                                    {% if transaction.transaction_receipt %}
+                                    <img src="{{ transaction.transaction_receipt.url }}" alt="Receipt" style="max-width: 150px; max-height: 150px;">
+                                    {% else %}
+                                    No Receipt
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <!-- Displaying the status of the transaction -->
+                                    {% if transaction.status == 'approved' %}
+                                        <span style="color: green;">Approved</span>
+                                    {% elif transaction.status == 'rejected' %}
+                                        <span style="color: red;">Rejected</span>
+                                    {% else %}
+                                        <span style="color: gray;">Pending</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>No transactions found for your account.</p>
+                    {% endif %}
+                </div>
+                
+            </div>
+            
+        <script>
+            function exportPDF() {
+                const element = document.getElementById('ledger-content');
+                html2pdf().from(element).save('ledger.pdf');
+            }
+        </script>
+    </body>
+    </html>
+    
