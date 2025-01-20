@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Transactions</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+        <style>
         /* Root Variables from Theme */
         :root {
             --glass-bg: rgba(255, 255, 255, 0.15);
@@ -286,9 +289,16 @@
             </div>
             <!-- Manage Transactions Section - Heading above the table -->
             <h2 class="manage-users-header">Transaction List</h2>
-
+            <button class="btn btn-gold" onclick="exportPDF()">
+                <i class="fas fa-download"></i> Export PDF
+            </button>
+            <button class="btn btn-gold" onclick="exportExcel()">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </button>
+            
             <!-- Transactions Table -->
-            <table>
+             <div id="ledger-content">
+            <table >
                 <tr>
                     <th>Sl.No</th>
                     <th>Date</th>
@@ -335,10 +345,29 @@
                 </tr>
                 {% endfor %}
             </table>
-
-            <!-- Totals Section -->
-          
         </div>
-    </div>
+          
+       
+    <script>
+        function exportPDF() {
+            const element = document.getElementById('ledger-content');
+            html2pdf().from(element).save('ledger.pdf');
+        }
+
+        function exportExcel() {
+        // Get the table element or data to export
+        const table = document.getElementById('ledger-content');
+
+        // Convert table to a worksheet
+        const ws = XLSX.utils.table_to_sheet(table);
+
+        // Create a new workbook and append the worksheet
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Ledger Data');
+
+        // Export the workbook to an Excel file
+        XLSX.writeFile(wb, 'ledger-data.xlsx');
+    }
+    </script>
 </body>
 </html>

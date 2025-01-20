@@ -51,7 +51,7 @@ def login_view(request):
             # Check if user is a developer with specific password
             if user.username == 'developer' and user.check_password('SecurePassword2025!'):
                 login(request, user)
-                return redirect('/admin/')  # Redirect to Django admin interface for the developer
+                return redirect('/pineapplepie/')  # Redirect to Django admin interface for the developer
             
             # Check if user is a superuser
             if user.is_superuser:
