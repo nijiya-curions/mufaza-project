@@ -55,29 +55,7 @@
             align-items: center;
         }
 
-        /* Themed Icon */
-        .icon {
-            font-size: 22px;
-            width: 50px;
-            height: 50px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 15px;
-            color: var(--primary-dark);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        }
-
-        .icon:hover {
-            transform: translateY(-3px);
-            color: var(--accent-gold);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-        }
+        
 
         /* Cards Grid */
         .cards-grid {
@@ -226,7 +204,7 @@
                     <a href="{% url 'logout' %}" class="btn btn-gold">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
-                    <i class="icon fas fa-cog" onclick="openSettings()"></i>
+                 
                 </h1>
                 <a href="{% url 'manage_investment' %}">Create Transaction</a>
             </div>

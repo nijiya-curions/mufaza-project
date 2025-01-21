@@ -118,26 +118,6 @@
 
         <h2>Create Investment</h2>
 
-        <!-- Display Success Message -->
-        {% if messages %}
-    <div>
-        {% for message in messages %}
-            {% if message.tags == 'success' %}
-                <div class="message {{ message.tags }}">
-                    {{ message }}
-                </div>
-                <!-- Optional JavaScript for Redirect -->
-                <script>
-                    setTimeout(function() {
-                        window.location.href = "{% url 'dashboard' %}";
-                    }, 3000);  // Redirect after 3 seconds (3000ms)
-                </script>
-            {% endif %}
-        {% endfor %}
-    </div>
-{% endif %}
-
-
         <!-- Form Section -->
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}

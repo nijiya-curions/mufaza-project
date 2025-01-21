@@ -175,6 +175,7 @@
 
         .content {
             flex-grow: 1;
+         
         }
          /* Cards Grid */
          .cards-grid {
@@ -243,6 +244,31 @@
                 0 0 40px rgba(212, 175, 55, 0.15);
             background: rgba(255, 255, 255, 0.35);
         }
+        .icon {
+    font-size: 22px;
+    width: 50px;
+    height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    color: var(--primary-dark);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    margin-left: auto;  /* This will push the icon to the right */
+}
+
+.icon:hover {
+    transform: translateY(-3px);
+    color: var(--accent-gold);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+
     </style>
 </head>
 <body>
@@ -265,14 +291,15 @@
                 </a></li>
                 <li><a href="{% url 'logout' %}">
                     <i class="fas fa-sign-out-alt"></i> Logout
-                </a></li>
+                </a>
+                      
+            </li>
             </ul>
         </div>
 
         <!-- Content Section -->
         <div class="content">
-           
-
+            <a href="{% url 'create_user' %}">   <i class="icon fas fa-cog"></i></a><br><br><br>
             <div class="cards-grid">
                 <div class="card">
                     <div class="card-title">Total Investment</div>
@@ -287,6 +314,8 @@
                     <div class="card-value">${{ total_amount }}</div>
                 </div>
             </div>
+        
+        
             <!-- Manage Transactions Section - Heading above the table -->
             <h2 class="manage-users-header">Transaction List</h2>
             <button class="btn btn-gold" onclick="exportPDF()">

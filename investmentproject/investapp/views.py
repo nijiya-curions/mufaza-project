@@ -14,7 +14,6 @@ from django.db import models
 from django.http import HttpResponseForbidden
 from django.contrib.messages import get_messages
 from decimal import Decimal
-from .models import CustomUser, Transaction
 
 
 
@@ -43,13 +42,23 @@ def signup_view(request):
 
 
 # login for all
+
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
+        username_or_email = request.POST['username']  # Field for username or email
         password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
         
-        if user is not None:
+        # Try to authenticate using the username or email
+        user = None
+        if '@' in username_or_email:  # If the input looks like an email
+            try:
+                user = CustomUser.objects.get(email=username_or_email)  # Get user by email (CustomUser model)
+            except CustomUser.DoesNotExist:
+                user = None
+        else:
+            user = authenticate(request, username=username_or_email, password=password)  # Authenticate by username
+        
+        if user is not None and user.check_password(password):
             if not user.is_approved:  # Check if user is approved
                 return render(request, 'login.html', {'error': 'Your account is awaiting approval by an administrator.'})
             
@@ -71,6 +80,8 @@ def login_view(request):
             return render(request, 'login.html', {'error': 'Invalid credentials'})
     
     return render(request, 'login.html')
+
+
 
 
 # logout
@@ -288,3 +299,26 @@ def dashboard_view(request):
     return render(request, 'dashboard.html', context)
 
 
+# .............................
+# views.py
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+from .forms import CustomUserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
+
+# Ensure only admins can access this view
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def create_user(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'User created successfully!')
+            return redirect('admin-user-list')  # Redirect to user list or any other relevant page
+    else:
+        form = CustomUserCreationForm()
+
+    return render(request, 'create_user.html', {'form': form})

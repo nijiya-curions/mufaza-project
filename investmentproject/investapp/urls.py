@@ -19,6 +19,7 @@ urlpatterns = [
    path('approve_transaction/<int:transaction_id>/', views.approve_transaction, name='approve_transaction'),
     path('reject_transaction/<int:transaction_id>/', views.reject_transaction, name='reject_transaction'),
     path('user_ledger/<int:user_id>/', views.admin_user_home, name='user_ledger'),
+    path('create-user/', views.create_user, name='create_user'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

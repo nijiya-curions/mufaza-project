@@ -58,8 +58,29 @@ class InvestmentForm(forms.ModelForm):
 
 
 
+# forms.py
 
+from django import forms
+from .models import CustomUser
+class CustomUserCreationForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'password', 'first_name', 'last_name', 'email', 'phone_number', 'address']
 
+    password = forms.CharField(widget=forms.PasswordInput)
 
-
-
+    def save(self, commit=True):
+        # Create the user instance, but don't save yet
+        user = super().save(commit=False)
+        
+        # Automatically approve the user (set is_approved to True)
+        user.is_approved = True
+        
+        # Set the user's password
+        user.set_password(self.cleaned_data['password'])
+        
+        if commit:
+            # Save the user to the database
+            user.save()
+        
+        return user
