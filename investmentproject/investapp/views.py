@@ -14,7 +14,8 @@ from django.db import models
 from django.http import HttpResponseForbidden
 from django.contrib.messages import get_messages
 from decimal import Decimal
-
+from .forms import CustomUserCreationForm
+from django.core.paginator import Paginator
 
 
 
@@ -113,18 +114,19 @@ def admin_user_list(request):
             messages.error(request, "User not found.")
             return redirect('admin-user-list')
 
-        if action == 'activate':
-            user.is_approved = True  # Use is_active if not using custom field
-        elif action == 'deactivate':
-            user.is_approved = False
+        # Toggle the approval status
+        if action == 'toggle':
+            user.is_approved = not user.is_approved  # Toggle the status
         else:
             messages.error(request, "Invalid action.")
             return redirect('admin-user-list')
 
         user.save()
-        messages.success(request, f"User {user.username} status updated.")
+        status = "activated" if user.is_approved else "deactivated"
+        messages.success(request, f"User {user.username} has been {status}.")
 
     return render(request, 'manage_users.html', {'users': users})
+
 
 
 
@@ -167,30 +169,42 @@ def create_transaction(request):
 
 #  admin transaction list
 # Check if the user is an admin (superuser)
+
 def admin_required(user):
     return user.is_authenticated and user.is_staff
 
 @user_passes_test(admin_required, login_url='login')
 def transaction_list(request):
+    # Get the search query (if any)
+    search_query = request.GET.get('search', '')
+
     # Get all transactions (to display in the table)
     all_transactions = Transaction.objects.all()
+
+    # If there is a search query, filter transactions by the username
+    if search_query:
+        all_transactions = all_transactions.filter(user__username__icontains=search_query)
 
     # Filter only approved transactions (to calculate totals)
     approved_transactions = all_transactions.filter(status='approved')
 
-    # Calculate debit and credit totals for approved transactions
-    debit_total = approved_transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
+    # Calculate debit and credit totals...
     credit_total = approved_transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
+    total_withdrawal = approved_transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
+    total_amount = credit_total - total_withdrawal
 
-    # Assuming all credited amounts are the initial investment
-    initial_investment = credit_total
-    total_amount = initial_investment - debit_total  # Total returns = Credits - Debits
+    # Set up pagination
+    paginator = Paginator(all_transactions, 10)  # Show 10 transactions per page
+    page_number = request.GET.get('page')  # Get the page number from the request
+    page_obj = paginator.get_page(page_number)  # Get the page object
 
+    # Pass pagination info and search query to the template
     return render(request, 'transaction_list.html', {
-        'transactions': all_transactions,  # Send all transactions to the template
-        'credit_total': credit_total,      # Totals from approved transactions
+        'transactions': page_obj,
+        'credit_total': credit_total,
+        'total_withdrawal': total_withdrawal,
         'total_amount': total_amount,
-        'total_withdrawal': debit_total,
+        'search_query': search_query,
     })
 
 
@@ -213,9 +227,10 @@ def reject_transaction(request, transaction_id):
         transaction.status = 'rejected'
         transaction.save()
         return redirect('transaction_list')
-    
-# admin user dahsboard
 
+
+
+# admin user dahsboard
 def decimal_to_float(value):
     if isinstance(value, Decimal):
         return float(value)
@@ -224,14 +239,20 @@ def decimal_to_float(value):
 @login_required
 @user_passes_test(lambda user: user.is_staff)
 def admin_user_home(request, user_id=None):
-    users = CustomUser.objects.filter(is_staff=False, is_superuser=False)
+    # Filter users who have at least one approved transaction
+    users_with_transactions = CustomUser.objects.filter(
+        is_staff=False, 
+        is_superuser=False,
+        transactions__status='approved'  # Filter for approved transactions
+    ).distinct()  # Ensure no duplicates due to joins
 
     user_data = []
-    for user in users:
-        transactions = Transaction.objects.filter(user=user)
+    for user in users_with_transactions:
+        # Filter only approved transactions for the user
+        transactions = Transaction.objects.filter(user=user, status='approved')
         debit_total = transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
         credit_total = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
-        total_returns = credit_total - debit_total
+        total_returns = max(credit_total - debit_total, 0)  # Ensure total_returns is not negative
         user_data.append({
             'username': user.username,
             'user_id': user.id,
@@ -246,7 +267,7 @@ def admin_user_home(request, user_id=None):
     selected_user = None
     if user_id:
         selected_user = get_object_or_404(CustomUser, id=user_id)
-        ledger_data = Transaction.objects.filter(user=selected_user).order_by('-date')
+        ledger_data = Transaction.objects.filter(user=selected_user, status='approved').order_by('-date')
 
     return render(request, 'admin-user-dashboard.html', {
         'user_data': user_data,
@@ -282,33 +303,30 @@ def dashboard_view(request):
     # Filter all transactions for the logged-in user and transactions created by the admin
     user_transactions = Transaction.objects.filter(user=request.user) | Transaction.objects.filter(user__id=request.user.id)
 
+    # Pagination
+    paginator = Paginator(user_transactions, 6)  # Show 10 transactions per page
+    page_number = request.GET.get('page')  # Get the current page number from query parameters
+    page_obj = paginator.get_page(page_number)  # Get the transactions for the current page
+
     # Calculate totals for approved transactions only
     approved_transactions = user_transactions.filter(status='approved')
     total_credit = approved_transactions.filter(amount_type='credit').aggregate(total=models.Sum('amount'))['total'] or 0
     total_debit = approved_transactions.filter(amount_type='debit').aggregate(total=models.Sum('amount'))['total'] or 0
-
-    # If you want to calculate a specific metric like 'Investment', filter based on `particulars`
     total_returns = approved_transactions.filter(particulars__icontains='total_returns').aggregate(total=models.Sum('amount'))['total'] or 0
 
     context = {
-        'transactions': user_transactions,  # All transactions for the user (including admin-created)
-        'total_credit': total_credit,       # Total credit from approved transactions
-        'total_debit': total_debit,         # Total debit from approved transactions
-        'total_returns': total_returns,     # Total returns from approved transactions
+        'transactions': page_obj,  # Paginated transactions
+        'total_credit': total_credit,  # Total credit from approved transactions
+        'total_debit': total_debit,    # Total debit from approved transactions
+        'total_returns': total_returns,  # Total returns from approved transactions
     }
     return render(request, 'dashboard.html', context)
 
 
-# .............................
-# views.py
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth import get_user_model
-from .forms import CustomUserCreationForm
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import user_passes_test
 
-# Ensure only admins can access this view
+# .............................
+# views for admin to creae user 
+
 @login_required
 @user_passes_test(lambda u: u.is_staff)
 def create_user(request):

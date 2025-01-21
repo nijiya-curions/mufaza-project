@@ -20,7 +20,11 @@
             --accent-gold: #d4af37;
             --text-primary: #2d3436;
             --text-light: rgba(255, 255, 255, 0.9);
+            --warning: #f39c12; /* Color for Pending */
+    --success: #27ae60; /* Color for Approved */
+    --danger: #e74c3c; /* Color for Rejected */
         }
+       
 
         body {
             background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
@@ -193,6 +197,77 @@
         .ledger-table tr:hover {
             background: rgba(255, 255, 255, 0.1);
         }
+
+        /*  */
+
+        /* Define the color variables for your status */
+
+/* Styling the status indicators */
+
+
+/* Status Styles */
+.status-pending {
+    background: linear-gradient(135deg, var(--warning), #8d7533);
+}
+
+.status-approved {
+    background: linear-gradient(135deg, var(--success), #1a4d31);
+}
+
+.status-debited {
+    background: linear-gradient(135deg, var(--danger), #4d1a1a);
+}
+/*  */
+
+.status-section {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+    display: inline-block;
+}
+
+/* pagination */
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination a {
+    margin: 0 5px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.pagination a:hover {
+    text-decoration: underline;
+}
+
+.pagination .current {
+    margin: 0 5px;
+    font-weight: bold;
+}
     </style>
 </head>
 
@@ -232,56 +307,75 @@
                         <i class="fas fa-download"></i> Export PDF
                     </button>
                 </div>
+
                 <div id="ledger-content">
-                    {% if transactions %}
-                    <table class="ledger-table">
-                        <thead>
-                            <tr>
-                                <th>Sl.No</th>
-                                <th>Date</th>
-                                <th>Particulars</th>
-                                <th>Narration</th>
-                                <th>Amount Type</th>
-                                <th>Amount</th>
-                                <th>Receipt</th>
-                                <th>Status</th> <!-- New column for status -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for transaction in transactions %}
-                            <tr>
-                                <td>{{ transaction.id }}</td>
-                                <td>{{ transaction.date }}</td>
-                                <td>{{ transaction.particulars }}</td>
-                                <td>{{ transaction.narration }}</td>
-                                <td>{{ transaction.amount_type }}</td>
-                                <td>{{ transaction.amount }}</td>
-                                <td>
-                                    {% if transaction.transaction_receipt %}
-                                    <img src="{{ transaction.transaction_receipt.url }}" alt="Receipt" style="max-width: 150px; max-height: 150px;">
-                                    {% else %}
-                                    No Receipt
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <!-- Displaying the status of the transaction -->
-                                    {% if transaction.status == 'approved' %}
-                                        <span style="color: green;">Approved</span>
-                                    {% elif transaction.status == 'rejected' %}
-                                        <span style="color: red;">Rejected</span>
-                                    {% else %}
-                                        <span style="color: gray;">Pending</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+    {% if transactions %}
+    <table class="ledger-table">
+        <thead>
+            <tr>
+                <th>Sl.No</th>
+                <th>Date</th>
+                <th>Particulars</th>
+                <th>Narration</th>
+                <th>Amount Type</th>
+                <th>Amount</th>
+                <th>Receipt</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{ transaction.id }}</td>
+                <td>{{ transaction.date }}</td>
+                <td>{{ transaction.particulars }}</td>
+                <td>{{ transaction.narration }}</td>
+                <td>{{ transaction.amount_type }}</td>
+                <td>{{ transaction.amount }}</td>
+                <td>
+                    {% if transaction.transaction_receipt %}
+                    <img src="{{ transaction.transaction_receipt.url }}" alt="Receipt" style="max-width: 150px; max-height: 150px;">
                     {% else %}
-                    <p>No transactions found for your account.</p>
+                    No Receipt
                     {% endif %}
-                </div>
-                
+                </td>
+                <td>
+                    {% if transaction.status == 'approved' %}
+                        <span class="status status-approved">Approved</span>
+                    {% elif transaction.status == 'rejected' %}
+                        <span class="status status-debited">Rejected</span>
+                    {% else %}
+                        <span class="status status-pending">Pending</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if transactions.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ transactions.previous_page_number }}">previous</a>
+            {% endif %}
+            
+            <span class="current">
+                Page {{ transactions.number }} of {{ transactions.paginator.num_pages }}.
+            </span>
+            
+            {% if transactions.has_next %}
+                <a href="?page={{ transactions.next_page_number }}">next</a>
+                <a href="?page={{ transactions.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+    {% else %}
+    <p>No transactions found for your account.</p>
+    {% endif %}
+</div>
+
             </div>
             
         <script>
