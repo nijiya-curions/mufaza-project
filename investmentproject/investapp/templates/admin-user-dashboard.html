@@ -17,6 +17,74 @@
             --text-primary: #2d3436;
             --blur-amount: 12px;
         }
+   
+    /* ......................... */
+ 
+.ledger-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-height: 90%;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.close-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 15px;
+    background-color: #d9534f;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.close-btn:hover {
+    background-color: #c9302c;
+}
+
+
+
+    /* ................. */
+   
+    /* Styling for table header */
+    h2 {
+        font-size: 24px;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
 
         .users-container {
             padding: 20px;
@@ -118,126 +186,53 @@
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
         }
 
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            animation: fadeIn 0.3s ease;
-        }
 
-        .modal-content {
-            position: relative;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            margin: 5% auto;
-            padding: 25px;
-            width: 80%;
-            max-width: 1000px;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
-            animation: slideIn 0.4s ease;
-        }
-
-        .close-modal {
-            position: absolute;
-            right: 25px;
-            top: 25px;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--primary-dark);
-            transition: all 0.3s ease;
-        }
-
-        .close-modal:hover {
-            color: var(--accent-gold);
-            transform: rotate(90deg);
-        }
-
-        /* Table Styles */
-        .ledger-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-top: 20px;
-        }
-
-        .ledger-table th,
-        .ledger-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .ledger-table th {
-            background: rgba(26, 61, 55, 0.1);
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
-
-        .ledger-table tr:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideIn {
-            from { transform: translateY(-100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
     </style>
 </head>
 <body>
+    <button style="height: 50px; width: 100px;">
+        <a href="{% url 'transaction_list' %}">Back</a>
+    </button>
     <div class="users-container">
         {% for user in user_data %}
         <div class="user-card">
-    <div class="user-header">
-        <h3>{{ user.username }}</h3>
-        <i class="fas fa-eye view-icon" onclick="showLedger({{ user.user_id }})"></i>
-    </div>
-    <div class="user-info">
-        <div class="info-group">
-            <div class="info-label">User ID</div>
-            <div class="info-value">#{{ user.user_id }}</div>
+            <div class="user-header">
+                <h3>{{ user.username }}</h3>
+                <!-- Link to reload the page with the selected user_id -->
+                <a href="{% url 'user_ledger' user.user_id %}" class="fas fa-eye view-icon"></a>
+            </div>
+            <div class="user-info">
+                <div class="info-group">
+                    <div class="info-label">User ID</div>
+                    <div class="info-value">#{{ user.user_id }}</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Total Invested</div>
+                    <div class="info-value">${{ user.debit_total }}</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Total Returns</div>
+                    <div class="info-value">${{ user.total_returns }}</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Status</div>
+                    <div class="info-value">{{ user.status }}</div>
+                </div>
+            </div>
         </div>
-        <div class="info-group">
-            <div class="info-label">Total Invested</div>
-            <div class="info-value">${{ user.debit_total }}</div>
-        </div>
-        <div class="info-group">
-            <div class="info-label">Total Returns</div>
-            <div class="info-value">${{ user.total_returns }}</div>
-        </div>
-        <div class="info-group">
-            <div class="info-label">Status</div>
-            <div class="info-value">{{ user.status }}</div>
-        </div>
-    </div>
-
-    <!-- User Ledger Data as JSON -->
-    <div id="user_ledger-{{ user.user_id }}"  data-ledger="{{ user.ledger_data|safe }}">
-    </div>
-</div>
-
-        
         {% endfor %}
     </div>
     
-    <!-- Modal -->
-    <div id="ledgerModal" class="modal">
+    <!-- Display ledger details if ledger_data is available -->
+    {% if ledger_data %}
+    <div class="ledger-modal">
         <div class="modal-content">
-            <i class="fas fa-times close-modal" onclick="closeModal()"></i>
-            <h2 id="modalTitle">User Ledger</h2>
-            <table class="ledger-table">
+            {% if selected_user %}
+            <h2>{{ selected_user.username }}'s Ledger</h2>
+            {% else %}
+            <h2>Ledger Details</h2>
+            {% endif %}
+            <table>
                 <thead>
                     <tr>
                         <th>Date</th>
@@ -248,63 +243,38 @@
                         <th>Balance</th>
                     </tr>
                 </thead>
-                <tbody id="ledgerBody">
-                    <!-- Ledger data will be inserted here -->
+                <tbody>
+                    {% for transaction in ledger_data %}
+                    <tr>
+                        <td>{{ transaction.date }}</td>
+                        <td>{{ transaction.particulars }}</td>
+                        <td>{{ transaction.narration }}</td>
+                        <td>
+                            {% if transaction.amount_type == 'debit' %}
+                            ${{ transaction.amount }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if transaction.amount_type == 'credit' %}
+                            ${{ transaction.amount }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td>${{ transaction.balance }}</td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
+            <!-- Link to close/hide ledger view -->
+            <a href="{% url 'admin_user_home' %}" class="close-btn">Close</a>
         </div>
     </div>
+    {% endif %}
     
-    <script>
-        function showLedger(userId) {
-    const ledgerDataElement = document.getElementById(`user_ledger-${userId}`);
-    if (!ledgerDataElement) {
-        console.error("Ledger data not found for user ID:", userId);
-        return;
-    }
-
-    // Parse the ledger data from the HTML data attribute
-    const ledgerData = JSON.parse(ledgerDataElement.getAttribute('data-ledger'));
     
-    console.log("Ledger data for user:", ledgerData); // Debugging line
-    
-    const modal = document.getElementById('ledgerModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const ledgerBody = document.getElementById('ledgerBody');
 
-    // Update modal title
-    modalTitle.textContent = `User #${userId}'s Ledger`;
-
-    // Clear and populate the ledger table
-    ledgerBody.innerHTML = '';
-    ledgerData.forEach(entry => {
-        ledgerBody.innerHTML += `
-            <tr>
-                <td>${entry.date}</td>
-                <td>${entry.particulars}</td>
-                <td>${entry.narration}</td>
-                <td>${entry.debit}</td>
-                <td>${entry.credit}</td>
-                <td>${entry.balance}</td>
-            </tr>
-        `;
-    });
-
-    // Show the modal
-    modal.style.display = 'block';
-}
-
-    
-        function closeModal() {
-            document.getElementById('ledgerModal').style.display = 'none';
-        }
-    
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('ledgerModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-    </script>
-</body></html>    
+</body>
+</html>    

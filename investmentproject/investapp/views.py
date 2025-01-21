@@ -12,6 +12,11 @@ from django.db.models import Sum
 from django.views.generic import ListView
 from django.db import models
 from django.http import HttpResponseForbidden
+from django.contrib.messages import get_messages
+from decimal import Decimal
+from .models import CustomUser, Transaction
+
+
 
 
 # home page
@@ -113,8 +118,8 @@ def admin_user_list(request):
 
 
 # admin trasacton creation
-# Custom function to check if the user is an admin
-from django.contrib.messages import get_messages
+# Get the custom user model
+CustomUser = get_user_model()
 
 @login_required
 @user_passes_test(lambda u: u.is_staff)  # Only admin can access
@@ -122,8 +127,20 @@ def create_transaction(request):
     if request.method == 'POST':
         form = TransactionForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()  # Save directly since user is chosen by admin
-            messages.success(request, "Transaction created successfully.")
+            transaction = form.save(commit=False)  # Do not save yet
+            transaction.status = 'approved'  # Automatically approve the transaction
+            
+            # Set the user for the transaction (if the admin is creating for a specific user)
+            user_id = request.POST.get('user')  # Assuming you pass the user_id as 'user' in the form
+            try:
+                user = CustomUser.objects.get(id=user_id)  # Fetch the user from CustomUser model
+                transaction.user = user  # Set the user for the transaction
+            except CustomUser.DoesNotExist:
+                messages.error(request, "Selected user does not exist.")
+                return redirect('create_transaction')
+
+            transaction.save()  # Save the transaction
+            messages.success(request, "Transaction created and approved successfully.")
             return redirect('transaction_list')
     else:
         form = TransactionForm()
@@ -136,6 +153,7 @@ def create_transaction(request):
     return render(request, 'create_transaction.html', {'form': form})
 
 
+
 #  admin transaction list
 # Check if the user is an admin (superuser)
 def admin_required(user):
@@ -143,25 +161,27 @@ def admin_required(user):
 
 @user_passes_test(admin_required, login_url='login')
 def transaction_list(request):
-    transactions = Transaction.objects.all()
+    # Get all transactions (to display in the table)
+    all_transactions = Transaction.objects.all()
 
-    # Calculate debit and credit totals
-    debit_total = transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
-    credit_total = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
+    # Filter only approved transactions (to calculate totals)
+    approved_transactions = all_transactions.filter(status='approved')
+
+    # Calculate debit and credit totals for approved transactions
+    debit_total = approved_transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
+    credit_total = approved_transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
 
     # Assuming all credited amounts are the initial investment
     initial_investment = credit_total
-    total_amount = initial_investment + credit_total
-    total_withdrawal = debit_total
-    
+    total_amount = initial_investment - debit_total  # Total returns = Credits - Debits
 
     return render(request, 'transaction_list.html', {
-        'transactions': transactions,
-        'credit_total': credit_total,
+        'transactions': all_transactions,  # Send all transactions to the template
+        'credit_total': credit_total,      # Totals from approved transactions
         'total_amount': total_amount,
-        'total_withdrawal': total_withdrawal,
-
+        'total_withdrawal': debit_total,
     })
+
 
 
 # admin approval and rejection
@@ -183,17 +203,8 @@ def reject_transaction(request, transaction_id):
         transaction.save()
         return redirect('transaction_list')
     
+# admin user dahsboard
 
-
-from django.core.serializers import serialize
-import json
-from decimal import Decimal
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import Sum
-from .models import CustomUser, Transaction
-
-# Helper function to convert Decimal to float
 def decimal_to_float(value):
     if isinstance(value, Decimal):
         return float(value)
@@ -201,51 +212,36 @@ def decimal_to_float(value):
 
 @login_required
 @user_passes_test(lambda user: user.is_staff)
-def admin_user_home(request):
-    # Fetch users that are not admin
+def admin_user_home(request, user_id=None):
     users = CustomUser.objects.filter(is_staff=False, is_superuser=False)
 
     user_data = []
-
     for user in users:
         transactions = Transaction.objects.filter(user=user)
         debit_total = transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
         credit_total = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
         total_returns = credit_total - debit_total
-
-        # Prepare ledger data for each user
-        ledger_data = [
-            {
-                'date': t.date.strftime('%Y-%m-%d'),  # Convert date to string
-                'particulars': t.particulars,
-                'narration': t.narration,
-                'debit': decimal_to_float(t.amount) if t.amount_type == 'debit' else '-',
-                'credit': decimal_to_float(t.amount) if t.amount_type == 'credit' else '-',
-                'balance': decimal_to_float(t.balance)  # Convert balance to float
-            }
-            for t in transactions
-        ]
-
-        # Ensure ledger data is serializable
-        try:
-            serialized_ledger_data = json.dumps(ledger_data)  # Convert ledger data to JSON string
-        except TypeError as e:
-            print(f"Error serializing ledger data for user {user.id}: {e}")
-            serialized_ledger_data = '[]'  # Fallback to empty list if there's an error
-
         user_data.append({
             'username': user.username,
             'user_id': user.id,
             'debit_total': decimal_to_float(debit_total),
             'credit_total': decimal_to_float(credit_total),
             'total_returns': decimal_to_float(total_returns),
-            'ledger_data': serialized_ledger_data,
             'status': 'Active' if total_returns > 0 else 'Inactive',
         })
 
-    return render(request, 'admin-user-dashboard.html', {'user_data': user_data})
+    # If user_id is provided, retrieve selected user and their ledger
+    ledger_data = None
+    selected_user = None
+    if user_id:
+        selected_user = get_object_or_404(CustomUser, id=user_id)
+        ledger_data = Transaction.objects.filter(user=selected_user).order_by('-date')
 
-
+    return render(request, 'admin-user-dashboard.html', {
+        'user_data': user_data,
+        'ledger_data': ledger_data,
+        'selected_user': selected_user,
+    })
 
 
 
@@ -267,27 +263,28 @@ def manage_investment(request):
     
     return render(request, 'manage_investment.html', {'form': form})
 
-# user transaction list
-def dashboard_view(request):
-    # Filter transactions for the logged-in user
-    user_transactions = Transaction.objects.filter(user=request.user)
 
-    # Calculate totals based on amount_type
-    total_credit = user_transactions.filter(amount_type='credit').aggregate(total=models.Sum('amount'))['total'] or 0
-    total_debit = user_transactions.filter(amount_type='debit').aggregate(total=models.Sum('amount'))['total'] or 0
+# user transaction list
+
+@login_required
+def dashboard_view(request):
+    # Filter all transactions for the logged-in user and transactions created by the admin
+    user_transactions = Transaction.objects.filter(user=request.user) | Transaction.objects.filter(user__id=request.user.id)
+
+    # Calculate totals for approved transactions only
+    approved_transactions = user_transactions.filter(status='approved')
+    total_credit = approved_transactions.filter(amount_type='credit').aggregate(total=models.Sum('amount'))['total'] or 0
+    total_debit = approved_transactions.filter(amount_type='debit').aggregate(total=models.Sum('amount'))['total'] or 0
 
     # If you want to calculate a specific metric like 'Investment', filter based on `particulars`
-    total_returns = user_transactions.filter(particulars__icontains='total_returns').aggregate(total=models.Sum('amount'))['total'] or 0
+    total_returns = approved_transactions.filter(particulars__icontains='total_returns').aggregate(total=models.Sum('amount'))['total'] or 0
 
     context = {
-        'transactions': user_transactions,
-        'total_credit': total_credit,
-        'total_debit': total_debit,
-        'total_returns': total_returns,
+        'transactions': user_transactions,  # All transactions for the user (including admin-created)
+        'total_credit': total_credit,       # Total credit from approved transactions
+        'total_debit': total_debit,         # Total debit from approved transactions
+        'total_returns': total_returns,     # Total returns from approved transactions
     }
     return render(request, 'dashboard.html', context)
-
-
-
 
 

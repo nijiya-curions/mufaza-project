@@ -16,8 +16,9 @@ urlpatterns = [
     path('transactions/', views.transaction_list, name='transaction_list'),
     path('manage_investment/', views.manage_investment, name='manage_investment'),
      path('admin_home/', views.admin_user_home, name='admin_user_home'),
-  path('approve_transaction/<int:transaction_id>/', views.approve_transaction, name='approve_transaction'),
+   path('approve_transaction/<int:transaction_id>/', views.approve_transaction, name='approve_transaction'),
     path('reject_transaction/<int:transaction_id>/', views.reject_transaction, name='reject_transaction'),
+    path('user_ledger/<int:user_id>/', views.admin_user_home, name='user_ledger'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

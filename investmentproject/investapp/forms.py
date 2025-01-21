@@ -29,21 +29,20 @@ class SignupForm(forms.ModelForm):
     
 
 
-        
-
-
 # Transaction form
 from django.contrib.auth import get_user_model
 
 User = get_user_model()  # Use the custom user model if available
 
 class TransactionForm(forms.ModelForm):
-    user = forms.ModelChoiceField(queryset=User.objects.all(), label="Select User")  # Select field for users
+    user = forms.ModelChoiceField(
+        queryset=User.objects.filter(is_staff=False),  # Exclude admins
+        label="Select User"
+    ) # Select field for users
 
     class Meta:
         model = Transaction
         fields = ['user', 'particulars', 'narration', 'amount_type', 'amount']
-
 
 
 # investapp/forms.py
