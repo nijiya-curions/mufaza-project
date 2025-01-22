@@ -268,6 +268,173 @@
     margin: 0 5px;
     font-weight: bold;
 }
+.createbtn a{
+text-decoration: none;
+color: #e3e6e8;
+}
+/* responsive */
+@media (max-width: 768px) {
+    /* Adjust the dashboard container padding */
+    .dashboard-container {
+        padding: 10px;
+    }
+
+    /* Adjust the cards grid */
+    .cards-grid {
+        grid-template-columns: 1fr; /* Make cards stack vertically */
+        gap: 15px;
+    }
+
+    /* Adjust welcome section */
+    .welcome-section {
+        padding: 20px;
+    }
+
+    .welcome-title {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    /* Adjust the button and links */
+    .btn,
+    .btn-gold {
+        font-size: 12px;
+        padding: 10px 20px;
+    }
+
+    /* Ledger table adjustments */
+    .ledger-table th,
+    .ledger-table td {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    /* Pagination */
+    .pagination {
+        font-size: 12px;
+    }
+
+    /* Adjust transaction images */
+    .ledger-table td img {
+        max-width: 100px;
+        max-height: 100px;
+    }
+
+    /* Reduce status badge size */
+    .status {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}
+
+
+@media (max-width: 749px) {
+    /* Ensure the dashboard container spans the full width */
+    .dashboard-container {
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Adjust the cards grid for stacking */
+    .cards-grid {
+        display: grid;
+        grid-template-columns: 1fr; /* Stack cards vertically */
+        gap: 15px;
+        width: 100%; /* Ensure the grid takes full width */
+        margin: 0; /* Remove unwanted margins */
+    }
+
+    /* Adjust individual cards */
+    .card {
+        width: 100%; /* Force cards to take full width */
+        box-sizing: border-box; /* Include padding in width */
+        padding: 15px;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        margin-bottom: 10px; /* Add space below title */
+    }
+
+    .card-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    /* Welcome section */
+    .welcome-section {
+        padding: 50px;
+        text-align: center;
+        
+    }
+
+    .welcome-title {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    /* Buttons and links */
+    .btn,
+    .btn-gold {
+        font-size: 12px;
+        /* padding: 10px 20px; */
+        /* Ensure buttons take full width if needed */
+        text-align: center;
+        margin-top: 50px;
+        
+    }
+
+    /* Ledger section adjustments */
+    .ledger-section {
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Ledger table adjustments */
+    .ledger-table {
+        width: 100%;
+        border-collapse: collapse;
+        display: block;
+        overflow-x: auto; /* Allow horizontal scrolling if necessary */
+    }
+
+    .ledger-table th,
+    .ledger-table td {
+        font-size: 12px;
+        padding: 8px;
+        text-align: left; /* Left-align for better readability */
+    }
+
+    /* Adjust transaction images */
+    .ledger-table td img {
+        max-width: 100px;
+        max-height: 100px;
+        display: block;
+        margin: 0 auto;
+    }
+
+    /* Pagination adjustments */
+    .pagination {
+        font-size: 12px;
+        text-align: center;
+    }
+
+    /* Reduce status badge size */
+    .status {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    /* Ensure no horizontal overflow */
+    body {
+        overflow-x: hidden; /* Prevent content from exceeding viewport width */
+    }
+}
+
     </style>
 </head>
 
@@ -281,16 +448,16 @@
                     </a>
                  
                 </h1>
-                <a href="{% url 'manage_investment' %}">Create Transaction</a>
+               <button class="btn btn-gold createbtn"><a href="{% url 'manage_investment' %}">New Transaction</a></button> 
             </div>
     
             <div class="cards-grid">
                 <div class="card">
-                    <div class="card-title">Total Credit</div>
+                    <div class="card-title">Total Investments</div>
                     <div class="card-value">${{ total_credit }}</div>
                 </div>
                 <div class="card">
-                    <div class="card-title">Total Debit</div>
+                    <div class="card-title">Total Withdrawals</div>
                     <div class="card-value">${{ total_debit }}</div>
                 </div>
                 <div class="card">
@@ -323,10 +490,11 @@
                 <th>Status</th>
             </tr>
         </thead>
+
         <tbody>
             {% for transaction in transactions %}
             <tr>
-                <td>{{ transaction.id }}</td>
+                <td>{{ forloop.counter|add:start_index }}</td>  <!-- This will continue numbering across pages -->
                 <td>{{ transaction.date }}</td>
                 <td>{{ transaction.particulars }}</td>
                 <td>{{ transaction.narration }}</td>
@@ -351,6 +519,10 @@
             </tr>
             {% endfor %}
         </tbody>
+        
+
+        
+        
     </table>
 
     <!-- Pagination Controls -->

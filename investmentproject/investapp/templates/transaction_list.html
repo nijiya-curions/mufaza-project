@@ -75,7 +75,7 @@
     margin-right: 10px;
     font-size: 1.2em;
 }
-
+.sidebar-menu a:hover,
 .sidebar-menu a.active {
     background: var(--accent-gold); /* Highlight color */
     color: white; /* Ensure text is visible */
@@ -248,28 +248,31 @@
             background: rgba(255, 255, 255, 0.35);
         }
         .icon {
-    font-size: 22px;
-    width: 50px;
-    height: 50px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 15px;
-    color: var(--primary-dark);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    margin-left: auto;  /* This will push the icon to the right */
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--primary-dark);
 }
 
 .icon:hover {
-    transform: translateY(-3px);
-    color: var(--accent-gold);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    transform: rotate(90deg);
+            background: rgba(255, 255, 255, 0.35);
+            color: var(--accent-gold);
 }
+
+
 /* status button */
 .status-section {
     display: flex;
@@ -467,7 +470,7 @@
         </tr>
         {% for transaction in transactions %}
         <tr>
-            <td>{{ forloop.counter }}</td>
+            <td>{{ forloop.counter|add:start_index }}</td>
             <td>{{ transaction.date }}</td>
             <td>{{ transaction.user.username }}</td>
             <td>{{ transaction.particulars }}</td>
@@ -491,10 +494,10 @@
                     <form method="post" action="{% url 'approve_transaction' transaction.id %}">
                         {% csrf_token %}
                         <button type="submit" class="status status-approved">Approve</button>
-                    </form>
+                    </form><br>
                     <form method="post" action="{% url 'reject_transaction' transaction.id %}">
                         {% csrf_token %}
-                        <button type="submit" class="status status-debited">Reject</button>
+                        <button type="submit" class="status status-debited">Reject&nbsp;&nbsp;&nbsp;</button>
                     </form>
                 {% endif %}
             </td>

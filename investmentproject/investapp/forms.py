@@ -3,6 +3,7 @@ from django import forms
 from .models import CustomUser,Transaction
 from django.contrib.auth.hashers import make_password
 
+
 class SignupForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'input-field'}), label='Password')
     confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'input-field'}), label='Confirm Password')
@@ -11,14 +12,20 @@ class SignupForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'password', 'phone_number', 'address']
+        fields = ['username', 'first_name', 'last_name', 'email', 'password', 'phone_number', 'address']
 
     def clean(self):
         cleaned_data = super().clean()
         password = cleaned_data.get('password')
         confirm_password = cleaned_data.get('confirm_password')
+
         if password != confirm_password:
             raise forms.ValidationError("Passwords do not match.")
+
+        # Check if the phone number already exists
+        phone_number = cleaned_data.get('phone_number')
+        if CustomUser.objects.filter(phone_number=phone_number).exists():
+            raise forms.ValidationError("This phone number is already registered.")
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -26,7 +33,7 @@ class SignupForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-    
+
 
 
 # Transaction form

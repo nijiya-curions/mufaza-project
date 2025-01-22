@@ -225,6 +225,19 @@
                         </div>
                     {% endif %}
                 </div>
+
+                <!-- email -->
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}" class="input-label">{{ form.email.label }}</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="error-message">
+                            {% for error in form.email.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
         
                 <!-- Password -->
                 <div class="form-group">

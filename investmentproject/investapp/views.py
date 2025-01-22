@@ -95,13 +95,26 @@ def logout_view(request):
 # Admin view to list all users
 
 # Check if user is superuser
+
 def superuser_required(user):
     return user.is_authenticated and user.is_superuser
 
 @user_passes_test(superuser_required)
 def admin_user_list(request):
     User = get_user_model()
-    users = User.objects.exclude(username='developer')  # Exclude the developer user by username
+    
+    # Get the search query from the GET request
+    search_query = request.GET.get('search', '')  # Default to empty string if no search query
+
+    # Filter users based on the search query (first name or last name contains the search term)
+    if search_query:
+        users = User.objects.exclude(username='developer').filter(
+            first_name__icontains=search_query
+        ) | User.objects.exclude(username='developer').filter(
+            last_name__icontains=search_query
+        )
+    else:
+        users = User.objects.exclude(username='developer')  # If no search query, show all users
 
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
@@ -124,8 +137,7 @@ def admin_user_list(request):
         status = "activated" if user.is_approved else "deactivated"
         messages.success(request, f"User {user.username} has been {status}.")
 
-    return render(request, 'manage_users.html', {'users': users})
-
+    return render(request, 'manage_users.html', {'users': users, 'search_query': search_query})
 
 
 
@@ -193,6 +205,7 @@ def transaction_list(request):
     page_number = request.GET.get('page')  # Get the page number from the request
     page_obj = paginator.get_page(page_number)  # Get the page object
 
+
     # Pass pagination info and search query to the template
     return render(request, 'transaction_list.html', {
         'transactions': page_obj,
@@ -200,6 +213,8 @@ def transaction_list(request):
         'total_withdrawal': total_withdrawal,
         'total_amount': total_amount,
         'search_query': search_query,
+        'start_index': (page_obj.number - 1) * page_obj.paginator.per_page  # Add this to calculate serial number
+
     })
 
 
@@ -249,7 +264,7 @@ def admin_user_home(request, user_id=None):
         credit_total = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
         total_returns = max(credit_total - debit_total, 0)  # Ensure total_returns is not negative
         user_data.append({
-            'username': user.username,
+            'username': user.username,                    
             'user_id': user.id,
             'debit_total': decimal_to_float(debit_total),
             'credit_total': decimal_to_float(credit_total),
@@ -315,6 +330,8 @@ def dashboard_view(request):
         'total_credit': total_credit,  # Total credit from approved transactions
         'total_debit': total_debit,    # Total debit from approved transactions
         'total_returns': total_returns,  # Total returns from approved transactions
+        'start_index': (page_obj.number - 1) * page_obj.paginator.per_page  # Add this to calculate serial number
+
     }
     return render(request, 'dashboard.html', context)
 

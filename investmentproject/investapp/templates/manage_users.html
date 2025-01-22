@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         /* Root Variables from Theme */
         :root {
@@ -71,7 +73,7 @@
             margin-right: 10px;
             font-size: 1.2em;
         }
-
+        .sidebar-menu a:hover,
         .sidebar-menu a.active {
     background: var(--accent-gold); /* Highlight color */
     color: white; /* Ensure text is visible */
@@ -83,6 +85,7 @@
         .main-content {
             flex: 1;
             padding: 20px;
+            margin-left: 25px;
         }
 
         /* Heading directly on top of the table */
@@ -157,6 +160,118 @@
     display: inline-block;
 }
 
+.search-bar {
+    padding: 8px;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+   button {
+            padding: 6px 12px;
+            border: none;
+            background: var(--accent-gold);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+/* responsive */
+/* For devices with width less than or equal to 1024px (Tablets and small laptops) */
+@media (max-width: 1024px) {
+    body {
+        display: block; 
+    }
+
+    .sidebar {
+        width: 200px; /* Reduce sidebar width */
+        position: relative; /* Ensure sidebar stays in flow */
+        height: auto; /* Allow height to adjust dynamically */
+        margin-bottom: 20px; /* Add space below sidebar */
+    }
+
+    .sidebar-menu a {
+        padding: 10px 15px; /* Adjust padding for smaller screens */
+    }
+
+    .ledger-table th, .ledger-table td {
+        padding: 12px 8px; /* Reduce padding for table cells */
+        font-size: 14px; /* Smaller font size for readability */
+    }
+}
+
+/* For devices with width less than or equal to 768px (Large mobile devices) */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80%; /* Further reduce sidebar width */
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .main-content {
+        margin-left: 0; /* Full-width content for mobile devices */
+        padding: 10px;
+    }
+
+    .sidebar-menu a {
+        font-size: 14px; /* Smaller text */
+    }
+
+    h2.manage-users-header {
+        font-size: 1.5em; /* Reduce header size */
+        margin-top: 20px;
+    }
+
+    .ledger-table th, .ledger-table td {
+        font-size: 12px; /* Reduce font size for table cells */
+    }
+
+    .search-bar {
+        width: 80%; /* Reduce the search bar width */
+    }
+
+    button {
+        font-size: 12px; /* Adjust button font size */
+    }
+}
+
+/* For devices with width less than or equal to 480px (Small mobile devices) */
+@media (max-width: 480px) {
+    .sidebar {
+        width: 100%; /* Hide sidebar for very small screens */
+    }
+
+    .main-content {
+        margin-left: 0; /* Expand the main content to full width */
+        padding: 10px;
+    }
+
+    h2.manage-users-header {
+        font-size: 1.2em; /* Adjust header size */
+        margin-bottom: 15px;
+    }
+
+    .ledger-table {
+        font-size: 12px; /* General reduction in table font size */
+    }
+
+    .ledger-table th, .ledger-table td {
+        padding: 10px 5px; /* Minimize cell padding */
+    }
+
+    
+
+    .search-bar {
+        width: 100%; /* Full width for search bar */
+        margin-bottom: 10px;
+    }
+
+    button {
+        width: 100%; /* Full width buttons */
+        font-size: 12px;
+    }
+}
 
     </style>
     <script>
@@ -224,6 +339,14 @@
 
     <!-- Main Content Area (Table and Heading) -->
     <div class="main-content">
+        
+        <form method="get" action="{% url 'admin-user-list' %}">
+            <input type="text" name="search" value="{{ search_query }}" placeholder="Search by first or last name" class="search-bar">
+            <button type="submit" class="btn btn-gold">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </form>
+
         <!-- Manage Users Section - Heading above the table -->
         <h2 class="manage-users-header">Manage Users</h2>
 
@@ -231,6 +354,7 @@
         <table class="ledger-table">
             <thead>
                 <tr>
+                    <th>Sl.No</th>
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>Username</th>
@@ -244,6 +368,7 @@
             <tbody>
             {% for user in users %}
             <tr>
+                <td>{{ user.id }}</td>
                 <td>{{ user.first_name }}</td>
                 <td>{{ user.last_name }}</td>
                 <td>{{ user.username }}</td>

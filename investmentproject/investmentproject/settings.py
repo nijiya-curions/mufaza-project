@@ -132,3 +132,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# settings.py
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default: database-backed sessions
+
+SESSION_COOKIE_AGE = 1209600  # Two weeks

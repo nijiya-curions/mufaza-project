@@ -60,7 +60,7 @@ table th {
     font-weight: bold;
 }
 
-.close-btn {
+/* .close-btn {
     display: inline-block;
     margin-top: 10px;
     padding: 8px 15px;
@@ -72,7 +72,7 @@ table th {
 
 .close-btn:hover {
     background-color: #c9302c;
-}
+} */
 
 
 
@@ -208,10 +208,7 @@ table th {
   touch-action: manipulation;
   
 }
-.button-87 a{
-    text-decoration: none;
-    color: #ccc;
-}
+
 .button-87:hover {
   background-position: right center;
   /* change the direction of the change here */
@@ -222,14 +219,29 @@ table th {
 .button-87:active {
   transform: scale(0.95);
 }
+/* close modal */
+        
+.close-modal {
+            position: absolute;
+            right: 25px;
+            top: 25px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--accent-gold);
+            transition: all 0.3s ease;
+        }
 
+        .close-modal:hover {
+            color: var(--accent-gold);
+            transform: rotate(90deg);
+        }
     </style>
 </head>
 <body>
 
-    <button class="button-87" role="button">
-        <a href="{% url 'transaction_list' %}">Back</a>
-    </button>
+    <a href="{% url 'transaction_list' %}" style=" text-decoration: none;"> <button class="button-87" role="button">
+       Back
+    </button></a>
     
     <div class="users-container">
         {% for user in user_data %}
@@ -264,15 +276,22 @@ table th {
     <!-- Display ledger details if ledger_data is available -->
     {% if ledger_data %}
     <div class="ledger-modal">
+        
         <div class="modal-content">
+              <!-- Link to close/hide ledger view -->
+              <a href="{% url 'admin_user_home' %}" ><i class="fas fa-times close-modal" >
+            </i></a>
             {% if selected_user %}
             <h2>{{ selected_user.username }}'s Ledger</h2>
             {% else %}
             <h2>Ledger Details</h2>
             {% endif %}
             <table>
+               
+
                 <thead>
                     <tr>
+                        <th>Sl.No</th>
                         <th>Date</th>
                         <th>Particulars</th>
                         <th>Narration</th>
@@ -284,6 +303,7 @@ table th {
                 <tbody>
                     {% for transaction in ledger_data %}
                     <tr>
+                        <td>{{ forloop.counter}}</td>
                         <td>{{ transaction.date }}</td>
                         <td>{{ transaction.particulars }}</td>
                         <td>{{ transaction.narration }}</td>
@@ -305,9 +325,10 @@ table th {
                     </tr>
                     {% endfor %}
                 </tbody>
+                
             </table>
-            <!-- Link to close/hide ledger view -->
-            <a href="{% url 'admin_user_home' %}" class="close-btn">Close</a>
+           
+
         </div>
     </div>
     {% endif %}
