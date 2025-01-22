@@ -54,25 +54,69 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            width: 25%;
+            margin: auto;
         }
 
         .form-container button:hover {
             background-color: #b39429;  
                       color: white;
         }
+
+               
+.button-87 {
+  margin-top: 25px;
+  margin-left: 12px;
+  width: 10%;
+  padding: 15px 30px;
+  text-align: center;
+  text-transform: uppercase;
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: white;
+  border-radius: 10px;
+  display: block;
+  border: 0px;
+  font-weight: 700;
+  box-shadow: 0px 0px 14px -7px #d4af37;
+  background-image: linear-gradient(45deg, #d4af37 0%, #F09819  51%, #d4af37  100%);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  
+}
+
+.button-87 a{
+    text-decoration: none;
+    color: #ccc;
+}
+.button-87:hover {
+  background-position: right center;
+  /* change the direction of the change here */
+  color: #fff;
+  text-decoration: none;
+}
+
+.button-87:active {
+  transform: scale(0.95);
+}
+
     </style>
+    
 </head>
 <body>
+
+    <button class="button-87" role="button">
+        <a href="{% url 'transaction_list' %}">Back</a>
+    </button>
     <h2>Create New User</h2>
-   
     <div class="form-container">
         <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit">Create User</button><br><br><br>
-         
-                <a href="{% url 'transaction_list' %}">Back</a>
-           
+    
         </form>
     </div>
 </body>

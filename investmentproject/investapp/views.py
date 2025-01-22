@@ -25,16 +25,18 @@ def home(request):
 
 
 # signup form
+
 def signup_view(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)  # Don't save yet, so we can set `is_approved` to False
-            user.is_approved = False  # By default, set new users as not approved
-            user.save()  # Save user to the database
+            user = form.save(commit=False)
+            user.is_approved = False  # New users will not be approved automatically
+            user.save()
 
+            # Add a success message
             messages.success(request, "Your account has been created. Please wait for approval.")
-            return redirect('login')  # Redirect to login after successful signup
+            return render(request, 'signup.html', {'form': form})  # Re-render signup page with the success message
     else:
         form = SignupForm()
 
@@ -83,14 +85,11 @@ def login_view(request):
     return render(request, 'login.html')
 
 
-
-
 # logout
 
 def logout_view(request):
     logout(request)
     return redirect('login')
-
 
 
 # Admin view to list all users
@@ -133,7 +132,6 @@ def admin_user_list(request):
 # admin trasacton creation
 # Get the custom user model
 CustomUser = get_user_model()
-
 @login_required
 @user_passes_test(lambda u: u.is_staff)  # Only admin can access
 def create_transaction(request):
@@ -150,21 +148,18 @@ def create_transaction(request):
                 transaction.user = user  # Set the user for the transaction
             except CustomUser.DoesNotExist:
                 messages.error(request, "Selected user does not exist.")
-                return redirect('create_transaction')
+                return render(request, 'create_transaction.html', {'form': form})
 
             transaction.save()  # Save the transaction
             messages.success(request, "Transaction created and approved successfully.")
-            return redirect('transaction_list')
+            
+            # Do not redirect here, just render the page with the message
+            return render(request, 'create_transaction.html', {'form': TransactionForm()})
+
     else:
         form = TransactionForm()
 
-    # Clear existing messages
-    storage = get_messages(request)
-    for _ in storage:
-        pass  # Accessing storage clears the messages
-
     return render(request, 'create_transaction.html', {'form': form})
-
 
 
 #  admin transaction list
@@ -312,7 +307,8 @@ def dashboard_view(request):
     approved_transactions = user_transactions.filter(status='approved')
     total_credit = approved_transactions.filter(amount_type='credit').aggregate(total=models.Sum('amount'))['total'] or 0
     total_debit = approved_transactions.filter(amount_type='debit').aggregate(total=models.Sum('amount'))['total'] or 0
-    total_returns = approved_transactions.filter(particulars__icontains='total_returns').aggregate(total=models.Sum('amount'))['total'] or 0
+    # Calculate returns based on the difference between credit and debit
+    total_returns = total_credit - total_debit
 
     context = {
         'transactions': page_obj,  # Paginated transactions

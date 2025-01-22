@@ -35,51 +35,54 @@
         }
 
         /* Sidebar Styles */
-        .sidebar {
-            width: 250px;
-            background: rgba(26, 61, 55, 0.95);
-            backdrop-filter: blur(var(--blur-amount));
-            padding: 20px;
-            color: var(--text-light);
-            display: flex;
-            flex-direction: column;
-            height: 100vh; /* Ensure the sidebar takes full height */
-            overflow-y: auto; /* Make the sidebar scrollable */
-        }
+    /* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background: rgba(26, 61, 55, 0.95);
+    backdrop-filter: blur(var(--blur-amount));
+    padding: 20px;
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Ensure the sidebar takes full height */
+    overflow-y: auto; /* Make the sidebar scrollable */
+}
 
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin-top: 40px;
-        }
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin-top: 40px;
+}
 
-        .sidebar-menu li {
-            margin-bottom: 15px;
-        }
+.sidebar-menu li {
+    margin-bottom: 15px;
+}
 
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: var(--text-light);
-            text-decoration: none;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--text-light);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-        .sidebar-menu a i {
-            margin-right: 10px;
-            font-size: 1.2em;
-        }
+.sidebar-menu a i {
+    margin-right: 10px;
+    font-size: 1.2em;
+}
 
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background: var(--accent-gold);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
+.sidebar-menu a.active {
+    background: var(--accent-gold); /* Highlight color */
+    color: white; /* Ensure text is visible */
+    font-weight: bold; /* Optional */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Optional */
+}
+
 
         /* Content Section */
         .content {
@@ -348,32 +351,70 @@
 }
 
     </style>
+    <script>
+        // Wait for the DOM to load
+        document.addEventListener('DOMContentLoaded', function () {
+            // Select all sidebar links
+            const links = document.querySelectorAll('.sidebar-link');
+    
+            // Add click event listener to each link
+            links.forEach(link => {
+                link.addEventListener('click', function () {
+                    // Remove 'active' class from all links
+                    links.forEach(l => l.classList.remove('active'));
+    
+                    // Add 'active' class to the clicked link
+                    this.classList.add('active');
+                });
+            });
+    
+            // Optionally, add logic to highlight the active link based on the current URL
+            const currentPath = window.location.pathname;
+            links.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+    
 </head>
 <body>
     <div class="main-container">
+
         <!-- Sidebar -->
         <div class="sidebar">
             <h2>Admin Panel</h2>
             <ul class="sidebar-menu">
-                <li><a href="{% url 'transaction_list' %}" class="active" data-section="dashboard">
-                    <i class="fas fa-home"></i> Dashboard
-                </a></li>
-                <li><a href="{% url 'admin-user-list' %}" data-section="users">
-                    <i class="fas fa-users"></i> Admins
-                </a></li>
-                <li><a href="{% url 'create_transaction' %}">
-                    <i class="fas fa-exchange-alt"></i> Transactions
-                </a></li>
-                <li><a href="{% url 'admin_user_home' %}" data-section="admins">
-                    <i class="fas fa-user-shield"></i> Users
-                </a></li>
-                <li><a href="{% url 'logout' %}">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-                      
-            </li>
+                <li>
+                    <a href="{% url 'transaction_list' %}" class="sidebar-link">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'admin-user-list' %}" class="sidebar-link">
+                        <i class="fas fa-users"></i> Admins
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'create_transaction' %}" class="sidebar-link">
+                        <i class="fas fa-exchange-alt"></i> Transactions
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'admin_user_home' %}" class="sidebar-link">
+                        <i class="fas fa-user-shield"></i> Users
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'logout' %}" class="sidebar-link">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
             </ul>
         </div>
+        
+        
 
         <!-- Content Section -->
         <div class="content">

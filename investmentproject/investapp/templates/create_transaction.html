@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Transaction</title>
     <style>
         body {
@@ -47,7 +49,7 @@
             box-shadow: 0 0 5px rgba(205, 212, 11, 0.5);
         }
         button {
-            background-color: #eee01b;
+            background-color:#d4af37;
             color: white;
             border: none;
             font-size: 16px;
@@ -55,7 +57,8 @@
             transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #eee01b;
+            background-color: #d4af37;
+            opacity: 0.9;
         }
         .error {
             color: red;
@@ -67,9 +70,68 @@
                 padding: 15px;
             }
         }
+        
+.button-87 {
+  margin-top: 25px;
+  margin-left: 12px;
+  width: 10%;
+  padding: 15px 30px;
+  text-align: center;
+  text-transform: uppercase;
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: white;
+  border-radius: 10px;
+  display: block;
+  border: 0px;
+  font-weight: 700;
+  box-shadow: 0px 0px 14px -7px #d4af37;
+  background-image: linear-gradient(45deg, #d4af37 0%, #F09819  51%, #d4af37  100%);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  
+}
+.button-87 a{
+    text-decoration: none;
+    color: #ccc;
+}
+.button-87:hover {
+  background-position: right center;
+  /* change the direction of the change here */
+  color: #fff;
+  text-decoration: none;
+}
+
+.button-87:active {
+  transform: scale(0.95);
+}
+
     </style>
 </head>
 <body>
+
+    {% if messages %}
+    <script type="text/javascript">
+        // Display an alert box for each message
+        {% for message in messages %}
+            alert("{{ message }}");  // Show the message in an alert box
+        {% endfor %}
+
+        // After showing the alert, redirect to the 'transaction_list' page after 2 seconds
+        setTimeout(function() {
+            window.location.href = "{% url 'transaction_list' %}";
+        }, 2000);  // Delay for 2 seconds
+    </script>
+{% endif %}
+
+
+<button class="button-87" role="button">
+    <a href="{% url 'transaction_list' %}">Back</a>
+</button>
+
+
     <div class="container">
         <h2>Create Investment</h2>
         <form method="post" enctype="multipart/form-data">
@@ -78,5 +140,15 @@
             <button type="submit">Create</button>
         </form>
     </div>
+   
 </body>
 </html>
+
+
+
+
+
+
+
+
+

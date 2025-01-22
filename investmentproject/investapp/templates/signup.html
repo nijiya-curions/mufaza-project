@@ -296,8 +296,19 @@
             </div>
         </form>
         
-        
-        
+        {% if messages %}
+        <script type="text/javascript">
+            // Display an alert box for each message
+            {% for message in messages %}
+                alert("{{ message }}");  // Show the message in an alert box
+            {% endfor %}
+    
+            // After showing the alert, redirect to the 'transaction_list' page after 2 seconds
+            setTimeout(function() {
+                window.location.href = "{% url 'login' %}";
+            }, 2000);  // Delay for 2 seconds
+        </script>
+    {% endif %}
     </div>
 </body>
 </html>
