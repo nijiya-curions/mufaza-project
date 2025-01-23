@@ -64,7 +64,6 @@ class InvestmentForm(forms.ModelForm):
 
 
 
-
 # forms.py
 
 from django import forms

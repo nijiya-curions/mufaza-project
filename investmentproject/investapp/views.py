@@ -16,7 +16,7 @@ from django.contrib.messages import get_messages
 from decimal import Decimal
 from .forms import CustomUserCreationForm
 from django.core.paginator import Paginator
-
+from django.db.models import Q
 
 
 # home page
@@ -176,50 +176,96 @@ def create_transaction(request):
 
 #  admin transaction list
 # Check if the user is an admin (superuser)
+from investapp.models import CustomUser  # Make sure you import the custom user model
 
 def admin_required(user):
     return user.is_authenticated and user.is_staff
 
 @user_passes_test(admin_required, login_url='login')
+
 def transaction_list(request):
     # Get the search query (if any)
     search_query = request.GET.get('search', '')
 
-    # Get all transactions (to display in the table)
-    all_transactions = Transaction.objects.all()
+    # Get all users who have made transactions
+    users_with_transactions = Transaction.objects.values('user').distinct()
 
-    # If there is a search query, filter transactions by the username
+    # Filter users by the search query
     if search_query:
-        all_transactions = all_transactions.filter(user__username__icontains=search_query)
+        users_with_transactions = users_with_transactions.filter(user__username__icontains=search_query)
 
-    # Filter only approved transactions (to calculate totals)
-    approved_transactions = all_transactions.filter(status='approved')
+    # Initialize total return amount
+    total_return_amount = 0
 
-    # Calculate debit and credit totals...
+    # Collect user balances and transaction details
+    user_balances = []
+    for user_data in users_with_transactions:
+        user = CustomUser.objects.get(id=user_data['user'])  # Get the user instance
+        transactions = Transaction.objects.filter(user=user, status='approved')
+
+        # Calculate totals and balance
+        total_credit = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
+        total_debit = transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
+        balance = total_credit - total_debit
+
+        # Total amount invested (sum of all credit transactions)
+        total_invested = total_credit  # Sum of all credit transactions
+
+        # Calculate the return percentage for the user
+        if total_invested > 0:
+            user_return_percentage = round(((balance - total_invested) / total_invested) * 100, 2)
+        else:
+            user_return_percentage = 0  # Avoid division by zero
+
+        # Add the user's return percentage to the total return amount
+        total_return_amount += user_return_percentage
+
+        # Get the latest transaction for additional details
+        latest_transaction = transactions.order_by('-date').first()
+
+        # Add user details with transaction fields
+        user_balances.append({
+            'username': user.username,
+            'balance': balance,
+            'date': latest_transaction.date if latest_transaction else None,
+            'particulars': latest_transaction.particulars if latest_transaction else "N/A",
+            'narration': latest_transaction.narration if latest_transaction else "N/A",
+            'amount_type': latest_transaction.amount_type if latest_transaction else "N/A",
+            'amount': total_invested,  # This is now the total invested amount
+            'return_percentage': user_return_percentage,
+        })
+
+
+    # Calculate totals for the cards
+    approved_transactions = Transaction.objects.filter(status='approved')
     credit_total = approved_transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
     total_withdrawal = approved_transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
-    total_amount = credit_total - total_withdrawal
 
-    # Set up pagination
-    paginator = Paginator(all_transactions, 10)  # Show 10 transactions per page
-    page_number = request.GET.get('page')  # Get the page number from the request
-    page_obj = paginator.get_page(page_number)  # Get the page object
-
-
-    # Pass pagination info and search query to the template
+    # Pass data to the template
     return render(request, 'transaction_list.html', {
-        'transactions': page_obj,
+        'user_balances': user_balances,
         'credit_total': credit_total,
         'total_withdrawal': total_withdrawal,
-        'total_amount': total_amount,
+        'total_return_amount': total_return_amount,
         'search_query': search_query,
-        'start_index': (page_obj.number - 1) * page_obj.paginator.per_page  # Add this to calculate serial number
-
     })
 
 
+@login_required
+@user_passes_test(lambda user: user.is_staff)
+def pending_transactions(request):
+    # Get all transactions with 'pending' status
+    transactions = Transaction.objects.filter(status='pending').order_by('-date')
 
-# admin approval and rejection
+    # Pagination
+    paginator = Paginator(transactions, 4)  # Show 10 transactions per page
+    page_number = request.GET.get('page')  # Get the page number from the request
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'pending_transactions.html', {
+        'page_obj': page_obj,
+    })
+
 @login_required
 @user_passes_test(lambda user: user.is_staff)
 def approve_transaction(request, transaction_id):
@@ -227,7 +273,7 @@ def approve_transaction(request, transaction_id):
         transaction = get_object_or_404(Transaction, id=transaction_id)
         transaction.status = 'approved'
         transaction.save()
-        return redirect('transaction_list')
+        return redirect('pending_transactions')
 
 @login_required
 @user_passes_test(lambda user: user.is_staff)
@@ -236,8 +282,7 @@ def reject_transaction(request, transaction_id):
         transaction = get_object_or_404(Transaction, id=transaction_id)
         transaction.status = 'rejected'
         transaction.save()
-        return redirect('transaction_list')
-
+        return redirect('pending_transactions')
 
 
 # admin user dahsboard
@@ -260,15 +305,27 @@ def admin_user_home(request, user_id=None):
     for user in users_with_transactions:
         # Filter only approved transactions for the user
         transactions = Transaction.objects.filter(user=user, status='approved')
-        debit_total = transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
-        credit_total = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
-        total_returns = max(credit_total - debit_total, 0)  # Ensure total_returns is not negative
+        total_credit = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
+        total_debit = transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
+
+        # Calculate initial and current values
+        first_transaction = transactions.filter(amount_type='credit').order_by('id').first()
+        initial_value = first_transaction.amount if first_transaction else 0
+        current_value = total_credit - total_debit
+
+        # Calculate returns percentage
+        if initial_value > 0:
+            total_returns = round(((current_value - initial_value) / initial_value) * 100, 2)
+        else:
+            total_returns = 0  # Avoid division by zero
+
+        # Append user data with calculated returns
         user_data.append({
             'username': user.username,                    
             'user_id': user.id,
-            'debit_total': decimal_to_float(debit_total),
-            'credit_total': decimal_to_float(credit_total),
-            'total_returns': decimal_to_float(total_returns),
+            'debit_total': total_debit,
+            'credit_total': total_credit,
+            'total_returns': total_returns,  # Total returns as a percentage
             'status': 'Active' if total_returns > 0 else 'Inactive',
         })
 
@@ -284,7 +341,6 @@ def admin_user_home(request, user_id=None):
         'ledger_data': ledger_data,
         'selected_user': selected_user,
     })
-
 
 
 # for users creating transaction view 
@@ -314,24 +370,34 @@ def dashboard_view(request):
     user_transactions = Transaction.objects.filter(user=request.user) | Transaction.objects.filter(user__id=request.user.id)
 
     # Pagination
-    paginator = Paginator(user_transactions, 6)  # Show 10 transactions per page
+    paginator = Paginator(user_transactions, 6)  # Show 6 transactions per page
     page_number = request.GET.get('page')  # Get the current page number from query parameters
     page_obj = paginator.get_page(page_number)  # Get the transactions for the current page
 
     # Calculate totals for approved transactions only
     approved_transactions = user_transactions.filter(status='approved')
+
+    # Total credit and debit amounts
     total_credit = approved_transactions.filter(amount_type='credit').aggregate(total=models.Sum('amount'))['total'] or 0
     total_debit = approved_transactions.filter(amount_type='debit').aggregate(total=models.Sum('amount'))['total'] or 0
-    # Calculate returns based on the difference between credit and debit
-    total_returns = total_credit - total_debit
+
+    # Calculate initial and current values
+    initial_value = approved_transactions.filter(amount_type='credit', status='approved').first().amount if approved_transactions.exists() else 0
+    current_value = total_credit - total_debit
+
+    # Calculate returns percentage
+    if initial_value > 0:
+        total_returns = round(((current_value - initial_value) / initial_value) * 100, 2)
+
+    else:
+        total_returns = 0  # Avoid division by zero
 
     context = {
         'transactions': page_obj,  # Paginated transactions
         'total_credit': total_credit,  # Total credit from approved transactions
         'total_debit': total_debit,    # Total debit from approved transactions
-        'total_returns': total_returns,  # Total returns from approved transactions
+        'total_returns': total_returns,  # Total returns as a percentage
         'start_index': (page_obj.number - 1) * page_obj.paginator.per_page  # Add this to calculate serial number
-
     }
     return render(request, 'dashboard.html', context)
 

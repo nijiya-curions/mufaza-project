@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Transactions</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Inherit styles from the provided dashboard design */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-shadow: rgba(0, 0, 0, 0.1);
+            --primary-dark: #1a3d37;
+            --primary-light: #2c5851;
+            --accent-gold: #d4af37;
+            --text-primary: #2d3436;
+            --text-light: rgba(255, 255, 255, 0.9);
+            --warning: #f39c12; /* Color for Pending */
+            --success: #27ae60; /* Color for Approved */
+            --danger: #e74c3c; /* Color for Rejected */
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+          
+        }
+  /* Sidebar Styles */
+  .sidebar {
+            position: fixed; /* Fix the sidebar to the left */
+            top: 0;
+            left: 0;
+            width: 250px;
+            background: rgba(26, 61, 55, 0.95);
+            backdrop-filter: blur(var(--blur-amount));
+            padding: 20px;
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Make the sidebar scrollable */
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin-top: 40px;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu a i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+    background: var(--accent-gold); /* Highlight color */
+    color: white; /* Ensure text is visible */
+    font-weight: bold; /* Optional */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Optional */
+}
+
+
+        .content {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            max-width: 100%;
+           margin-left: 300px;
+        }
+
+        h1 {
+            color: var(--primary-dark);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        table th {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+      
+
+.status-approved {
+    background: linear-gradient(135deg, var(--success), #1a4d31);
+}
+
+.status-debited {
+    background: linear-gradient(135deg, var(--danger), #4d1a1a);
+}
+/*  */
+
+.status-section {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+        }
+
+        .status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+    display: inline-block;
+}
+
+.btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--accent-gold), #b39429);
+            color: white;
+            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
+        }
+
+        .pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    padding: 8px 16px;
+    margin: 0 5px;
+    background-color: var(--accent-gold);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.pagination .current {
+    padding: 8px 16px;
+    margin: 0 5px;
+    background-color: #b39429;
+    color: white;
+    border-radius: 4px;
+}
+ /* New Card Styles for the "New Transaction" button */
+ .new-transaction-card {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    margin-top: 20px;
+    display: flex;
+    justify-content: center; /* Center the button horizontally */
+    max-width: 350px;
+    margin-left: 300px; /* Align left and right margins equally */
+    margin-right: 0; /* Center it horizontally */
+}
+
+
+    </style>
+</head>
+<body>
+   
+
+
+<div class="sidebar">
+    <h2>Admin Panel</h2>
+    <ul class="sidebar-menu">
+        <li>
+            <a href="{% url 'transaction_list' %}" class="sidebar-link">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'admin-user-list' %}" class="sidebar-link">
+                <i class="fas fa-users"></i> Admins
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'pending_transactions' %}" class="sidebar-link">
+                <i class="fas fa-exchange-alt"></i> Transactions
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'admin_user_home' %}" class="sidebar-link">
+                <i class="fas fa-user-shield"></i> Users
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'logout' %}" class="sidebar-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+
+
+
+
+    <div class="content">
+       
+        <h1>Pending Transactions</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Sl.No</th>
+                    <th>Date</th>
+                    <th>Username</th>
+                    <th>Particulars</th>
+                    <th>Narration</th>
+                    <th>Amount Type</th>
+                    <th>Amount</th>
+                    <th>Receipt</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in page_obj %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ transaction.date|date:"Y-m-d" }}</td>
+                    <td>{{ transaction.user.username }}</td>
+                    <td>{{ transaction.particulars }}</td>
+                    <td>{{ transaction.narration }}</td>
+                    <td>{{ transaction.amount_type|capfirst }}</td>
+                    <td>${{ transaction.amount }}</td>
+                    <td>
+                        {% if transaction.transaction_receipt %}
+                            <a href="{{ transaction.transaction_receipt.url }}" target="_blank">View Receipt</a>
+                        {% else %}
+                            No Receipt
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'approve_transaction' transaction.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button class="status status-approved">Approved</button>
+                        </form>
+                        <form method="post" action="{% url 'reject_transaction' transaction.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button class="status status-debited">Rejected</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9">No pending transactions found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+     <!-- New Transaction Card -->
+     <div class="new-transaction-card ">
+        <a href="{% url 'create_transaction' %}" style="text-decoration: none;">
+            <button class="btn btn-gold ">New Transaction</button>
+        </a>
+    </div>
+
+</body>
+</html>

@@ -35,8 +35,11 @@
         }
 
         /* Sidebar Styles */
-    /* Sidebar Styles */
+
 .sidebar {
+    position: fixed; /* Fix the sidebar to the left */
+    top: 0;
+    left: 0;
     width: 250px;
     background: rgba(26, 61, 55, 0.95);
     backdrop-filter: blur(var(--blur-amount));
@@ -45,7 +48,7 @@
     display: flex;
     flex-direction: column;
     height: 100vh; /* Ensure the sidebar takes full height */
-    overflow-y: auto; /* Make the sidebar scrollable */
+    z-index: 1000; /* Ensure the sidebar is always on top */
 }
 
 .sidebar-menu {
@@ -75,6 +78,7 @@
     margin-right: 10px;
     font-size: 1.2em;
 }
+
 .sidebar-menu a:hover,
 .sidebar-menu a.active {
     background: var(--accent-gold); /* Highlight color */
@@ -83,51 +87,54 @@
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Optional */
 }
 
+/* Content Section */
+.content {
+    margin-left: 300px; /* Ensure content doesn't overlap the sidebar */
+    width: 100%;
+    padding: 20px;
+    /* overflow-y: auto; Allow scrolling for content */
+    height: 100vh; /* Ensure content section takes the full height */
+}
 
-        /* Content Section */
-        .content {
-            flex-grow: 1;
-            padding: 20px;
-            overflow: auto;
-        }
+/* Summary Cards, Tables, and Other Elements Styles */
+h2.manage-users-header {
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    color: var(--primary-dark);
+    font-size: 1.8em;
+    font-weight: 600;
+}
 
-        h2.manage-users-header {
-            text-align: center;
-            margin-top: 40px;
-            margin-bottom: 20px;
-            color: var(--primary-dark);
-            font-size: 1.8em;
-            font-weight: 600;
-        }
+table {
+    width: 100%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
 
-        /* Table Styles */
-        table {
-            width: 100%;
-            margin: 20px auto;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
+th, td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid var(--glass-border);
+}
 
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border: 1px solid var(--glass-border);
-        }
+th {
+    background-color: rgba(26, 61, 55, 0.1);
+    color: var(--primary-dark);
+    font-weight: 600;
+}
 
-        th {
-            background-color: rgba(26, 61, 55, 0.1);
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
 
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
+tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
 
-        tr:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
+
 
         button {
             padding: 6px 12px;
@@ -163,23 +170,7 @@
         }
 
 
-        /* Flex Layout for Sidebar and Content */
-        .main-container {
-            display: flex;
-            flex: 1;
-            gap: 20px;
-        }
-
-        .sidebar {
-            width: 250px;
-            height: 100vh; /* Full height */
-            overflow-y: auto; /* Allow scrolling if content is long */
-        }
-
-        .content {
-            flex-grow: 1;
-         
-        }
+     
          /* Cards Grid */
          .cards-grid {
             display: grid;
@@ -400,7 +391,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'create_transaction' %}" class="sidebar-link">
+                    <a href="{% url 'pending_transactions' %}" class="sidebar-link">
                         <i class="fas fa-exchange-alt"></i> Transactions
                     </a>
                 </li>
@@ -421,7 +412,7 @@
 
         <!-- Content Section -->
         <div class="content">
-            <a href="{% url 'create_user' %}">   <i class="icon fas fa-cog"></i></a><br><br><br>
+            <!-- Summary Cards -->
             <div class="cards-grid">
                 <div class="card">
                     <div class="card-title">Total Investment</div>
@@ -433,81 +424,50 @@
                 </div>
                 <div class="card">
                     <div class="card-title">Total Returns</div>
-                    <div class="card-value">${{ total_amount }}</div>
+                    <div class="card-value">${{ total_return_amount }}</div>
                 </div>
             </div>
         
             <!-- Search Bar -->
-<form method="get" action="{% url 'transaction_list' %}">
-    <input type="text" name="search" value="{{ search_query }}" placeholder="Search by Username" class="search-bar">
-    <button type="submit" class="btn btn-gold">
-        <i class="fas fa-search"></i> Search
-    </button>
-</form>
+            <form method="get" action="{% url 'transaction_list' %}">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Search by Username" class="search-bar">
+                <button type="submit" class="btn btn-gold">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
         
-            <!-- Manage Transactions Section - Heading above the table -->
-            <h2 class="manage-users-header">Transaction List</h2>
-            <button class="btn btn-gold" onclick="exportPDF()">
-                <i class="fas fa-download"></i> Export PDF
-            </button>
-            <button class="btn btn-gold" onclick="exportExcel()">
-                <i class="fas fa-file-excel"></i> Export Excel
-            </button>
-            
-           <!-- Transactions Table -->
-<div id="ledger-content">
-    <table>
-        <tr>
-            <th>Sl.No</th>
-            <th>Date</th>
-            <th>Username</th>
-            <th>Particulars</th>
-            <th>Narration</th>
-            <th>Amount Type</th>
-            <th>Amount</th>
-            <th>Receipt</th>
-            <th>Approval</th>
-        </tr>
-        {% for transaction in transactions %}
-        <tr>
-            <td>{{ forloop.counter|add:start_index }}</td>
-            <td>{{ transaction.date }}</td>
-            <td>{{ transaction.user.username }}</td>
-            <td>{{ transaction.particulars }}</td>
-            <td>{{ transaction.narration }}</td>
-            <td>{{ transaction.amount_type }}</td>
-            <td>{{ transaction.amount }}</td>
-            <td>
-                {% if transaction.transaction_receipt %}
-                    <img src="{{ transaction.transaction_receipt.url }}" alt="Receipt" style="max-width: 150px; max-height: 150px;">
-                {% else %}
-                    No Receipt
-                {% endif %}
-            </td>
-
-            <td>
-                {% if transaction.status == 'approved' %}
-                    <span class="status status-approved">Approved</span>
-                {% elif transaction.status == 'rejected' %}
-                    <span class="status status-debited">Rejected</span>
-                {% else %}
-                    <form method="post" action="{% url 'approve_transaction' transaction.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="status status-approved">Approve</button>
-                    </form><br>
-                    <form method="post" action="{% url 'reject_transaction' transaction.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="status status-debited">Reject&nbsp;&nbsp;&nbsp;</button>
-                    </form>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+            <!-- User Balances Table -->
+            <h2 class="manage-users-header">Users with Transactions</h2>
+            <table>
+                <tr>
+                    <th>Sl.No</th>
+                    <th>Date</th>
+                    <th>Username</th>
+                    <th>Particulars</th>
+                    <th>Narration</th>
+                    <th>Amount Type</th>
+                    <th>Amount</th>
+                    <th>Balance</th>
+                </tr>
+                {% for user in user_balances %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ transaction.date}}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.particulars }}</td>
+                    <td>{{ user.narration }}</td>
+                    <td>{{ user.amount_type }}</td>
+                    <td>{{ user.amount }}</td>
+                    <td>${{ user.balance }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        
 </div>
 
 <!-- Pagination Controls -->
-<div class="pagination">
+<!-- <div class="pagination">
     <span class="step-links">
         {% if transactions.has_previous %}
             <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">&laquo; first</a>
@@ -523,7 +483,7 @@
             <a href="?page={{ transactions.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">last &raquo;</a>
         {% endif %}
     </span>
-</div>
+</div> -->
 
 
        

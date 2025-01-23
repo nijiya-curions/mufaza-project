@@ -35,6 +35,9 @@
 
         /* Sidebar Styles */
         .sidebar {
+            position: fixed; /* Fix the sidebar to the left */
+    top: 0;
+    left: 0;
             width: 250px;
             background: rgba(26, 61, 55, 0.95);
             backdrop-filter: blur(var(--blur-amount));
@@ -85,7 +88,7 @@
         .main-content {
             flex: 1;
             padding: 20px;
-            margin-left: 25px;
+            margin-left: 300px;
         }
 
         /* Heading directly on top of the table */
@@ -319,7 +322,7 @@
                 </a>
             </li>
             <li>
-                <a href="{% url 'create_transaction' %}" class="sidebar-link">
+                <a href="{% url 'pending_transactions' %}" class="sidebar-link">
                     <i class="fas fa-exchange-alt"></i> Transactions
                 </a>
             </li>
