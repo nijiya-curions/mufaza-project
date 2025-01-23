@@ -71,8 +71,9 @@
             margin-right: 10px;
             font-size: 1.2em;
         }
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
+    
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
     background: var(--accent-gold); /* Highlight color */
     color: white; /* Ensure text is visible */
     font-weight: bold; /* Optional */
@@ -222,6 +223,32 @@
 
 
     </style>
+    <script>
+        // Wait for the DOM to load
+        document.addEventListener('DOMContentLoaded', function () {
+            // Select all sidebar links
+            const links = document.querySelectorAll('.sidebar-link');
+    
+            // Add click event listener to each link
+            links.forEach(link => {
+                link.addEventListener('click', function () {
+                    // Remove 'active' class from all links
+                    links.forEach(l => l.classList.remove('active'));
+    
+                    // Add 'active' class to the clicked link
+                    this.classList.add('active');
+                });
+            });
+    
+            // Optionally, add logic to highlight the active link based on the current URL
+            const currentPath = window.location.pathname;
+            links.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
 </head>
 <body>
    
@@ -257,10 +284,6 @@
         </li>
     </ul>
 </div>
-
-
-
-
 
 
     <div class="content">

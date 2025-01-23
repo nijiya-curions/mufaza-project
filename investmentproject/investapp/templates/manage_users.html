@@ -36,8 +36,8 @@
         /* Sidebar Styles */
         .sidebar {
             position: fixed; /* Fix the sidebar to the left */
-    top: 0;
-    left: 0;
+            top: 0;
+            left: 0;
             width: 250px;
             background: rgba(26, 61, 55, 0.95);
             backdrop-filter: blur(var(--blur-amount));
@@ -45,7 +45,6 @@
             color: var(--text-light);
             display: flex;
             flex-direction: column;
-            height: 100vh; /* Ensure the sidebar takes full height */
             overflow-y: auto; /* Make the sidebar scrollable */
         }
 
@@ -181,66 +180,10 @@
         }
 
 /* responsive */
-/* For devices with width less than or equal to 1024px (Tablets and small laptops) */
-@media (max-width: 1024px) {
-    body {
-        display: block; 
-    }
 
-    .sidebar {
-        width: 200px; /* Reduce sidebar width */
-        position: relative; /* Ensure sidebar stays in flow */
-        height: auto; /* Allow height to adjust dynamically */
-        margin-bottom: 20px; /* Add space below sidebar */
-    }
-
-    .sidebar-menu a {
-        padding: 10px 15px; /* Adjust padding for smaller screens */
-    }
-
-    .ledger-table th, .ledger-table td {
-        padding: 12px 8px; /* Reduce padding for table cells */
-        font-size: 14px; /* Smaller font size for readability */
-    }
-}
-
-/* For devices with width less than or equal to 768px (Large mobile devices) */
-@media (max-width: 768px) {
-    .sidebar {
-        width: 80%; /* Further reduce sidebar width */
-        padding: 10px;
-        font-size: 14px;
-    }
-
-    .main-content {
-        margin-left: 0; /* Full-width content for mobile devices */
-        padding: 10px;
-    }
-
-    .sidebar-menu a {
-        font-size: 14px; /* Smaller text */
-    }
-
-    h2.manage-users-header {
-        font-size: 1.5em; /* Reduce header size */
-        margin-top: 20px;
-    }
-
-    .ledger-table th, .ledger-table td {
-        font-size: 12px; /* Reduce font size for table cells */
-    }
-
-    .search-bar {
-        width: 80%; /* Reduce the search bar width */
-    }
-
-    button {
-        font-size: 12px; /* Adjust button font size */
-    }
-}
 
 /* For devices with width less than or equal to 480px (Small mobile devices) */
-@media (max-width: 480px) {
+@media (max-width: 425px) {
     .sidebar {
         width: 100%; /* Hide sidebar for very small screens */
     }
@@ -339,7 +282,6 @@
         </ul>
     </div>
     
-
     <!-- Main Content Area (Table and Heading) -->
     <div class="main-content">
         

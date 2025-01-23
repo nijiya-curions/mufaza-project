@@ -13,10 +13,9 @@
             padding: 0;
         }
        
-        :root {
-    --accent-gold: #ffd700; /* Example gold color */
-}
-
+        :root { 
+            --accent-gold: #d4af37;         
+        }
         /* Container Styling */
         .container {
             width: 90%;
@@ -87,18 +86,6 @@
             box-shadow: 0 0 5px rgb(207, 217, 21);
         }
 
-        button {
-            background-image: linear-gradient(45deg, #d4af37 0%, #F09819  51%, #d4af37  100%);
-            color: white;
-            border: none;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #d6c612;
-        }
 
         /* Media Queries for Responsiveness */
         @media (max-width: 768px) {
@@ -122,9 +109,14 @@
             font-size: 14px;
             letter-spacing: 0.3px;
             text-transform: uppercase;
+            text-decoration: none;           
             width: 10%;
+            margin-top: 20px;
+            margin-left: 20px;
         }
-
+.btn a{
+    text-decoration: none;
+}
         .btn-gold {
             background: linear-gradient(135deg, var(--accent-gold), #b39429);
             color: white;
@@ -135,10 +127,28 @@
             transform: translateY(-3px);
             box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
         }
+        .btn2{
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--accent-gold), #b39429);
+            color: white;
+            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+            width: 50%;
+            margin: 0 auto; /* Center the button horizontally */
+            display: block; 
+        }
+        
     </style>
 </head>
 <body>
-    <a href="{% url 'dashboard' %}" style=" text-decoration: none;">  <button class="btn btn-gold ">
+    <a href="{% url 'dashboard' %}">  <button class="btn btn-gold ">
         Back
      </button></a>
     <div class="container">
@@ -149,7 +159,7 @@
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Create</button>
+            <button  class="btn2 " type="submit" >Create</button>
         </form>
         
     </div>

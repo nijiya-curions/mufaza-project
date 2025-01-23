@@ -200,11 +200,6 @@
 
         /*  */
 
-        /* Define the color variables for your status */
-
-/* Styling the status indicators */
-
-
 /* Status Styles */
 .status-pending {
     background: linear-gradient(135deg, var(--warning), #8d7533);
@@ -250,23 +245,26 @@
 
 /* pagination */
 .pagination {
-    margin-top: 20px;
     text-align: center;
+    margin-top: 30px;
+    padding-bottom:100px ;
 }
-
 .pagination a {
+    padding: 8px 16px;
     margin: 0 5px;
+    background-color: var(--accent-gold);
+    color: white;
     text-decoration: none;
-    color: #007bff;
-}
-
-.pagination a:hover {
-    text-decoration: underline;
+    border-radius: 4px;
+   
 }
 
 .pagination .current {
+    padding: 8px 16px;
     margin: 0 5px;
-    font-weight: bold;
+    background-color: #b39429;
+    color: white;
+    border-radius: 4px;
 }
 .createbtn a{
 text-decoration: none;
@@ -434,11 +432,41 @@ color: #e3e6e8;
         overflow-x: hidden; /* Prevent content from exceeding viewport width */
     }
 }
+.settings-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--primary-dark);
+        }
+
+        .settings-icon:hover {
+            transform: rotate(90deg);
+            background: rgba(255, 255, 255, 0.35);
+            color: var(--accent-gold);
+        }
 
     </style>
 </head>
 
     <body>
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 30px;">
+            <!-- Settings Icon -->
+             <a href="{% url 'update_profile' %}">
+    <i class="fas fa-cog settings-icon"></i></a>
+        </div>
+
         <div class="dashboard-container">
             <div class="welcome-section">
                 <h1 class="welcome-title">
@@ -446,8 +474,8 @@ color: #e3e6e8;
                     <a href="{% url 'logout' %}" class="btn btn-gold">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
-                 
-                </h1>
+            </h1>
+
                 <a href="{% url 'manage_investment' %}"> <button class="btn btn-gold createbtn">New Transaction</button> </a>
             </div>
     

@@ -18,6 +18,9 @@ from .forms import CustomUserCreationForm
 from django.core.paginator import Paginator
 from django.db.models import Q
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import ProfileUpdateForm
 
 # home page
 def home(request):
@@ -89,7 +92,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect('home')
 
 
 # Admin view to list all users
@@ -182,75 +185,82 @@ def admin_required(user):
     return user.is_authenticated and user.is_staff
 
 @user_passes_test(admin_required, login_url='login')
-
 def transaction_list(request):
     # Get the search query (if any)
     search_query = request.GET.get('search', '')
 
-    # Get all users who have made transactions
-    users_with_transactions = Transaction.objects.values('user').distinct()
+    # Get all users who have at least one approved transaction
+    users_with_transactions = CustomUser.objects.filter(
+        is_staff=False,
+        is_superuser=False,
+        transactions__status='approved'
+    ).distinct()
 
-    # Filter users by the search query
+    # Apply search filter if a search query is provided
     if search_query:
-        users_with_transactions = users_with_transactions.filter(user__username__icontains=search_query)
+        users_with_transactions = users_with_transactions.filter(username__icontains=search_query)
 
-    # Initialize total return amount
+    # Initialize total return amount for all users
     total_return_amount = 0
 
     # Collect user balances and transaction details
     user_balances = []
-    for user_data in users_with_transactions:
-        user = CustomUser.objects.get(id=user_data['user'])  # Get the user instance
+    for user in users_with_transactions:
+        # Filter approved transactions for the user
         transactions = Transaction.objects.filter(user=user, status='approved')
 
-        # Calculate totals and balance
+        # Total credit and debit amounts
         total_credit = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
         total_debit = transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
-        balance = total_credit - total_debit
 
-        # Total amount invested (sum of all credit transactions)
-        total_invested = total_credit  # Sum of all credit transactions
+        # Initial investment: First credit transaction amount or 0
+        first_transaction = transactions.filter(amount_type='credit').order_by('id').first()
+        initial_value = first_transaction.amount if first_transaction else 0
 
-        # Calculate the return percentage for the user
-        if total_invested > 0:
-            user_return_percentage = round(((balance - total_invested) / total_invested) * 100, 2)
-        else:
-            user_return_percentage = 0  # Avoid division by zero
+        # Current value: The balance after all credits and debits
+        current_value = total_credit - total_debit
 
-        # Add the user's return percentage to the total return amount
-        total_return_amount += user_return_percentage
+        # Calculate the return amount (current value - initial invested amount)
+        return_amount = max(current_value - initial_value, 0)  # Ensure non-negative return
+        total_return_amount += return_amount  # Accumulate total return amount for all users
 
         # Get the latest transaction for additional details
         latest_transaction = transactions.order_by('-date').first()
 
-        # Add user details with transaction fields
+        # Add user details to the balances list
         user_balances.append({
             'username': user.username,
-            'balance': balance,
+            'balance': current_value,
             'date': latest_transaction.date if latest_transaction else None,
             'particulars': latest_transaction.particulars if latest_transaction else "N/A",
             'narration': latest_transaction.narration if latest_transaction else "N/A",
             'amount_type': latest_transaction.amount_type if latest_transaction else "N/A",
-            'amount': total_invested,  # This is now the total invested amount
-            'return_percentage': user_return_percentage,
+            'amount': total_credit,  # Initial invested amount
+            'return_amount': return_amount,  # Return amount for this user
         })
 
 
-    # Calculate totals for the cards
+    # Paginate the user_balances list
+    paginator = Paginator(user_balances, 8)  # Show 10 users per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Calculate totals for the cards (approved transactions)
     approved_transactions = Transaction.objects.filter(status='approved')
     credit_total = approved_transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
     total_withdrawal = approved_transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
 
     # Pass data to the template
     return render(request, 'transaction_list.html', {
-        'user_balances': user_balances,
+        'user_balances': page_obj,
         'credit_total': credit_total,
         'total_withdrawal': total_withdrawal,
-        'total_return_amount': total_return_amount,
+        'total_return_amount': total_return_amount,  # Total return amount of all users
         'search_query': search_query,
     })
 
 
+# approvals and rejections
 @login_required
 @user_passes_test(lambda user: user.is_staff)
 def pending_transactions(request):
@@ -334,13 +344,76 @@ def admin_user_home(request, user_id=None):
     selected_user = None
     if user_id:
         selected_user = get_object_or_404(CustomUser, id=user_id)
-        ledger_data = Transaction.objects.filter(user=selected_user, status='approved').order_by('-date')
+        ledger_data = Transaction.objects.filter(user=selected_user, status='approved')
 
+        # Initialize balance for the selected user
+        running_balance = 0
+        for transaction in ledger_data:
+            if transaction.amount_type == 'credit':
+                running_balance += transaction.amount
+            elif transaction.amount_type == 'debit':
+                running_balance -= transaction.amount
+            # Add the balance to each transaction in the context
+            transaction.running_balance = running_balance
+
+    # Pass data to the template
     return render(request, 'admin-user-dashboard.html', {
         'user_data': user_data,
         'ledger_data': ledger_data,
         'selected_user': selected_user,
     })
+
+
+
+
+# def admin_user_home(request, user_id=None):
+#     # Filter users who have at least one approved transaction
+#     users_with_transactions = CustomUser.objects.filter(
+#         is_staff=False, 
+#         is_superuser=False,
+#         transactions__status='approved'  # Filter for approved transactions
+#     ).distinct()  # Ensure no duplicates due to joins
+
+#     user_data = []
+#     for user in users_with_transactions:
+#         # Filter only approved transactions for the user
+#         transactions = Transaction.objects.filter(user=user, status='approved')
+#         total_credit = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
+#         total_debit = transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
+
+#         # Calculate initial and current values
+#         first_transaction = transactions.filter(amount_type='credit').order_by('id').first()
+#         initial_value = first_transaction.amount if first_transaction else 0
+#         current_value = total_credit - total_debit
+
+#         # Calculate returns percentage
+#         if initial_value > 0:
+#             total_returns = round(((current_value - initial_value) / initial_value) * 100, 2)
+#         else:
+#             total_returns = 0  # Avoid division by zero
+
+#         # Append user data with calculated returns
+#         user_data.append({
+#             'username': user.username,                    
+#             'user_id': user.id,
+#             'debit_total': total_debit,
+#             'credit_total': total_credit,
+#             'total_returns': total_returns,  # Total returns as a percentage
+#             'status': 'Active' if total_returns > 0 else 'Inactive',
+#         })
+
+#     # If user_id is provided, retrieve selected user and their ledger
+#     ledger_data = None
+#     selected_user = None
+#     if user_id:
+#         selected_user = get_object_or_404(CustomUser, id=user_id)
+#         ledger_data = Transaction.objects.filter(user=selected_user, status='approved').order_by('-date')
+
+#     return render(request, 'admin-user-dashboard.html', {
+#         'user_data': user_data,
+#         'ledger_data': ledger_data,
+#         'selected_user': selected_user,
+#     })
 
 
 # for users creating transaction view 
@@ -404,18 +477,21 @@ def dashboard_view(request):
 
 
 # .............................
-# views for admin to creae user 
+# update profile
 
 @login_required
-@user_passes_test(lambda u: u.is_staff)
-def create_user(request):
+def update_profile(request):
+    user = request.user
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
+        form = ProfileUpdateForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
-            messages.success(request, 'User created successfully!')
-            return redirect('admin-user-list')  # Redirect to user list or any other relevant page
+            # Redirect based on user role
+            if user.is_staff or user.is_superuser:
+                return redirect('transaction_list')  # Redirect to the admin transaction list page
+            else:
+                return redirect('dashboard')  # Redirect to the user's dashboard
     else:
-        form = CustomUserCreationForm()
-
-    return render(request, 'create_user.html', {'form': form})
+        form = ProfileUpdateForm(instance=user)
+    
+    return render(request, 'updateprofile.html', {'form': form})

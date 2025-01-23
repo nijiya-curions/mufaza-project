@@ -15,9 +15,17 @@
             --primary-light: #2c5851;
             --accent-gold: #d4af37;
             --text-primary: #2d3436;
-            --blur-amount: 12px;
+            --text-light: rgba(255, 255, 255, 0.9);
+            --warning: #f39c12; /* Color for Pending */
+            --success: #27ae60; /* Color for Approved */
+            --danger: #e74c3c; /* Color for Rejected */
         }
-   
+        body {
+            background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+          
+        }
     /* ......................... */
  
 .ledger-modal {
@@ -59,38 +67,24 @@ table th {
     background-color: #f4f4f4;
     font-weight: bold;
 }
-
-/* .close-btn {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 8px 15px;
-    background-color: #d9534f;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 5px;
-}
-
-.close-btn:hover {
-    background-color: #c9302c;
-} */
-
-
-
-    /* ................. */
    
     /* Styling for table header */
-    h2 {
+    h3 {
         font-size: 24px;
         margin-bottom: 15px;
         color: #333;
+    }
+    h2{
+        color: #ddd;
     }
 
 
         .users-container {
             padding: 20px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 25px;
+            margin-left: 310px;
         }
 
         .user-card {
@@ -224,7 +218,86 @@ table th {
             color: var(--accent-gold);
             transform: rotate(90deg);
         }
+
+
+/*  */
+ /* Sidebar Styles */
+ .sidebar {
+            position: fixed; /* Fix the sidebar to the left */
+            top: 0;
+            left: 0;
+            width: 250px;
+            background: rgba(26, 61, 55, 0.95);
+            backdrop-filter: blur(var(--blur-amount));
+            padding: 20px;
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Make the sidebar scrollable */
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin-top: 40px;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu a i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+    
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    background: var(--accent-gold); /* Highlight color */
+    color: white; /* Ensure text is visible */
+    font-weight: bold; /* Optional */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Optional */
+}
     </style>
+     <script>
+        // Wait for the DOM to load
+        document.addEventListener('DOMContentLoaded', function () {
+            // Select all sidebar links
+            const links = document.querySelectorAll('.sidebar-link');
+    
+            // Add click event listener to each link
+            links.forEach(link => {
+                link.addEventListener('click', function () {
+                    // Remove 'active' class from all links
+                    links.forEach(l => l.classList.remove('active'));
+    
+                    // Add 'active' class to the clicked link
+                    this.classList.add('active');
+                });
+            });
+    
+            // Optionally, add logic to highlight the active link based on the current URL
+            const currentPath = window.location.pathname;
+            links.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
 </head>
 <body>
 
@@ -232,6 +305,41 @@ table th {
         Back
      </button></a>
     
+<!--  -->
+
+<div class="sidebar">
+    <h2>Admin Panel</h2>
+    <ul class="sidebar-menu">
+        <li>
+            <a href="{% url 'transaction_list' %}" class="sidebar-link">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'admin-user-list' %}" class="sidebar-link">
+                <i class="fas fa-users"></i> Admins
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'pending_transactions' %}" class="sidebar-link">
+                <i class="fas fa-exchange-alt"></i> Transactions
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'admin_user_home' %}" class="sidebar-link">
+                <i class="fas fa-user-shield"></i> Users
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'logout' %}" class="sidebar-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+<!--  -->
     <div class="users-container">
         {% for user in user_data %}
         <div class="user-card">
@@ -263,66 +371,63 @@ table th {
     </div>
     
     <!-- Display ledger details if ledger_data is available -->
-    {% if ledger_data %}
-    <div class="ledger-modal">
+    <!-- Display ledger details if ledger_data is available -->
+{% if ledger_data %}
+<div class="ledger-modal">
+    
+    <div class="modal-content">
+        <!-- Link to close/hide ledger view -->
+        <a href="{% url 'admin_user_home' %}"><i class="fas fa-times close-modal"></i></a>
+
+        {% if selected_user %}
+        <h3>{{ selected_user.username }}'s Ledger</h3>
+        {% else %}
+        <h2>Ledger Details</h2>
+        {% endif %}
         
-        <div class="modal-content">
-              <!-- Link to close/hide ledger view -->
-              <a href="{% url 'admin_user_home' %}" ><i class="fas fa-times close-modal" >
-            </i></a>
-            {% if selected_user %}
-            <h2>{{ selected_user.username }}'s Ledger</h2>
-            {% else %}
-            <h2>Ledger Details</h2>
-            {% endif %}
-            <table>
-               
-
-                <thead>
-                    <tr>
-                        <th>Sl.No</th>
-                        <th>Date</th>
-                        <th>Particulars</th>
-                        <th>Narration</th>
-                        <th>Debit</th>
-                        <th>Credit</th>
-                        <th>Balance</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for transaction in ledger_data %}
-                    <tr>
-                        <td>{{ forloop.counter}}</td>
-                        <td>{{ transaction.date }}</td>
-                        <td>{{ transaction.particulars }}</td>
-                        <td>{{ transaction.narration }}</td>
-                        <td>
-                            {% if transaction.amount_type == 'debit' %}
-                            ${{ transaction.amount }}
-                            {% else %}
-                            -
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if transaction.amount_type == 'credit' %}
-                            ${{ transaction.amount }}
-                            {% else %}
-                            -
-                            {% endif %}
-                        </td>
-                        <td>${{ transaction.balance }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-                
-            </table>
-           
-
-        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Sl.No</th>
+                    <th>Date</th>
+                    <th>Particulars</th>
+                    <th>Narration</th>
+                    <th>Debit</th>
+                    <th>Credit</th>
+                    <th>Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in ledger_data %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ transaction.date }}</td>
+                    <td>{{ transaction.particulars }}</td>
+                    <td>{{ transaction.narration }}</td>
+                    <td>
+                        {% if transaction.amount_type == 'debit' %}
+                        ${{ transaction.amount }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if transaction.amount_type == 'credit' %}
+                        ${{ transaction.amount }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td>
+                        ${{ transaction.running_balance }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-    {% endif %}
-    
-    
+</div>
+{% endif %}
 
 </body>
 </html>    

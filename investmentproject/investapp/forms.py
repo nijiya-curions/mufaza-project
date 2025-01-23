@@ -2,6 +2,7 @@
 from django import forms
 from .models import CustomUser,Transaction
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.forms import UserChangeForm
 
 
 class SignupForm(forms.ModelForm):
@@ -90,3 +91,14 @@ class CustomUserCreationForm(forms.ModelForm):
             user.save()
         
         return user
+
+# change profile form
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone_number', 'address']
+        widgets = {
+            'phone_number': forms.TextInput(attrs={'class': 'input-field'}),
+            'address': forms.Textarea(attrs={'class': 'input-field', 'rows': 3}),
+        }
