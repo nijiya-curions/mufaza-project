@@ -1,0 +1,104 @@
+/* for create transaction templates */
+
+:root {  
+    --form-field-bg: #ffffff;
+    --form-border-color: #ccc;
+    --form-border-radius: 8px;
+    --form-padding: 12px;
+    --form-font-size: 16px;             
+    --accent-gold: #d4af37;
+    --text-primary: #2d3436;
+    --text-light: rgba(255, 255, 255, 0.9);
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #2d3436;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+    color: #2d3436;
+}
+
+.form-control {
+    width: 100%;
+    padding: var(--form-padding);
+    font-size: var(--form-font-size);
+    border: 1px solid var(--form-border-color);
+    border-radius: var(--form-border-radius);
+    background-color: var(--form-field-bg);
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent-gold, #d4af37);
+    box-shadow: 0 0 4px rgba(212, 175, 55, 0.4);
+}
+
+textarea.form-control {
+    resize: none;
+    height: 100px;
+}
+
+/* Button styling */
+.btn {
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    
+   margin: auto;
+   display: block;
+    width: 50%;
+}
+
+.btn-gold {
+    background: linear-gradient(135deg, var(--accent-gold), #b39429);
+    color: #ffffff;
+    box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+}
+
+.btn-gold:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
+}
+.btngold2{
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    margin-left: 10px;
+    width: 10%;
+}
+

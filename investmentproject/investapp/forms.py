@@ -3,12 +3,18 @@ from django import forms
 from .models import CustomUser,Transaction
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.forms import UserChangeForm
+from django.core.validators import RegexValidator
 
 
 class SignupForm(forms.ModelForm):
+    # Adding the RegexValidator for phone_number to only accept numbers
+    phone_number = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'input-field'}),
+        validators=[RegexValidator(r'^\d{10}$', 'Enter a valid 10-digit phone number.')],
+        label='Phone Number'
+    )
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'input-field'}), label='Password')
     confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'input-field'}), label='Confirm Password')
-    phone_number = forms.CharField(widget=forms.TextInput(attrs={'class': 'input-field'}))
     address = forms.CharField(widget=forms.Textarea(attrs={'class': 'input-field', 'rows': 3}))
 
     class Meta:
@@ -34,6 +40,7 @@ class SignupForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
 
 
 

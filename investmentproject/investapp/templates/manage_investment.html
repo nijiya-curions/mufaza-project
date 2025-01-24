@@ -1,168 +1,60 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Transaction</title>
-    <style>
-        /* General Body Styling */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 0;
-        }
-       
-        :root { 
-            --accent-gold: #d4af37;         
-        }
-        /* Container Styling */
-        .container {
-            width: 90%;
-            max-width: 600px;
-            margin: 50px auto;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-
-        /* Header Styling */
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-
-        /* Message Styling */
-        .message {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: 5px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border-color: #c3e6cb;
-        }
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border-color: #f5c6cb;
-        }
-
-        /* Form Styling */
-        form {
-            display: flex;
-            flex-direction: column;
-           
-        }
-
-        label {
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 5px;
-            font-weight: bold;
-           
-        }
-
-        input, select, textarea, button {
-            width: 90%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-            background-color: #f9f9f9;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #dfdf1b;
-            box-shadow: 0 0 5px rgb(207, 217, 21);
-        }
-
-
-        /* Media Queries for Responsiveness */
-        @media (max-width: 768px) {
-            .container {
-                width: 95%;
-                padding: 15px;
-            }
-
-            h2 {
-                font-size: 20px;
-            }
-        }
-        
-        .btn {
-            padding: 12px 24px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 14px;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-            text-decoration: none;           
-            width: 10%;
-            margin-top: 20px;
-            margin-left: 20px;
-        }
-.btn a{
-    text-decoration: none;
-}
-        .btn-gold {
-            background: linear-gradient(135deg, var(--accent-gold), #b39429);
-            color: white;
-            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
-        }
-
-        .btn-gold:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
-        }
-        .btn2{
-            padding: 12px 24px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 14px;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-            background: linear-gradient(135deg, var(--accent-gold), #b39429);
-            color: white;
-            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
-            width: 50%;
-            margin: 0 auto; /* Center the button horizontally */
-            display: block; 
-        }
-        
-    </style>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <a href="{% url 'dashboard' %}">  <button class="btn btn-gold ">
+    <a href="{% url 'dashboard' %}"  style="text-decoration: none;">  <button class="btn btn-gold btngold2 ">
         Back
      </button></a>
-    <div class="container">
-
+     <div class="container">
         <h2>Create Investment</h2>
 
-        <!-- Form Section -->
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button  class="btn2 " type="submit" >Create</button>
-        </form>
+            
+            <div class="form-group">
+                <label for="id_particulars">Particulars</label>
+                <input type="text" name="particulars" id="id_particulars" value="{{ form.particulars.value|default:''  }}" class="form-control" placeholder="Enter Particulars" required>
+            </div>
         
+            <div class="form-group">
+                <label for="id_narration">Narration</label>
+                <textarea name="narration" id="id_narration" class="form-control" placeholder="Enter Narration" required>{{ form.narration.value|default:''  }}</textarea>
+            </div>
+        
+            <div class="form-group">
+                <label for="id_amount_type">Amount Type</label>
+                <select name="amount_type" id="id_amount_type" class="form-control" required>
+                    <option value="" disabled selected>Choose Debit or Credit</option>
+                    {% for choice_value, choice_label in form.amount_type.field.choices %}
+                        <option value="{{ choice_value }}" {% if form.amount_type.value == choice_value %}selected{% endif %}>
+                            {{ choice_label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <div class="form-group">
+                <label for="id_amount">Amount</label>
+                <input type="number" name="amount" id="id_amount" value="{{ form.amount.value|default:'' }}" class="form-control" placeholder="Enter Amount" required>
+            </div>
+        
+            <div class="form-group">
+                <label for="id_transaction_receipt">Transaction Receipt</label>
+                <input type="file" name="transaction_receipt" id="id_transaction_receipt" class="form-control">
+            </div>
+        
+            <button type="submit" class="btn btn-gold">Create</button>
+        </form>
+           
     </div>
+
+     
 
     <!-- JavaScript to show the success alert -->
     {% if messages %}

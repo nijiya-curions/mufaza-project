@@ -9,14 +9,11 @@ from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
-from django.views.generic import ListView
 from django.db import models
-from django.http import HttpResponseForbidden
-from django.contrib.messages import get_messages
 from decimal import Decimal
-from .forms import CustomUserCreationForm
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.views.decorators.cache import never_cache
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -49,7 +46,18 @@ def signup_view(request):
 
 # login for all
 
+@never_cache
 def login_view(request):
+
+    if request.user.is_authenticated:  # Check if the user is already logged in
+        # Redirect to the appropriate dashboard based on user type
+        if request.user.is_superuser:
+            return redirect('transaction_list')  # Redirect superusers
+        elif request.user.username == 'developer':
+            return redirect('/pineapplepie/')  # Redirect developer users
+        else:
+            return redirect('dashboard')  # Redirect normal users
+        
     if request.method == 'POST':
         username_or_email = request.POST['username']  # Field for username or email
         password = request.POST['password']
@@ -239,7 +247,6 @@ def transaction_list(request):
             'return_amount': return_amount,  # Return amount for this user
         })
 
-
     # Paginate the user_balances list
     paginator = Paginator(user_balances, 8)  # Show 10 users per page
     page_number = request.GET.get('page')
@@ -364,58 +371,6 @@ def admin_user_home(request, user_id=None):
     })
 
 
-
-
-# def admin_user_home(request, user_id=None):
-#     # Filter users who have at least one approved transaction
-#     users_with_transactions = CustomUser.objects.filter(
-#         is_staff=False, 
-#         is_superuser=False,
-#         transactions__status='approved'  # Filter for approved transactions
-#     ).distinct()  # Ensure no duplicates due to joins
-
-#     user_data = []
-#     for user in users_with_transactions:
-#         # Filter only approved transactions for the user
-#         transactions = Transaction.objects.filter(user=user, status='approved')
-#         total_credit = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
-#         total_debit = transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
-
-#         # Calculate initial and current values
-#         first_transaction = transactions.filter(amount_type='credit').order_by('id').first()
-#         initial_value = first_transaction.amount if first_transaction else 0
-#         current_value = total_credit - total_debit
-
-#         # Calculate returns percentage
-#         if initial_value > 0:
-#             total_returns = round(((current_value - initial_value) / initial_value) * 100, 2)
-#         else:
-#             total_returns = 0  # Avoid division by zero
-
-#         # Append user data with calculated returns
-#         user_data.append({
-#             'username': user.username,                    
-#             'user_id': user.id,
-#             'debit_total': total_debit,
-#             'credit_total': total_credit,
-#             'total_returns': total_returns,  # Total returns as a percentage
-#             'status': 'Active' if total_returns > 0 else 'Inactive',
-#         })
-
-#     # If user_id is provided, retrieve selected user and their ledger
-#     ledger_data = None
-#     selected_user = None
-#     if user_id:
-#         selected_user = get_object_or_404(CustomUser, id=user_id)
-#         ledger_data = Transaction.objects.filter(user=selected_user, status='approved').order_by('-date')
-
-#     return render(request, 'admin-user-dashboard.html', {
-#         'user_data': user_data,
-#         'ledger_data': ledger_data,
-#         'selected_user': selected_user,
-#     })
-
-
 # for users creating transaction view 
 
 @login_required
@@ -441,7 +396,15 @@ def manage_investment(request):
 def dashboard_view(request):
     # Filter all transactions for the logged-in user and transactions created by the admin
     user_transactions = Transaction.objects.filter(user=request.user) | Transaction.objects.filter(user__id=request.user.id)
-
+  # Order by status (pending first) and then by date (latest first)
+    user_transactions = user_transactions.order_by(
+        models.Case(
+            models.When(status='pending', then=0),
+            default=1,
+            output_field=models.IntegerField()
+        ),
+        '-date'  # Sort by date in descending order (latest first)
+    )
     # Pagination
     paginator = Paginator(user_transactions, 6)  # Show 6 transactions per page
     page_number = request.GET.get('page')  # Get the current page number from query parameters

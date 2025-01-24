@@ -58,7 +58,7 @@
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 50px;
         }
 
         @media (max-width: 768px) {
@@ -166,6 +166,7 @@
             font-size: 14px;
             color: var(--text-primary);
             transition: all 0.3s ease;
+            box-sizing: border-box;
         }
 
         .form-group input:focus, .form-group textarea:focus {
@@ -173,7 +174,16 @@
             border-color: var(--accent-gold);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
+/* Error styling */
+.error-message {
+    color: #ff4d4d;
+    font-size: 12px;
+    margin-top: 5px;
+}
 
+.error-message p {
+    margin: 0;
+}
     </style>
 </head>
 <body>

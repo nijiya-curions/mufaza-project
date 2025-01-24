@@ -1,106 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Transaction</title>
-    <style>
-            
-     :root {
-                --accent-gold: #d4af37;
-}
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 90%;
-            max-width: 600px;
-            margin: 50px auto;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input, select, textarea, button {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #eee01b;
-            box-shadow: 0 0 5px rgba(205, 212, 11, 0.5);
-        }
-        button {
-            background-color:#d4af37;
-            color: white;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #d4af37;
-            opacity: 0.9;
-        }
-        .error {
-            color: red;
-            font-size: 13px;
-        }
-        @media (max-width: 768px) {
-            .container {
-                width: 95%;
-                padding: 15px;
-            }
-        }
-        
-        .btn {
-            padding: 12px 24px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 14px;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-            width: 10%;
-            margin-top: 25px;
-        }
-
-        .btn-gold {
-            background: linear-gradient(135deg, var(--accent-gold), #b39429);
-            color: white;
-            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
-        }
-
-        .btn-gold:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
-        }
-
-    </style>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
 
@@ -119,27 +24,56 @@
 {% endif %}
 
 <a href="{% url 'transaction_list' %}" style="text-decoration: none;">
-    <button class="btn btn-gold" >
+    <button class="btn btn-gold btngold2" >
         Back
      </button></a>
 
-    <div class="container">
+     <div class="container">
         <h2>Create Investment</h2>
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" class="profile-form">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" >Create</button>
+    
+            <div class="form-group">
+                <label for="id_user">Select User</label>
+                <select name="user" id="id_user" class="form-control" required>
+                    {% for user in form.user.field.queryset %}
+                        <option value="{{ user.id }}" {% if form.user.value == user.id %}selected{% endif %}>
+                            {{ user }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="id_particulars">Particulars</label>
+            <input type="text" name="particulars" id="id_particulars" value="{{ form.particulars.value|default:'' }}" class="form-control" placeholder="Enter particulars" required>
+    </div>
+    
+            <div class="form-group">
+                <label for="id_narration">Narration</label>
+                <textarea name="narration" id="id_narration" class="form-control" placeholder="Enter Narration" required>{{ form.narration.value|default:'' }}</textarea>
+            </div>
+    
+            <div class="form-group">
+                 <label for="id_amount_type">Amount Type</label>
+                <select name="amount_type" id="id_amount_type" class="form-control" required>
+                    <option value="" disabled selected hidden>Choose Debit or Credit</option>
+                    {% for choice_value, choice_label in form.amount_type.field.choices %}
+                        <option value="{{ choice_value }}" {% if form.amount_type.value == choice_value %}selected{% endif %}>
+                            {{ choice_label }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+            </div>
+    
+            <div class="form-group">
+                <label for="id_amount">Amount</label>
+                <input type="number" name="amount" id="id_amount" value="{{ form.amount.value|default:'' }}" class="form-control" placeholder="Enter Amount" required>
+            </div>
+    
+            <button type="submit" class="btn btn-gold">Create</button>
         </form>
     </div>
-   
+    
 </body>
 </html>
-
-
-
-
-
-
-
-
-

@@ -173,12 +173,13 @@
             <h1 style="color: var(--primary-dark);">Mafaza</h1>
         </div>
         <div class="auth-buttons">
+            <a href="{% url 'login' %}">
             <button class="btn btn-glass">
-                <a href="{% url 'login' %}">Login</a>
-            </button>
-            <button class="btn btn-gold">
-                <a href="{% url 'signup' %}">Sign Up</a>
-            </button>
+              Login
+            </button></a>
+            <a href="{% url 'signup' %}">  <button class="btn btn-gold">
+               Sign Up
+            </button></a>
             
         </button>
         </div>
