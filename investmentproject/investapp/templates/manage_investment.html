@@ -8,9 +8,11 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <a href="{% url 'dashboard' %}"  style="text-decoration: none;">  <button class="btn btn-gold btngold2 ">
-        Back
-     </button></a>
+    <a href="{% url 'dashboard' %}"  style="text-decoration: none;">
+        <button class="btn btn-gold btngold2" >
+            Back
+         </button></a>
+
      <div class="container">
         <h2>Create Investment</h2>
 
@@ -53,8 +55,6 @@
         </form>
            
     </div>
-
-     
 
     <!-- JavaScript to show the success alert -->
     {% if messages %}

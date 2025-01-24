@@ -31,10 +31,11 @@
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
             display: flex;
-           
+            background-attachment: fixed;
+
         }
 
-        /* Sidebar Styles */
+/* Sidebar Styles */
 
 .sidebar {
     position: fixed; /* Fix the sidebar to the left */
@@ -94,6 +95,8 @@
     padding: 20px;
     /* overflow-y: auto; Allow scrolling for content */
     height: 100vh; /* Ensure content section takes the full height */
+    position: relative;
+
 }
 
 /* Summary Cards, Tables, and Other Elements Styles */
@@ -135,8 +138,6 @@ tr:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-
-
         button {
             padding: 6px 12px;
             border: none;
@@ -171,7 +172,6 @@ tr:hover {
         }
 
 
-     
          /* Cards Grid */
          .cards-grid {
             display: grid;
@@ -357,7 +357,6 @@ tr:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.25);
     backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
@@ -367,18 +366,22 @@ tr:hover {
 }
 
 /* Media query for large screens */
-@media (min-width: 1920px) {
+@media (max-width: 768px) {
     .settings-icon {
-        right: calc((100vw - 1920px) / 2 + 755px); /* Adjust for centered content on wide screens */
+        right: 20px;  /* Move it closer to the right side for smaller screens */
     }
 }
 
-        .settings-icon:hover {
+@media (max-width: 480px) {
+    .settings-icon {
+        top: 10px;  /* Adjust the top position for very small screens */
+        right: 10px; /* Adjust the right position */
+    }
+}
+.settings-icon:hover {
             transform: rotate(90deg);
-            background: rgba(255, 255, 255, 0.35);
             color: var(--accent-gold);
         }
-
 
     </style>
     <script>
@@ -444,8 +447,6 @@ tr:hover {
             </ul>
         </div>
         
-        
-
         <!-- Content Section -->
         <div class="content">
 
@@ -479,6 +480,7 @@ tr:hover {
 
         </div>
           <!-- User Balances Table -->
+           
 <h2 class="manage-users-header">Users with Transactions</h2>
 <table>
     <tr>
@@ -493,7 +495,7 @@ tr:hover {
     </tr>
     {% for user in user_balances %}
     <tr>
-        <td>{{ forloop.counter }}</td>
+        <td>{{ forloop.counter|add:start_index  }}</td>
         <td>{{ user.date }}</td>
         <td>{{ user.username }}</td>
         <td>{{ user.particulars }}</td>

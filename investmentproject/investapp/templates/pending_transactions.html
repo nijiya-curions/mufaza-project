@@ -27,6 +27,8 @@
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             margin: 0;
             padding: 20px;
+            background-attachment: fixed;
+
           
         }
   /* Sidebar Styles */
@@ -79,48 +81,68 @@
     font-weight: bold; /* Optional */
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Optional */
 }
+/*  */
+.content {
+    margin-left: 300px; /* Offset the content to the right of the sidebar */
+    flex-grow: 1; /* Content takes remaining space */
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    overflow-x: auto;
+    margin-top: 55px;
+    
+}
 
+h1 {
+    color: var(--primary-dark);
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-        .content {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            max-width: 100%;
-           margin-left: 300px;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
 
-        h1 {
-            color: var(--primary-dark);
-            text-align: center;
-            margin-bottom: 20px;
-        }
+table th, table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--glass-border);
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+table th {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--primary-dark);
+    font-weight: bold;
+}
 
-        table th, table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--glass-border);
-        }
+table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
 
-        table th {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--primary-dark);
-            font-weight: bold;
-        }
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
 
-        table tbody tr:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
+@media (max-width: 768px) {
+    .layout {
+        flex-direction: column; /* Stack the sidebar and content vertically on smaller screens */
+    }
 
-      
+    .sidebar {
+        width: 100%;
+        position: relative;
+    }
+
+    .content {
+        margin-left: 0;
+    }
+}
 
 .status-approved {
     background: linear-gradient(135deg, var(--success), #1a4d31);
@@ -221,8 +243,8 @@
     margin-right: 0; /* Center it horizontally */
 }
 
+</style>
 
-    </style>
     <script>
         // Wait for the DOM to load
         document.addEventListener('DOMContentLoaded', function () {
@@ -252,118 +274,117 @@
 </head>
 <body>
    
-
-
-<div class="sidebar">
-    <h2>Admin Panel</h2>
-    <ul class="sidebar-menu">
-        <li>
-            <a href="{% url 'transaction_list' %}" class="sidebar-link">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'admin-user-list' %}" class="sidebar-link">
-                <i class="fas fa-users"></i> Admins
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'pending_transactions' %}" class="sidebar-link">
-                <i class="fas fa-exchange-alt"></i> Transactions
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'admin_user_home' %}" class="sidebar-link">
-                <i class="fas fa-user-shield"></i> Users
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'logout' %}" class="sidebar-link">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </li>
-    </ul>
-</div>
-
-
-    <div class="content">
-       
-        <h1>Pending Transactions</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Sl.No</th>
-                    <th>Date</th>
-                    <th>Username</th>
-                    <th>Particulars</th>
-                    <th>Narration</th>
-                    <th>Amount Type</th>
-                    <th>Amount</th>
-                    <th>Receipt</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for transaction in page_obj %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ transaction.date|date:"Y-m-d" }}</td>
-                    <td>{{ transaction.user.username }}</td>
-                    <td>{{ transaction.particulars }}</td>
-                    <td>{{ transaction.narration }}</td>
-                    <td>{{ transaction.amount_type|capfirst }}</td>
-                    <td>${{ transaction.amount }}</td>
-                    <td>
-                        {% if transaction.transaction_receipt %}
-                            <a href="{{ transaction.transaction_receipt.url }}" target="_blank">View Receipt</a>
-                        {% else %}
-                            No Receipt
-                        {% endif %}
-                    </td>
-                    <td>
-                        <form method="post" action="{% url 'approve_transaction' transaction.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button class="status status-approved">Approved</button>
-                        </form>
-                        <form method="post" action="{% url 'reject_transaction' transaction.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button class="status status-debited">Rejected</button>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="9">No pending transactions found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <!-- Pagination Controls -->
-        <div class="pagination">
-            <span class="step-links">
-                {% if page_obj.has_previous %}
-                    <a href="?page=1">&laquo; first</a>
-                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-                {% endif %}
-
-                <span class="current">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Admin Panel</h2>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'transaction_list' %}" class="sidebar-link">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'admin-user-list' %}" class="sidebar-link">
+                        <i class="fas fa-users"></i> Admins
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'pending_transactions' %}" class="sidebar-link">
+                        <i class="fas fa-exchange-alt"></i> Transactions
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'admin_user_home' %}" class="sidebar-link">
+                        <i class="fas fa-user-shield"></i> Users
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'logout' %}" class="sidebar-link">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    
+        <!-- Content -->
+        <div class="content">
+            <h1>Pending Transactions</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sl.No</th>
+                        <th>Date</th>
+                        <th>Username</th>
+                        <th>Particulars</th>
+                        <th>Narration</th>
+                        <th>Amount Type</th>
+                        <th>Amount</th>
+                        <th>Receipt</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in page_obj %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ transaction.date|date:"Y-m-d" }}</td>
+                        <td>{{ transaction.user.username }}</td>
+                        <td>{{ transaction.particulars }}</td>
+                        <td>{{ transaction.narration }}</td>
+                        <td>{{ transaction.amount_type|capfirst }}</td>
+                        <td>${{ transaction.amount }}</td>
+                        <td>
+                            {% if transaction.transaction_receipt %}
+                                <a href="{{ transaction.transaction_receipt.url }}" target="_blank">View Receipt</a>
+                            {% else %}
+                                No Receipt
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post" action="{% url 'approve_transaction' transaction.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button class="status status-approved">Approved</button>
+                            </form>
+                            <form method="post" action="{% url 'reject_transaction' transaction.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button class="status status-debited">Rejected</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9">No pending transactions found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+    
+            <!-- Pagination Controls -->
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1">&laquo; first</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+    
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
                 </span>
-
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}">next</a>
-                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-                {% endif %}
-            </span>
+            </div>
         </div>
     </div>
-     <!-- New Transaction Card -->
-     <div class="new-transaction-card ">
+    
+    <!-- New Transaction Card -->
+    <div class="new-transaction-card">
         <a href="{% url 'create_transaction' %}" style="text-decoration: none;">
-            <button class="btn btn-gold ">New Transaction</button>
+            <button class="btn btn-gold">New Transaction</button>
         </a>
     </div>
-
-</body>
-</html>
+</body></html>    

@@ -111,6 +111,7 @@ def superuser_required(user):
     return user.is_authenticated and user.is_superuser
 
 @user_passes_test(superuser_required)
+
 def admin_user_list(request):
     User = get_user_model()
     
@@ -252,6 +253,9 @@ def transaction_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # Calculate the starting index for this page
+    start_index = paginator.per_page * (page_obj.number - 1)
+
     # Calculate totals for the cards (approved transactions)
     approved_transactions = Transaction.objects.filter(status='approved')
     credit_total = approved_transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
@@ -264,6 +268,8 @@ def transaction_list(request):
         'total_withdrawal': total_withdrawal,
         'total_return_amount': total_return_amount,  # Total return amount of all users
         'search_query': search_query,
+        'start_index': start_index,  # Pass the starting index
+
     })
 
 

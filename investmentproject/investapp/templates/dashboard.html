@@ -19,10 +19,9 @@
             --text-primary: #2d3436;
             --text-light: rgba(255, 255, 255, 0.9);
             --warning: #f39c12; /* Color for Pending */
-    --success: #27ae60; /* Color for Approved */
-    --danger: #e74c3c; /* Color for Rejected */
+            --success: #27ae60; /* Color for Approved */
+            --danger: #e74c3c; /* Color for Rejected */
         }
-       
 
         body {
             background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
@@ -36,6 +35,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
         }
 
         .welcome-section {
@@ -56,8 +56,6 @@
             justify-content: space-between;
             align-items: center;
         }
-
-        
 
         /* Cards Grid */
         .cards-grid {
@@ -232,7 +230,7 @@
             backdrop-filter: blur(10px);
         }
 
-        .status::before {
+.status::before {
     content: '';
     width: 8px;
     height: 8px;
@@ -291,7 +289,9 @@ color: #e3e6e8;
         gap: 10px;
         text-align: center;
     }
-
+    .settings-icon {
+        right: 20px;  /* Move it closer to the right side for smaller screens */
+    }
     /* Adjust the button and links */
     .btn,
     .btn-gold {
@@ -324,6 +324,13 @@ color: #e3e6e8;
     }
 }
 
+
+@media (max-width: 480px) {
+    .settings-icon {
+        top: 10px;  /* Adjust the top position for very small screens */
+        right: 10px; /* Adjust the right position */
+    }
+}
 
 @media (max-width: 749px) {
     /* Ensure the dashboard container spans the full width */
@@ -413,12 +420,6 @@ color: #e3e6e8;
         margin: 0 auto;
     }
 
-    /* Pagination adjustments */
-    .pagination {
-        font-size: 12px;
-        text-align: center;
-    }
-
     /* Reduce status badge size */
     .status {
         font-size: 12px;
@@ -440,7 +441,6 @@ color: #e3e6e8;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.25);
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
@@ -449,13 +449,12 @@ color: #e3e6e8;
             color: var(--primary-dark);
         }
 
-        .settings-icon:hover {
-            transform: rotate(90deg);
-            background: rgba(255, 255, 255, 0.35);
-            color: var(--accent-gold);
-        }
+.settings-icon:hover {
+transform: rotate(90deg);
+color: var(--accent-gold);
+}
+</style>
 
-    </style>
 </head>
 
     <body>

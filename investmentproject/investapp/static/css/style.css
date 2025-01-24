@@ -21,6 +21,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+
 .container h2 {
     text-align: center;
     margin-bottom: 20px;
@@ -71,13 +72,13 @@ textarea.form-control {
     font-size: 14px;
     letter-spacing: 0.3px;
     text-transform: uppercase;
-    
-   margin: auto;
-   display: block;
-    width: 50%;
+    margin: auto;
+    display: block; /* Ensure it's block-level */
+    width: auto;    /* Remove fixed width and allow natural width */
 }
 
-.btn-gold {
+/* Gold Button specific styles */
+.btn-gold, .btngold2 {
     background: linear-gradient(135deg, var(--accent-gold), #b39429);
     color: #ffffff;
     box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
@@ -87,7 +88,9 @@ textarea.form-control {
     transform: translateY(-3px);
     box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
 }
-.btngold2{
+
+/* .btngold2: Specific Button Styles */
+.btngold2 {
     padding: 12px 24px;
     border-radius: 12px;
     border: none;
@@ -99,6 +102,25 @@ textarea.form-control {
     text-transform: uppercase;
     margin-top: 10px;
     margin-left: 10px;
-    width: 10%;
+    width: auto;  /* Allow natural width based on content */
+    display: inline-block;  /* Default inline-block */
 }
 
+/* Responsive for smaller screens (below 768px) */
+@media (max-width: 768px) {
+     .btngold2 {
+        width: 10%;  /* Button takes full width on smaller screens */
+        font-size: 16px;  /* Adjust font size */
+        padding: 14px 20px;  /* Adjust padding for mobile devices */
+        margin-left: 0; /* Ensure no left margin */
+    }
+}
+
+/* For mobile screens under 480px */
+@media (max-width: 480px) {
+    .btngold2 {
+        font-size: 18px;  /* Adjust font size for very small screens */
+        padding: 16px 24px;  /* Adjust padding */
+        width: 25%; /* Ensure button takes full width on mobile */
+    }
+}
