@@ -49,11 +49,18 @@ label {
     background-color: var(--form-field-bg);
     box-sizing: border-box;
 }
+.form-control:hover {
+    border-color: #d4af37;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+}
 
+/* Focus effect for input fields */
 .form-control:focus {
     outline: none;
-    border-color: var(--accent-gold, #d4af37);
-    box-shadow: 0 0 4px rgba(212, 175, 55, 0.4);
+    border-color: #d4af37;
+    background-color: #fff;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
 }
 
 textarea.form-control {

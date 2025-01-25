@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pending Transactions</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
     <style>
         /* Inherit styles from the provided dashboard design */
         :root {
@@ -193,6 +196,7 @@ table tbody tr:hover {
             font-size: 14px;
             letter-spacing: 0.3px;
             text-transform: uppercase;
+            width: 100%;
         }
 
         .btn-gold {
@@ -227,20 +231,104 @@ table tbody tr:hover {
     color: white;
     border-radius: 4px;
 }
- /* New Card Styles for the "New Transaction" button */
- .new-transaction-card {
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 20px;
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    margin-top: 20px;
-    display: flex;
-    justify-content: center; /* Center the button horizontally */
-    max-width: 350px;
-    margin-left: 300px; /* Align left and right margins equally */
-    margin-right: 0; /* Center it horizontally */
+ /*  */
+ /* Main container styling */
+
+.container {
+    width: 100%;
+    max-width: 500px; /* Initial width on larger screens */
+    margin: 0 auto;  /* Center the form horizontally */
+    padding: 30px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+/* For screens between 1024px and 1440px (tablets and small laptops) */
+@media (min-width: 1024px) and (max-width: 1440px) {
+    .container {
+        max-width: 50%; /* Set width to 70% for medium-large screens */
+        padding: 25px;
+    }
+}
+
+/* For screens between 768px and 1024px (tablet and smaller laptops) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .container {
+        max-width: 40%; /* Set width to 80% for tablets */
+
+        padding: 20px;
+    }
+}
+
+/* For screens less than 768px (mobile devices) */
+@media (max-width: 768px) {
+    .container {
+        max-width: 95%; /* Take up almost full width */
+        padding: 15px;
+    }
+}
+
+.container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 26px;
+    color: #2d3436;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+    color: #2d3436;
+    font-size: 14px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 12px; /* Rounded corners */
+    background-color: #f5f5f5;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+/* Hover effect for input fields */
+.form-control:hover {
+    border-color: #d4af37;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+}
+
+/* Focus effect for input fields */
+.form-control:focus {
+    outline: none;
+    border-color: #d4af37;
+    background-color: #fff;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+/* Textarea specific styling */
+textarea.form-control {
+    resize: none;
+    height: 120px;
+}
+
+
+/* Centering form when sidebar is present and screen is larger */
+@media (min-width: 768px) {
+    .container {
+        margin-left: auto;
+        margin-right: auto; /* Ensure it remains centered */
+    }
 }
 
 </style>
@@ -308,83 +396,141 @@ table tbody tr:hover {
         </div>
     
         <!-- Content -->
-        <div class="content">
-            <h1>Pending Transactions</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Sl.No</th>
-                        <th>Date</th>
-                        <th>Username</th>
-                        <th>Particulars</th>
-                        <th>Narration</th>
-                        <th>Amount Type</th>
-                        <th>Amount</th>
-                        <th>Receipt</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for transaction in page_obj %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ transaction.date|date:"Y-m-d" }}</td>
-                        <td>{{ transaction.user.username }}</td>
-                        <td>{{ transaction.particulars }}</td>
-                        <td>{{ transaction.narration }}</td>
-                        <td>{{ transaction.amount_type|capfirst }}</td>
-                        <td>${{ transaction.amount }}</td>
-                        <td>
-                            {% if transaction.transaction_receipt %}
-                                <a href="{{ transaction.transaction_receipt.url }}" target="_blank">View Receipt</a>
-                            {% else %}
-                                No Receipt
-                            {% endif %}
-                        </td>
-                        <td>
-                            <form method="post" action="{% url 'approve_transaction' transaction.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button class="status status-approved">Approved</button>
-                            </form>
-                            <form method="post" action="{% url 'reject_transaction' transaction.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button class="status status-debited">Rejected</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="9">No pending transactions found.</td>
-                    </tr>
+      <!-- Content -->
+<div class="content">
+    <h1>Pending Transactions</h1>
+
+    <!-- Pending Transactions Table (Top) -->
+    <table>
+        <thead>
+            <tr>
+                <th>Sl.No</th>
+                <th>Date</th>
+                <th>Username</th>
+                <th>Particulars</th>
+                <th>Narration</th>
+                <th>Amount Type</th>
+                <th>Amount</th>
+                <th>Receipt</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in page_obj %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ transaction.date|date:"Y-m-d" }}</td>
+                <td>{{ transaction.user.username }}</td>
+                <td>{{ transaction.particulars }}</td>
+                <td>{{ transaction.narration }}</td>
+                <td>{{ transaction.amount_type|capfirst }}</td>
+                <td>${{ transaction.amount }}</td>
+                <td>
+                    {% if transaction.transaction_receipt %}
+                        <a href="{{ transaction.transaction_receipt.url }}" target="_blank">View Receipt</a>
+                    {% else %}
+                        No Receipt
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="post" action="{% url 'approve_transaction' transaction.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button class="status status-approved">Approved</button>
+                    </form>
+                    <form method="post" action="{% url 'reject_transaction' transaction.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button class="status status-debited">Rejected</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9">No pending transactions found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+</div><br><br><br><br><br><br>
+
+     <!-- New Transaction Form (Below the Table) -->
+     <div class="container">
+        <h2>Create Investment</h2>
+        <form method="post" enctype="multipart/form-data" class="profile-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_user">Select User</label>
+                <select name="user" id="id_user" class="form-control" required>
+                    {% for user in form.user.field.queryset %}
+                        <option value="{{ user.id }}" {% if form.user.value == user.id %}selected{% endif %}>
+                            {{ user }}
+                        </option>
                     {% endfor %}
-                </tbody>
-            </table>
-    
-            <!-- Pagination Controls -->
-            <div class="pagination">
-                <span class="step-links">
-                    {% if page_obj.has_previous %}
-                        <a href="?page=1">&laquo; first</a>
-                        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-                    {% endif %}
-    
-                    <span class="current">
-                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-                    </span>
-    
-                    {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}">next</a>
-                        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-                    {% endif %}
-                </span>
+                </select>
             </div>
-        </div>
+            <div class="form-group">
+                <label for="id_particulars">Particulars</label>
+                <input type="text" name="particulars" id="id_particulars" value="{{ form.particulars.value|default:'' }}" class="form-control" placeholder="Enter particulars" required>
+            </div>
+
+            <div class="form-group">
+                <label for="id_narration">Narration</label>
+                <textarea name="narration" id="id_narration" class="form-control" placeholder="Enter Narration" required>{{ form.narration.value|default:'' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                 <label for="id_amount_type">Amount Type</label>
+                <select name="amount_type" id="id_amount_type" class="form-control" required>
+                    <option value="" disabled selected hidden>Choose Debit or Credit</option>
+                    {% for choice_value, choice_label in form.amount_type.field.choices %}
+                        <option value="{{ choice_value }}" {% if form.amount_type.value == choice_value %}selected{% endif %}>
+                            {{ choice_label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="id_amount">Amount</label>
+                <input type="number" name="amount" id="id_amount" value="{{ form.amount.value|default:'' }}" class="form-control" placeholder="Enter Amount" required>
+            </div>
+
+            <button type="submit" class="btn btn-gold">Create</button>
+        </form>
     </div>
-    
-    <!-- New Transaction Card -->
-    <div class="new-transaction-card">
-        <a href="{% url 'create_transaction' %}" style="text-decoration: none;">
-            <button class="btn btn-gold">New Transaction</button>
-        </a>
-    </div>
-</body></html>    
+</div>
+
+{% if messages %}
+<script type="text/javascript">
+    // Display an alert box for each message
+    {% for message in messages %}
+        alert("{{ message }}");  // Show the message in an alert box
+    {% endfor %}
+
+    // After showing the alert, redirect to the 'transaction_list' page after 2 seconds
+    setTimeout(function() {
+        window.location.href = "{% url 'transaction_list' %}";
+    }, 2000);  // Delay for 2 seconds
+</script>
+{% endif %}
+
+</body></html>

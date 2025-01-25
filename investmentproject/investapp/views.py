@@ -152,40 +152,6 @@ def admin_user_list(request):
     return render(request, 'manage_users.html', {'users': users, 'search_query': search_query})
 
 
-
-# admin trasacton creation
-# Get the custom user model
-CustomUser = get_user_model()
-@login_required
-@user_passes_test(lambda u: u.is_staff)  # Only admin can access
-def create_transaction(request):
-    if request.method == 'POST':
-        form = TransactionForm(request.POST, request.FILES)
-        if form.is_valid():
-            transaction = form.save(commit=False)  # Do not save yet
-            transaction.status = 'approved'  # Automatically approve the transaction
-            
-            # Set the user for the transaction (if the admin is creating for a specific user)
-            user_id = request.POST.get('user')  # Assuming you pass the user_id as 'user' in the form
-            try:
-                user = CustomUser.objects.get(id=user_id)  # Fetch the user from CustomUser model
-                transaction.user = user  # Set the user for the transaction
-            except CustomUser.DoesNotExist:
-                messages.error(request, "Selected user does not exist.")
-                return render(request, 'create_transaction.html', {'form': form})
-
-            transaction.save()  # Save the transaction
-            messages.success(request, "Transaction created and approved successfully.")
-            
-            # Do not redirect here, just render the page with the message
-            return render(request, 'create_transaction.html', {'form': TransactionForm()})
-
-    else:
-        form = TransactionForm()
-
-    return render(request, 'create_transaction.html', {'form': form})
-
-
 #  admin transaction list
 # Check if the user is an admin (superuser)
 from investapp.models import CustomUser  # Make sure you import the custom user model
@@ -273,21 +239,47 @@ def transaction_list(request):
     })
 
 
-# approvals and rejections
+# approvals and rejections and create transaction for user by admin
+
 @login_required
-@user_passes_test(lambda user: user.is_staff)
+@user_passes_test(lambda u: u.is_staff)  # Ensure only staff can access
 def pending_transactions(request):
     # Get all transactions with 'pending' status
     transactions = Transaction.objects.filter(status='pending').order_by('-date')
 
     # Pagination
-    paginator = Paginator(transactions, 4)  # Show 10 transactions per page
+    paginator = Paginator(transactions, 4)  # Show 4 transactions per page
     page_number = request.GET.get('page')  # Get the page number from the request
     page_obj = paginator.get_page(page_number)
 
+    # Handle form submission for new transaction
+    if request.method == 'POST':
+        form = TransactionForm(request.POST, request.FILES)
+        if form.is_valid():
+            transaction = form.save(commit=False)  # Do not save yet
+            transaction.status = 'approved'  # Automatically approve the transaction
+            
+            # Set the user for the transaction
+            user_id = request.POST.get('user')  # Get the selected user
+            try:
+                user = CustomUser.objects.get(id=user_id)  # Fetch the user
+                transaction.user = user  # Set the user for the transaction
+            except CustomUser.DoesNotExist:
+                messages.error(request, "Selected user does not exist.")
+                return render(request, 'pending_transactions.html', {'page_obj': page_obj, 'form': form})
+
+            transaction.save()  # Save the transaction
+            messages.success(request, "Transaction created and approved successfully.")
+            return redirect('pending_transactions')  # Redirect to avoid duplicate submissions
+
+    else:
+        form = TransactionForm()  # Create an empty form for GET request
+
     return render(request, 'pending_transactions.html', {
         'page_obj': page_obj,
+        'form': form,  # Pass the form to the template
     })
+
 
 @login_required
 @user_passes_test(lambda user: user.is_staff)
@@ -306,6 +298,7 @@ def reject_transaction(request, transaction_id):
         transaction.status = 'rejected'
         transaction.save()
         return redirect('pending_transactions')
+
 
 
 # admin user dahsboard
@@ -336,6 +329,7 @@ def admin_user_home(request, user_id=None):
         initial_value = first_transaction.amount if first_transaction else 0
         current_value = total_credit - total_debit
 
+
         # Calculate returns percentage
         if initial_value > 0:
             total_returns = round(((current_value - initial_value) / initial_value) * 100, 2)
@@ -351,6 +345,11 @@ def admin_user_home(request, user_id=None):
             'total_returns': total_returns,  # Total returns as a percentage
             'status': 'Active' if total_returns > 0 else 'Inactive',
         })
+
+   # Paginate the user data
+    paginator = Paginator(user_data, 10)  # Show 10 users per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     # If user_id is provided, retrieve selected user and their ledger
     ledger_data = None
@@ -371,7 +370,7 @@ def admin_user_home(request, user_id=None):
 
     # Pass data to the template
     return render(request, 'admin-user-dashboard.html', {
-        'user_data': user_data,
+         'page_obj': page_obj,
         'ledger_data': ledger_data,
         'selected_user': selected_user,
     })
@@ -464,3 +463,97 @@ def update_profile(request):
         form = ProfileUpdateForm(instance=user)
     
     return render(request, 'updateprofile.html', {'form': form})
+
+
+
+
+
+
+# ----------------------------------------------------------
+
+# from django.http import JsonResponse, HttpResponse
+# from django.template.loader import render_to_string
+# from django.core.paginator import Paginator
+# from io import BytesIO
+# import xlwt  # For Excel export
+# from reportlab.lib.pagesizes import letter
+# from reportlab.pdfgen import canvas
+
+
+# def export_users_pdf(request):
+#     # Example data (replace with your actual logic)
+#     user_data = [
+#         {'user_id': 1, 'username': 'user1', 'credit_total': 1000, 'total_returns': 200, 'status': 'Active'},
+#         {'user_id': 2, 'username': 'user2', 'credit_total': 1500, 'total_returns': 300, 'status': 'Active'},
+#         # Add more users as needed
+#     ]
+
+#     # Generate HTML content for PDF
+#     html_content = render_to_string('users_pdf_template.html', {'user_data': user_data})
+
+#     # Convert HTML to PDF using WeasyPrint
+#     pdf_file = HTML(string=html_content).write_pdf()
+
+#     # Return the PDF as an HTTP response
+#     response = HttpResponse(pdf_file, content_type='application/pdf')
+#     response['Content-Disposition'] = 'attachment; filename="users_report.pdf"'
+#     return response
+
+# def export_users_excel(request):
+#     # Fetch all users with approved transactions
+#     users_with_transactions = CustomUser.objects.filter(
+#         is_staff=False,
+#         is_superuser=False,
+#         transactions__status='approved'
+#     ).distinct()
+
+#     user_data = []
+#     for user in users_with_transactions:
+#         transactions = Transaction.objects.filter(user=user, status='approved')
+#         total_credit = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
+#         total_debit = transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
+
+#         first_transaction = transactions.filter(amount_type='credit').order_by('id').first()
+#         initial_value = first_transaction.amount if first_transaction else 0
+#         current_value = total_credit - total_debit
+
+#         if initial_value > 0:
+#             total_returns = round(((current_value - initial_value) / initial_value) * 100, 2)
+#         else:
+#             total_returns = 0
+
+#         user_data.append({
+#             'username': user.username,
+#             'user_id': user.id,
+#             'debit_total': total_debit,
+#             'credit_total': total_credit,
+#             'total_returns': total_returns,
+#             'status': 'Active' if total_returns > 0 else 'Inactive',
+#         })
+
+#     # Excel export logic
+#     response = HttpResponse(content_type='application/ms-excel')
+#     response['Content-Disposition'] = 'attachment; filename=users_report.xlsx'
+
+#     wb = xlwt.Workbook(encoding='utf-8')
+#     sheet = wb.add_sheet('Users')
+
+#     # Header row
+#     sheet.write(0, 0, 'User ID')
+#     sheet.write(0, 1, 'Username')
+#     sheet.write(0, 2, 'Total Invested')
+#     sheet.write(0, 3, 'Total Returns')
+#     sheet.write(0, 4, 'Status')
+
+#     # Data rows
+#     row = 1
+#     for user in user_data:
+#         sheet.write(row, 0, user['user_id'])
+#         sheet.write(row, 1, user['username'])
+#         sheet.write(row, 2, user['credit_total'])
+#         sheet.write(row, 3, user['total_returns'])
+#         sheet.write(row, 4, user['status'])
+#         row += 1
+
+#     wb.save(response)
+#     return response

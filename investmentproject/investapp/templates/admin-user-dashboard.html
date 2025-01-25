@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Section</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
     <style>
-        /* Root Variables from your theme */
+        /* Root Variables */
         :root {
             --glass-bg: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.18);
@@ -16,193 +19,155 @@
             --accent-gold: #d4af37;
             --text-primary: #2d3436;
             --text-light: rgba(255, 255, 255, 0.9);
-            --warning: #f39c12; /* Color for Pending */
-            --success: #27ae60; /* Color for Approved */
-            --danger: #e74c3c; /* Color for Rejected */
+            --warning: #f39c12;
+            --success: #27ae60;
+            --danger: #e74c3c;
         }
+
         body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
             min-height: 100vh;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-          
+            display: flex;
+
         }
-    /* ......................... */
- 
-.ledger-modal {
-    position: fixed;
+
+        /* Sidebar */
+       
+.sidebar {
+    position: fixed; /* Fix the sidebar to the left */
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    width: 250px;
+    background: rgba(26, 61, 55, 0.95);
+    backdrop-filter: blur(var(--blur-amount));
+    padding: 20px;
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    
+    z-index: 1000; /* Ensure the sidebar is always on top */
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin-top: 40px;
+}
+
+.sidebar-menu li {
+    margin-bottom: 15px;
+}
+
+.sidebar-menu a {
     display: flex;
     align-items: center;
-    justify-content: center;
-    z-index: 1000;
+    padding: 12px 20px;
+    color: var(--text-light);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    width: 80%;
-    max-height: 90%;
-    overflow-y: auto;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+.sidebar-menu a i {
+    margin-right: 10px;
+    font-size: 1.2em;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    background: var(--accent-gold); /* Highlight color */
+    color: white; /* Ensure text is visible */
+    font-weight: bold; /* Optional */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Optional */
 }
 
-table th, table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
 
-table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-}
-   
-    /* Styling for table header */
-    h3 {
-        font-size: 24px;
-        margin-bottom: 15px;
-        color: #333;
-    }
-    h2{
-        color: #ddd;
-    }
-
-
-        .users-container {
+        /* Content Area */
+        .content {
+            margin-left: 300px; /* Leave space for the sidebar */
             padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 25px;
-            margin-left: 310px;
+            width: calc(100% - 270px); /* Ensure content doesn't overlap */
         }
-
-        .user-card {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 25px;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .user-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(212, 175, 55, 0.2),
-                rgba(212, 175, 55, 0.3),
-                rgba(212, 175, 55, 0.2),
-                transparent
-            );
-            transform: skewX(-25deg);
-            transition: 1s ease;
-            opacity: 0;
-        }
-
-        .user-card:hover::after {
-            left: 150%;
-            opacity: 1;
-        }
-
-        .user-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+.content h1{
+    text-align: center;
+}
+        .btn {
+            padding: 10px 20px;
+            background: var(--accent-gold);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
             margin-bottom: 20px;
         }
 
-        .user-info {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+        .btn:hover {
+            background: #b39429;
         }
 
-        .info-group {
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            backdrop-filter: blur(8px);
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        .info-label {
-            font-size: 0.85rem;
-            color: var(--primary-dark);
-            opacity: 0.8;
-            margin-bottom: 5px;
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
         }
 
-        .info-value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--primary-dark);
+        table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
 
         .view-icon {
-            font-size: 22px;
-            width: 50px;
-            height: 50px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 15px;
+            font-size: 18px;
             color: var(--primary-dark);
             cursor: pointer;
             transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         }
 
         .view-icon:hover {
-            transform: translateY(-3px);
             color: var(--accent-gold);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
         }
 
-        .btn {
-            padding: 12px 24px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 14px;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
+        /* Modal Styles */
+        .ledger-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
 
-        .btn-gold {
-            background: linear-gradient(135deg, var(--accent-gold), #b39429);
-            color: white;
-            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        .btn-gold:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
-        }
-/* close modal */
+      /* close modal */
         
 .close-modal {
             position: absolute;
@@ -219,60 +184,32 @@ table th {
             transform: rotate(90deg);
         }
 
-
-/*  */
- /* Sidebar Styles */
- .sidebar {
-            position: fixed; /* Fix the sidebar to the left */
-            top: 0;
-            left: 0;
-            width: 250px;
-            background: rgba(26, 61, 55, 0.95);
-            backdrop-filter: blur(var(--blur-amount));
-            padding: 20px;
-            color: var(--text-light);
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto; /* Make the sidebar scrollable */
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin-top: 40px;
-        }
-
-        .sidebar-menu li {
-            margin-bottom: 15px;
-        }
-
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: var(--text-light);
-            text-decoration: none;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar-menu a i {
-            margin-right: 10px;
-            font-size: 1.2em;
-        }
-    
-.sidebar-menu a:hover,
-.sidebar-menu a.active {
-    background: var(--accent-gold); /* Highlight color */
-    color: white; /* Ensure text is visible */
-    font-weight: bold; /* Optional */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Optional */
+/* pagination */
+.pagination {
+    text-align: center;
+    margin-top: 30px;
+    padding-bottom:100px ;
 }
+.pagination a {
+    padding: 8px 16px;
+    margin: 0 5px;
+    background-color: var(--accent-gold);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+   
+}
+
+.pagination .current {
+    padding: 8px 16px;
+    margin: 0 5px;
+    background-color: #b39429;
+    color: white;
+    border-radius: 4px;
+}
+
     </style>
-     <script>
+    <script>
         // Wait for the DOM to load
         document.addEventListener('DOMContentLoaded', function () {
             // Select all sidebar links
@@ -300,133 +237,135 @@ table th {
     </script>
 </head>
 <body>
-
-    <a href="{% url 'transaction_list' %}" style=" text-decoration: none;">  <button class="btn btn-gold ">
-        Back
-     </button></a>
-    
-<!--  -->
-
-<div class="sidebar">
-    <h2>Admin Panel</h2>
-    <ul class="sidebar-menu">
-        <li>
-            <a href="{% url 'transaction_list' %}" class="sidebar-link">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'admin-user-list' %}" class="sidebar-link">
-                <i class="fas fa-users"></i> Admins
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'pending_transactions' %}" class="sidebar-link">
-                <i class="fas fa-exchange-alt"></i> Transactions
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'admin_user_home' %}" class="sidebar-link">
-                <i class="fas fa-user-shield"></i> Users
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'logout' %}" class="sidebar-link">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </li>
-    </ul>
-</div>
-
-
-<!--  -->
-    <div class="users-container">
-        {% for user in user_data %}
-        <div class="user-card">
-            <div class="user-header">
-                <h3>{{ user.username }}</h3>
-                <!-- Link to reload the page with the selected user_id -->
-                <a href="{% url 'user_ledger' user.user_id %}" class="fas fa-eye view-icon"></a>
-            </div>
-            <div class="user-info">
-                <div class="info-group">
-                    <div class="info-label">User ID</div>
-                    <div class="info-value">#{{ user.user_id }}</div>
-                </div>
-                <div class="info-group">
-                    <div class="info-label">Total Invested</div>
-                    <div class="info-value">${{ user.credit_total }}</div>
-                </div>
-                <div class="info-group">
-                    <div class="info-label">Total Returns</div>
-                    <div class="info-value">${{ user.total_returns }}</div>
-                </div>
-                <div class="info-group">
-                    <div class="info-label">Status</div>
-                    <div class="info-value">{{ user.status }}</div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <ul class="sidebar-menu">
+            <li><a href="{% url 'transaction_list' %}" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{% url 'admin-user-list' %}" class="sidebar-link"><i class="fas fa-users"></i> Admins</a></li>
+            <li><a href="{% url 'pending_transactions' %}" class="sidebar-link"><i class="fas fa-exchange-alt"></i> Transactions</a></li>
+            <li><a href="{% url 'admin_user_home' %}" class="sidebar-link"><i class="fas fa-user-shield"></i> Users</a></li>
+            <li><a href="{% url 'logout' %}" class="sidebar-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
     </div>
-    
-    <!-- Display ledger details if ledger_data is available -->
-{% if ledger_data %}
-<div class="ledger-modal">
-    
-    <div class="modal-content">
-        <!-- Link to close/hide ledger view -->
-        <a href="{% url 'admin_user_home' %}"><i class="fas fa-times close-modal"></i></a>
-
-        {% if selected_user %}
-        <h3>{{ selected_user.username }}'s Ledger</h3>
-        {% else %}
-        <h2>Ledger Details</h2>
-        {% endif %}
-        
+<!-- pdf -->
+<!-- Content Area -->
+<div class="content">
+    <h1>User Transactions</h1>
+    <!-- Export Buttons -->
+    <div>
+        <button class="btn btn-gold" onclick="exportUsersPDF()">
+            <i class="fas fa-download"></i> Export PDF
+        </button>
+        <button class="btn btn-gold" onclick="exportUsersExcel()">
+            <i class="fas fa-file-excel"></i> Export Excel
+        </button>
+    </div>
+    <!-- Users Table -->
+    <div id="user-table-content">
         <table>
             <thead>
                 <tr>
-                    <th>Sl.No</th>
-                    <th>Date</th>
-                    <th>Particulars</th>
-                    <th>Narration</th>
-                    <th>Debit</th>
-                    <th>Credit</th>
-                    <th>Balance</th>
+                    <th>User ID</th>
+                    <th>Username</th>
+                    <th>Total Invested</th>
+                    <th>Total Returns</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for transaction in ledger_data %}
+                {% for user in page_obj.object_list %}
                 <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ transaction.date }}</td>
-                    <td>{{ transaction.particulars }}</td>
-                    <td>{{ transaction.narration }}</td>
-                    <td>
-                        {% if transaction.amount_type == 'debit' %}
-                        ${{ transaction.amount }}
-                        {% else %}
-                        -
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if transaction.amount_type == 'credit' %}
-                        ${{ transaction.amount }}
-                        {% else %}
-                        -
-                        {% endif %}
-                    </td>
-                    <td>
-                        ${{ transaction.running_balance }}
-                    </td>
+                    <td>#{{ user.user_id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>${{ user.credit_total }}</td>
+                    <td>${{ user.total_returns }}</td>
+                    <td>{{ user.status }}</td>
+                    <td><a href="{% url 'user_ledger' user.user_id %}" class="fas fa-eye view-icon"></a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No users found.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-</div>
-{% endif %}
 
+    <!-- Pagination Controls -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+</div>
+
+
+        <!-- Ledger Modal -->
+        {% if ledger_data %}
+        <div class="ledger-modal">
+            <div class="modal-content">
+                <a href="{% url 'admin_user_home' %}" class="close-modal"><i class="fas fa-times"></i></a>
+                {% if selected_user %}
+                <h3>{{ selected_user.username }}'s Ledger</h3>
+                {% else %}
+                <h2>Ledger Details</h2>
+                {% endif %}
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sl.No</th>
+                            <th>Date</th>
+                            <th>Particulars</th>
+                            <th>Narration</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in ledger_data %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ transaction.date }}</td>
+                            <td>{{ transaction.particulars }}</td>
+                            <td>{{ transaction.narration }}</td>
+                            <td>{% if transaction.amount_type == 'debit' %} ${{ transaction.amount }} {% else %} - {% endif %}</td>
+                            <td>{% if transaction.amount_type == 'credit' %} ${{ transaction.amount }} {% else %} - {% endif %}</td>
+                            <td>${{ transaction.running_balance }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <!-- Script to Export Table to PDF -->
+<script>
+    function exportUsersPDF() {
+        const element = document.getElementById('user-table-content');
+        html2pdf().from(element).save('user_transactions.pdf');
+    }
+    function exportUsersExcel() {
+        const element = document.getElementById('user-table-content');
+        const wb = XLSX.utils.table_to_book(element, {sheet: "User Transactions"});
+        XLSX.writeFile(wb, 'user_transactions.xlsx');
+    }
+</script>
 </body>
-</html>    
+</html>

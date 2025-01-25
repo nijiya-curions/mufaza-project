@@ -12,7 +12,6 @@ urlpatterns = [
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('logout/', views.logout_view, name='logout'),
     path('admin/user-list/', views.admin_user_list, name='admin-user-list'),
-      path('transactions/create/', views.create_transaction, name='create_transaction'),
     path('transactions/', views.transaction_list, name='transaction_list'),
     path('manage_investment/', views.manage_investment, name='manage_investment'),
      path('admin_home/', views.admin_user_home, name='admin_user_home'),
@@ -21,7 +20,9 @@ urlpatterns = [
     path('reject-transaction/<int:transaction_id>/', views.reject_transaction, name='reject_transaction'),
     path('user_ledger/<int:user_id>/', views.admin_user_home, name='user_ledger'),
     path('profile/update/', views.update_profile, name='update_profile'),
-
+# 
+#  path('export-users-pdf/', views.export_users_pdf, name='export_users_pdf'),
+#     path('export-users-excel/', views.export_users_excel, name='export_users_excel'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
