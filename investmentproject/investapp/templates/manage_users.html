@@ -87,7 +87,7 @@
         .main-content {
             flex: 1;
             padding: 20px;
-            margin-left: 300px;
+            margin-left: 290px;
         }
 
         /* Heading directly on top of the table */
@@ -272,42 +272,47 @@
                     <th>Address</th>
                     <th>Approved</th>
                     <th>Actions</th>
-                </tr> 
+                    <th>Admin Actions</th> <!-- New column for admin actions -->
+                </tr>
             </thead>
             <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.first_name }}</td>
-                <td>{{ user.last_name }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.phone_number }}</td>
-                <td>{{ user.address }}</td>
-                <td>{{ user.is_approved }}</td>
-                <td> 
-            
-
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="user_id" value="{{ user.id }}">
-                    
-                        {% if user.is_approved %}
-                            <button type="submit" name="action" value="toggle" class="status status-debited">Deactivate</button>
-                        {% else %}
-                            <button type="submit" name="action" value="toggle" class="status status-approved">Activate</button>
-                        {% endif %}
-                    </form>
-                    
-                    
-                </td>
-            </tr>
-            {% endfor %} 
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.first_name }}</td>
+                    <td>{{ user.last_name }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.phone_number }}</td>
+                    <td>{{ user.address }}</td>
+                    <td>{{ user.is_approved }}</td>
+                    <td>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            {% if user.is_approved %}
+                                <button type="submit" name="action" value="toggle" class="status status-debited">Deactivate</button>
+                            {% else %}
+                                <button type="submit" name="action" value="toggle" class="status status-approved">Activate</button>
+                            {% endif %}
+                        </form>
+                    </td>
+                    <td> <!-- New column for admin actions -->
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            {% if user.is_superuser %}
+                                <button type="submit" name="action" value="demote" class="status status-debited">Demote</button>
+                            {% else %}
+                                <button type="submit" name="action" value="promote" class="status status-approved">Promote</button>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
             </tbody>
-            
         </table>
-    </div>
+        
 
-    
 </body>
 </html>

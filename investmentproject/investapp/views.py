@@ -48,7 +48,6 @@ def signup_view(request):
 
 @never_cache
 def login_view(request):
-
     if request.user.is_authenticated:  # Check if the user is already logged in
         # Redirect to the appropriate dashboard based on user type
         if request.user.is_superuser:
@@ -104,19 +103,16 @@ def logout_view(request):
 
 
 # Admin view to list all users
-
 # Check if user is superuser
-
 def superuser_required(user):
     return user.is_authenticated and user.is_superuser
 
 @user_passes_test(superuser_required)
-
 def admin_user_list(request):
     User = get_user_model()
     
     # Get the search query from the GET request
-    search_query = request.GET.get('search', '')  # Default to empty string if no search query
+    search_query = request.GET.get('search', '')
 
     # Filter users based on the search query (first name or last name contains the search term)
     if search_query:
@@ -138,18 +134,32 @@ def admin_user_list(request):
             messages.error(request, "User not found.")
             return redirect('admin-user-list')
 
-        # Toggle the approval status
-        if action == 'toggle':
-            user.is_approved = not user.is_approved  # Toggle the status
+        if action == 'toggle':  # Toggle approval status
+            user.is_approved = not user.is_approved
+            user.save()
+            status = "activated" if user.is_approved else "deactivated"
+            messages.success(request, f"User {user.username} has been {status}.")
+        elif action == 'promote':  # Promote to admin
+            if not user.is_superuser:  # Avoid promoting an already superuser
+                user.is_staff = True
+                user.is_superuser = True
+                user.save()
+                messages.success(request, f"User {user.username} has been promoted to Admin.")
+            else:
+                messages.error(request, "User is already an Admin.")
+        elif action == 'demote':  # Demote from admin
+            if user.is_superuser:  # Ensure only superusers can be demoted
+                user.is_staff = False
+                user.is_superuser = False
+                user.save()
+                messages.success(request, f"User {user.username} has been demoted to a regular user.")
+            else:
+                messages.error(request, "User is not an Admin.")
         else:
             messages.error(request, "Invalid action.")
-            return redirect('admin-user-list')
-
-        user.save()
-        status = "activated" if user.is_approved else "deactivated"
-        messages.success(request, f"User {user.username} has been {status}.")
 
     return render(request, 'manage_users.html', {'users': users, 'search_query': search_query})
+
 
 
 #  admin transaction list
@@ -165,9 +175,8 @@ def transaction_list(request):
     search_query = request.GET.get('search', '')
 
     # Get all users who have at least one approved transaction
+   # Get all users who have at least one approved transaction
     users_with_transactions = CustomUser.objects.filter(
-        is_staff=False,
-        is_superuser=False,
         transactions__status='approved'
     ).distinct()
 
@@ -311,11 +320,10 @@ def decimal_to_float(value):
 @user_passes_test(lambda user: user.is_staff)
 def admin_user_home(request, user_id=None):
     # Filter users who have at least one approved transaction
+    # Get all users who have at least one approved transaction
     users_with_transactions = CustomUser.objects.filter(
-        is_staff=False, 
-        is_superuser=False,
-        transactions__status='approved'  # Filter for approved transactions
-    ).distinct()  # Ensure no duplicates due to joins
+        transactions__status='approved'
+    ).distinct()
 
     user_data = []
     for user in users_with_transactions:
@@ -468,92 +476,3 @@ def update_profile(request):
 
 
 
-
-# ----------------------------------------------------------
-
-# from django.http import JsonResponse, HttpResponse
-# from django.template.loader import render_to_string
-# from django.core.paginator import Paginator
-# from io import BytesIO
-# import xlwt  # For Excel export
-# from reportlab.lib.pagesizes import letter
-# from reportlab.pdfgen import canvas
-
-
-# def export_users_pdf(request):
-#     # Example data (replace with your actual logic)
-#     user_data = [
-#         {'user_id': 1, 'username': 'user1', 'credit_total': 1000, 'total_returns': 200, 'status': 'Active'},
-#         {'user_id': 2, 'username': 'user2', 'credit_total': 1500, 'total_returns': 300, 'status': 'Active'},
-#         # Add more users as needed
-#     ]
-
-#     # Generate HTML content for PDF
-#     html_content = render_to_string('users_pdf_template.html', {'user_data': user_data})
-
-#     # Convert HTML to PDF using WeasyPrint
-#     pdf_file = HTML(string=html_content).write_pdf()
-
-#     # Return the PDF as an HTTP response
-#     response = HttpResponse(pdf_file, content_type='application/pdf')
-#     response['Content-Disposition'] = 'attachment; filename="users_report.pdf"'
-#     return response
-
-# def export_users_excel(request):
-#     # Fetch all users with approved transactions
-#     users_with_transactions = CustomUser.objects.filter(
-#         is_staff=False,
-#         is_superuser=False,
-#         transactions__status='approved'
-#     ).distinct()
-
-#     user_data = []
-#     for user in users_with_transactions:
-#         transactions = Transaction.objects.filter(user=user, status='approved')
-#         total_credit = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
-#         total_debit = transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
-
-#         first_transaction = transactions.filter(amount_type='credit').order_by('id').first()
-#         initial_value = first_transaction.amount if first_transaction else 0
-#         current_value = total_credit - total_debit
-
-#         if initial_value > 0:
-#             total_returns = round(((current_value - initial_value) / initial_value) * 100, 2)
-#         else:
-#             total_returns = 0
-
-#         user_data.append({
-#             'username': user.username,
-#             'user_id': user.id,
-#             'debit_total': total_debit,
-#             'credit_total': total_credit,
-#             'total_returns': total_returns,
-#             'status': 'Active' if total_returns > 0 else 'Inactive',
-#         })
-
-#     # Excel export logic
-#     response = HttpResponse(content_type='application/ms-excel')
-#     response['Content-Disposition'] = 'attachment; filename=users_report.xlsx'
-
-#     wb = xlwt.Workbook(encoding='utf-8')
-#     sheet = wb.add_sheet('Users')
-
-#     # Header row
-#     sheet.write(0, 0, 'User ID')
-#     sheet.write(0, 1, 'Username')
-#     sheet.write(0, 2, 'Total Invested')
-#     sheet.write(0, 3, 'Total Returns')
-#     sheet.write(0, 4, 'Status')
-
-#     # Data rows
-#     row = 1
-#     for user in user_data:
-#         sheet.write(row, 0, user['user_id'])
-#         sheet.write(row, 1, user['username'])
-#         sheet.write(row, 2, user['credit_total'])
-#         sheet.write(row, 3, user['total_returns'])
-#         sheet.write(row, 4, user['status'])
-#         row += 1
-
-#     wb.save(response)
-#     return response
