@@ -131,6 +131,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Ensure cache is disabled for authenticated pages
+CACHE_MIDDLEWARE_SECONDS = 0  # Disable caching entirely
+CACHE_MIDDLEWARE_KEY_PREFIX = ''  # Optional
+
 
 # settings.py
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default: database-backed sessions

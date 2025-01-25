@@ -188,25 +188,47 @@
 .pagination {
     text-align: center;
     margin-top: 30px;
-    padding-bottom:100px ;
+    padding-bottom: 100px;
+    display: flex;
+    justify-content: center; /* Center all links */
+    align-items: center; /* Vertically align links */
+    gap: 10px; /* Add spacing between links */
+    flex-wrap: wrap; /* Ensure wrapping on smaller screens */
 }
-.pagination a {
+
+.pagination a,
+.pagination .current {
     padding: 8px 16px;
-    margin: 0 5px;
     background-color: var(--accent-gold);
     color: white;
     text-decoration: none;
     border-radius: 4px;
-   
+    font-size: 14px;
+    display: inline-block;
 }
 
 .pagination .current {
-    padding: 8px 16px;
-    margin: 0 5px;
     background-color: #b39429;
-    color: white;
-    border-radius: 4px;
 }
+
+/* Responsive Adjustments for Small Screens */
+@media (max-width: 425px) {
+    .pagination {
+        flex-wrap: nowrap; /* Prevent links from wrapping */
+        overflow-x: auto; /* Add horizontal scroll for overflow */
+        justify-content: center; /* Center links horizontally */
+        gap: 5px; /* Reduce gap between links */
+        
+    }
+
+    .pagination a,
+    .pagination .current {
+        padding: 6px 12px; /* Smaller padding for compact layout */
+        font-size: 12px; /* Smaller font for small screens */
+      
+    }
+}
+
 
     </style>
     <script>

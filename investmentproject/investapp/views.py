@@ -18,6 +18,8 @@ from django.views.decorators.cache import never_cache
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import ProfileUpdateForm
+from django.contrib.auth import logout
+
 
 # home page
 def home(request):
@@ -99,7 +101,9 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('home')
+    request.session.flush()  # Clear the session entirely
+    return redirect('home')  # Redirect to login page
+
 
 
 # Admin view to list all users
@@ -108,6 +112,7 @@ def superuser_required(user):
     return user.is_authenticated and user.is_superuser
 
 @user_passes_test(superuser_required)
+@never_cache
 def admin_user_list(request):
     User = get_user_model()
     
@@ -170,7 +175,10 @@ def admin_required(user):
     return user.is_authenticated and user.is_staff
 
 @user_passes_test(admin_required, login_url='login')
+@never_cache
 def transaction_list(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     # Get the search query (if any)
     search_query = request.GET.get('search', '')
 
@@ -252,6 +260,7 @@ def transaction_list(request):
 
 @login_required
 @user_passes_test(lambda u: u.is_staff)  # Ensure only staff can access
+@never_cache
 def pending_transactions(request):
     # Get all transactions with 'pending' status
     transactions = Transaction.objects.filter(status='pending').order_by('-date')
@@ -318,6 +327,7 @@ def decimal_to_float(value):
 
 @login_required
 @user_passes_test(lambda user: user.is_staff)
+@never_cache
 def admin_user_home(request, user_id=None):
     # Filter users who have at least one approved transaction
     # Get all users who have at least one approved transaction
@@ -384,8 +394,10 @@ def admin_user_home(request, user_id=None):
     })
 
 
-# for users creating transaction view 
+# for users creating transaction view
 
+
+@never_cache
 @login_required
 def manage_investment(request):
     if request.method == 'POST':
@@ -405,6 +417,7 @@ def manage_investment(request):
 
 # user transaction list
 
+@never_cache
 @login_required
 def dashboard_view(request):
     # Filter all transactions for the logged-in user and transactions created by the admin
@@ -455,6 +468,7 @@ def dashboard_view(request):
 # .............................
 # update profile
 
+@never_cache
 @login_required
 def update_profile(request):
     user = request.user
