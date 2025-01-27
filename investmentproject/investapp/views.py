@@ -139,7 +139,7 @@ def admin_user_list(request):
             messages.error(request, "User not found.")
             return redirect('admin-user-list')
 
-        if action == 'toggle':  # Toggle approval status
+        if action == 'confirm_toggle':
             user.is_approved = not user.is_approved
             user.save()
             status = "activated" if user.is_approved else "deactivated"
@@ -161,10 +161,10 @@ def admin_user_list(request):
             else:
                 messages.error(request, "User is not an Admin.")
         else:
-            messages.error(request, "Invalid action.")
+            # Render the admin user list with the confirmation form
+            return render(request, 'manage_users.html', {'users': users, 'search_query': search_query, 'confirm_user': user, 'confirm_action': action})
 
     return render(request, 'manage_users.html', {'users': users, 'search_query': search_query})
-
 
 
 #  admin transaction list
