@@ -136,7 +136,16 @@ CACHE_MIDDLEWARE_SECONDS = 0  # Disable caching entirely
 CACHE_MIDDLEWARE_KEY_PREFIX = ''  # Optional
 
 
-# settings.py
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default: database-backed sessions
-
 SESSION_COOKIE_AGE = 1209600  # Two weeks
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keep session active when the browser is closed
+
+
+# Add this if it's not already present
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.DEBUG: 'debug',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'error',
+}

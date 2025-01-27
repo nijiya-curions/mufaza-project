@@ -15,7 +15,15 @@
          </button></a>
 
      <div class="container">
-        <h2>Create Investment</h2>
+        <h2>Create </h2>
+  <!-- Display messages -->
+  {% if messages %}
+  <div class="messages">
+      {% for message in messages %}
+      <div class="success">{{ message }}</div>
+      {% endfor %}
+  </div>
+  {% endif %}
 
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -55,15 +63,6 @@
             <button type="submit" class="btn btn-gold">Create</button>
         </form>
     </div>
-
-    <!-- JavaScript to show the success alert -->
-    {% if messages %}
-        <script>
-            {% for message in messages %}
-                alert("{{ message }}");
-            {% endfor %}
-        </script>
-    {% endif %}
 
 </body>
 </html>

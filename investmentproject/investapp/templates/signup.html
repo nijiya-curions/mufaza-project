@@ -191,6 +191,14 @@
         <div class="signup-header">
             <h1>Create Account</h1>
             <p>Join Mafaza today</p>
+        <!-- Display messages -->
+  {% if messages %}
+  <div class="messages">
+      {% for message in messages %}
+      <div class="success">{{ message }}</div>
+      {% endfor %}
+  </div>
+  {% endif %}
         </div>
 
         <form method="post">
@@ -319,19 +327,6 @@
             </div>
         </form>
         
-        {% if messages %}
-        <script type="text/javascript">
-            // Display an alert box for each message
-            {% for message in messages %}
-                alert("{{ message }}");  // Show the message in an alert box
-            {% endfor %}
-    
-            // After showing the alert, redirect to the 'transaction_list' page after 2 seconds
-            setTimeout(function() {
-                window.location.href = "{% url 'login' %}";
-            }, 2000);  // Delay for 2 seconds
-        </script>
-    {% endif %}
     </div>
 </body>
 </html>

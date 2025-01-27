@@ -165,6 +165,56 @@
             transform: translateY(-3px);
             box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
         }
+           /* Responsive Styles */
+           @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: center;
+                padding: 15px;
+            }
+
+           
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .hero-text {
+                font-size: 1rem;
+                padding: 0 15px;
+            }
+
+            .swiper-slide {
+                height: auto;
+                padding: 15px;
+            }
+
+            .project-image {
+                height: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn {
+                font-size: 12px;
+                padding: 10px 16px;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .hero-text {
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body>

@@ -22,6 +22,7 @@
             --warning: #f39c12;
             --success: #27ae60;
             --danger: #e74c3c;
+            --blur-amount: 12px;
         }
 
         body {
@@ -30,72 +31,89 @@
             background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
             min-height: 100vh;
             display: flex;
-
         }
 
         /* Sidebar */
-       
-.sidebar {
-    position: fixed; /* Fix the sidebar to the left */
-    top: 0;
-    left: 0;
-    width: 250px;
-    background: rgba(26, 61, 55, 0.95);
-    backdrop-filter: blur(var(--blur-amount));
-    padding: 20px;
-    color: var(--text-light);
-    display: flex;
-    flex-direction: column;
-    
-    z-index: 1000; /* Ensure the sidebar is always on top */
-}
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            background: rgba(26, 61, 55, 0.95);
+            backdrop-filter: blur(var(--blur-amount));
+            padding: 20px;
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
 
-.sidebar-menu {
-    list-style: none;
-    padding: 0;
-    margin-top: 40px;
-}
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin-top: 40px;
+        }
 
-.sidebar-menu li {
-    margin-bottom: 15px;
-}
+        .sidebar-menu li {
+            margin-bottom: 15px;
+        }
 
-.sidebar-menu a {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    color: var(--text-light);
-    text-decoration: none;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-.sidebar-menu a i {
-    margin-right: 10px;
-    font-size: 1.2em;
-}
+        .sidebar-menu a i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
 
-.sidebar-menu a:hover,
-.sidebar-menu a.active {
-    background: var(--accent-gold); /* Highlight color */
-    color: white; /* Ensure text is visible */
-    font-weight: bold; /* Optional */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Optional */
-}
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: var(--accent-gold);
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
 
+        /* Sidebar Toggle Button Styles */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--accent-gold);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            z-index: 1001;
+            cursor: pointer;
+        }
 
         /* Content Area */
         .content {
-            margin-left: 300px; /* Leave space for the sidebar */
+            margin-left: 400px;
             padding: 20px;
-            width: calc(100% - 270px); /* Ensure content doesn't overlap */
+            width: 100%;
+            transition: margin-left 0.3s ease, width 0.3s ease;
         }
-.content h1{
-    text-align: center;
-}
+
+       
+        .content h1 {
+            text-align: center;
+        }
+
         .btn {
             padding: 10px 20px;
             background: var(--accent-gold);
@@ -104,6 +122,7 @@
             border-radius: 8px;
             cursor: pointer;
             margin-bottom: 20px;
+            display: inline-block;
         }
 
         .btn:hover {
@@ -165,11 +184,10 @@
             max-height: 90%;
             overflow-y: auto;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
         }
 
-      /* close modal */
-        
-.close-modal {
+        .close-modal {
             position: absolute;
             right: 25px;
             top: 25px;
@@ -180,74 +198,77 @@
         }
 
         .close-modal:hover {
-            color: var(--accent-gold);
             transform: rotate(90deg);
         }
 
-/* pagination */
-.pagination {
-    text-align: center;
-    margin-top: 30px;
-    padding-bottom: 100px;
-    display: flex;
-    justify-content: center; /* Center all links */
-    align-items: center; /* Vertically align links */
-    gap: 10px; /* Add spacing between links */
-    flex-wrap: wrap; /* Ensure wrapping on smaller screens */
-}
+        /* Pagination */
+        .pagination {
+            text-align: center;
+            margin-top: 30px;
+            padding-bottom: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
 
-.pagination a,
-.pagination .current {
-    padding: 8px 16px;
-    background-color: var(--accent-gold);
-    color: white;
-    text-decoration: none;
-    border-radius: 4px;
-    font-size: 14px;
-    display: inline-block;
-}
+        .pagination a,
+        .pagination .current {
+            padding: 8px 16px;
+            background-color: var(--accent-gold);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            display: inline-block;
+        }
 
-.pagination .current {
-    background-color: #b39429;
-}
+        .pagination .current {
+            background-color: #b39429;
+        }
 
-/* Responsive Adjustments for Small Screens */
-@media (max-width: 425px) {
-    .pagination {
-        flex-wrap: nowrap; /* Prevent links from wrapping */
-        overflow-x: auto; /* Add horizontal scroll for overflow */
-        justify-content: center; /* Center links horizontally */
-        gap: 5px; /* Reduce gap between links */
-        
-    }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
 
-    .pagination a,
-    .pagination .current {
-        padding: 6px 12px; /* Smaller padding for compact layout */
-        font-size: 12px; /* Smaller font for small screens */
-      
-    }
-}
+            .sidebar.active {
+                transform: translateX(0);
+            }
 
+            .sidebar-toggle {
+                display: block;
+            }
 
+            .content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .content.sidebar-active {
+                margin-left: 300px;
+                width: calc(100% - 250px);
+            }
+        }
     </style>
     <script>
         // Wait for the DOM to load
         document.addEventListener('DOMContentLoaded', function () {
             // Select all sidebar links
             const links = document.querySelectorAll('.sidebar-link');
-    
+
             // Add click event listener to each link
             links.forEach(link => {
                 link.addEventListener('click', function () {
                     // Remove 'active' class from all links
                     links.forEach(l => l.classList.remove('active'));
-    
+
                     // Add 'active' class to the clicked link
                     this.classList.add('active');
                 });
             });
-    
+
             // Optionally, add logic to highlight the active link based on the current URL
             const currentPath = window.location.pathname;
             links.forEach(link => {
@@ -256,85 +277,97 @@
                 }
             });
         });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.querySelector('.content');
+            sidebar.classList.toggle('active');
+            content.classList.toggle('sidebar-active');
+            content.classList.toggle('no-sidebar');
+        }
     </script>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <h2>Admin Panel</h2>
-        <ul class="sidebar-menu">
-            <li><a href="{% url 'transaction_list' %}" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li><a href="{% url 'admin-user-list' %}" class="sidebar-link"><i class="fas fa-users"></i> Admins</a></li>
-            <li><a href="{% url 'pending_transactions' %}" class="sidebar-link"><i class="fas fa-exchange-alt"></i> Transactions</a></li>
-            <li><a href="{% url 'admin_user_home' %}" class="sidebar-link"><i class="fas fa-user-shield"></i> Users</a></li>
-            <li><a href="{% url 'logout' %}" class="sidebar-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-    </div>
-<!-- pdf -->
-<!-- Content Area -->
-<div class="content">
-    <h1>User Transactions</h1>
-    <!-- Export Buttons -->
-    <div>
-        <button class="btn btn-gold" onclick="exportUsersPDF()">
-            <i class="fas fa-download"></i> Export PDF
+    <div class="layout">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
         </button>
-        <button class="btn btn-gold" onclick="exportUsersExcel()">
-            <i class="fas fa-file-excel"></i> Export Excel
-        </button>
-    </div>
-    <!-- Users Table -->
-    <div id="user-table-content">
-        <table>
-            <thead>
-                <tr>
-                    <th>User ID</th>
-                    <th>Username</th>
-                    <th>Total Invested</th>
-                    <th>Total Returns</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in page_obj.object_list %}
-                <tr>
-                    <td>#{{ user.user_id }}</td>
-                    <td>{{ user.username }}</td>
-                    <td>${{ user.credit_total }}</td>
-                    <td>${{ user.total_returns }}</td>
-                    <td>{{ user.status }}</td>
-                    <td><a href="{% url 'user_ledger' user.user_id %}" class="fas fa-eye view-icon"></a></td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6">No users found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
 
-    <!-- Pagination Controls -->
-    <div class="pagination">
-        <span class="step-links">
-            {% if page_obj.has_previous %}
-                <a href="?page=1">&laquo; first</a>
-                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-            {% endif %}
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <h2>Admin Panel</h2>
+            <ul class="sidebar-menu">
+                <li><a href="{% url 'transaction_list' %}" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="{% url 'admin-user-list' %}" class="sidebar-link"><i class="fas fa-users"></i> Admins</a></li>
+                <li><a href="{% url 'pending_transactions' %}" class="sidebar-link"><i class="fas fa-exchange-alt"></i> Transactions</a></li>
+                <li><a href="{% url 'admin_user_home' %}" class="sidebar-link"><i class="fas fa-user-shield"></i> Users</a></li>
+                <li><a href="{% url 'logout' %}" class="sidebar-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
 
-            <span class="current">
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-            </span>
+        <!-- Content Area -->
+        <div class="content">
+            <h1>User Transactions</h1>
+            <!-- Export Buttons -->
+            <div>
+                <button class="btn" onclick="exportUsersPDF()">
+                    <i class="fas fa-download"></i> Export PDF
+                </button>
+                <button class="btn" onclick="exportUsersExcel()">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </button>
+            </div>
+            <!-- Users Table -->
+            <div id="user-table-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Username</th>
+                            <th>Total Invested</th>
+                            <th>Total Returns</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in page_obj.object_list %}
+                        <tr>
+                            <td>#{{ user.user_id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>${{ user.credit_total }}</td>
+                            <td>${{ user.total_returns }}</td>
+                            <td>{{ user.status }}</td>
+                            <td><a href="{% url 'user_ledger' user.user_id %}" class="fas fa-eye view-icon"></a></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6">No users found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">next</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-            {% endif %}
-        </span>
-    </div>
-</div>
+            <!-- Pagination Controls -->
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1">&laquo; first</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
 
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
 
         <!-- Ledger Modal -->
         {% if ledger_data %}
@@ -377,17 +410,19 @@
         </div>
         {% endif %}
     </div>
-    <!-- Script to Export Table to PDF -->
-<script>
-    function exportUsersPDF() {
-        const element = document.getElementById('user-table-content');
-        html2pdf().from(element).save('user_transactions.pdf');
-    }
-    function exportUsersExcel() {
-        const element = document.getElementById('user-table-content');
-        const wb = XLSX.utils.table_to_book(element, {sheet: "User Transactions"});
-        XLSX.writeFile(wb, 'user_transactions.xlsx');
-    }
-</script>
+
+    <!-- Script to Export Table to PDF and Excel -->
+    <script>
+        function exportUsersPDF() {
+            const element = document.getElementById('user-table-content');
+            html2pdf().from(element).save('user_transactions.pdf');
+        }
+
+        function exportUsersExcel() {
+            const element = document.getElementById('user-table-content');
+            const wb = XLSX.utils.table_to_book(element, {sheet: "User Transactions"});
+            XLSX.writeFile(wb, 'user_transactions.xlsx');
+        }
+    </script>
 </body>
 </html>

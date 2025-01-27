@@ -35,69 +35,111 @@
 
         }
 
-/* Sidebar Styles */
+ /* Sidebar Styles */
+ .sidebar {
+            position: fixed; /* Fix the sidebar to the left */
+            top: 0;
+            left: 0;
+            width: 250px;
+            background: rgba(26, 61, 55, 0.95);
+            backdrop-filter: blur(var(--blur-amount));
+            padding: 20px;
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Make the sidebar scrollable */
+        }
 
-.sidebar {
-    position: fixed; /* Fix the sidebar to the left */
-    top: 0;
-    left: 0;
-    width: 250px;
-    background: rgba(26, 61, 55, 0.95);
-    backdrop-filter: blur(var(--blur-amount));
-    padding: 20px;
-    color: var(--text-light);
-    display: flex;
-    flex-direction: column;
-    
-    z-index: 1000; /* Ensure the sidebar is always on top */
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin-top: 40px;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu a i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: var(--accent-gold); /* Highlight color */
+            color: white; /* Ensure text is visible */
+            font-weight: bold; /* Optional */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Optional */
+        }
+
+        /* Sidebar Toggle Button Styles */
+        .sidebar-toggle {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--accent-gold);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            z-index: 1001;
+            cursor: pointer;
+        }
+
+        /* Content Section Styles */
+        .content {
+            margin-left: 330px; /* Default margin when sidebar is active */
+            width: 100%; /* Default width when sidebar is active */
+            padding: 20px;
+            height: 100vh; /* Ensure content section takes the full height */
+            position: relative;
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+     
+
+        /* Hide Sidebar on Small Screens */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%); /* Hide the sidebar */
+            }
+
+            .sidebar-toggle {
+                display: block; /* Show the toggle button */
+            }
+.sidebar h2{
+    margin-top: 50px;
 }
+            .sidebar.active {
+                transform: translateX(0); /* Show the sidebar when active */
+            }
 
-.sidebar-menu {
-    list-style: none;
-    padding: 0;
-    margin-top: 40px;
-}
+            .content {
+                margin-left: 0; /* No margin on small screens by default */
+                width: 100%; /* Full width on small screens by default */
+            }
 
-.sidebar-menu li {
-    margin-bottom: 15px;
-}
-
-.sidebar-menu a {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    color: var(--text-light);
-    text-decoration: none;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.sidebar-menu a i {
-    margin-right: 10px;
-    font-size: 1.2em;
-}
-
-.sidebar-menu a:hover,
-.sidebar-menu a.active {
-    background: var(--accent-gold); /* Highlight color */
-    color: white; /* Ensure text is visible */
-    font-weight: bold; /* Optional */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Optional */
-}
-
-/* Content Section */
-.content {
-    margin-left: 330px; /* Ensure content doesn't overlap the sidebar */
-    width: 100%;
-    padding: 20px;
-    /* overflow-y: auto; Allow scrolling for content */
-    height: 100vh; /* Ensure content section takes the full height */
-    position: relative;
-
-}
+            .content.sidebar-active {
+                margin-left: 350px; /* Adjust margin when sidebar is active */
+                width: calc(100% - 250px); /* Adjust width when sidebar is active */
+            }
+        }
 
 /* Summary Cards, Tables, and Other Elements Styles */
 h2.manage-users-header {
@@ -411,47 +453,50 @@ tr:hover {
         });
         
     </script>
-    
-    
-    
+
 </head>
 <body>
     <div class="main-container">
 
         <!-- Sidebar -->
-        <div class="sidebar">
-            <h2>Admin Panel</h2>
-            <ul class="sidebar-menu">
-                <li>
-                    <a href="{% url 'transaction_list' %}" class="sidebar-link">
-                        <i class="fas fa-home"></i> Dashboard
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'admin-user-list' %}" class="sidebar-link">
-                        <i class="fas fa-users"></i> Admins
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'pending_transactions' %}" class="sidebar-link">
-                        <i class="fas fa-exchange-alt"></i> Transactions
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'admin_user_home' %}" class="sidebar-link">
-                        <i class="fas fa-user-shield"></i> Users
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'logout' %}" class="sidebar-link">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
-                </li>
-            </ul>
-        </div>
+<button class="sidebar-toggle" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <h2>Admin Panel</h2>
+    <ul class="sidebar-menu">
+        <li>
+            <a href="{% url 'transaction_list' %}" class="sidebar-link">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'admin-user-list' %}" class="sidebar-link">
+                <i class="fas fa-users"></i> Admins
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'pending_transactions' %}" class="sidebar-link">
+                <i class="fas fa-exchange-alt"></i> Transactions
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'admin_user_home' %}" class="sidebar-link">
+                <i class="fas fa-user-shield"></i> Users
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'logout' %}" class="sidebar-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </li>
+    </ul>
+</div>
         
         <!-- Content Section -->
-        <div class="content">
+        <div class="content" id="content">
 
             <!-- Summary Cards -->
             <div class="cards-grid">
@@ -478,8 +523,10 @@ tr:hover {
             </form>
          <div style="display: flex; justify-content: flex-end; margin-bottom: 30px;">
             <!-- Settings Icon -->
-             <a href="{% url 'update_profile' %}">
-    <i class="fas fa-cog settings-icon"></i></a>
+            <!-- Assuming you have the user object available in the template -->
+<a href="{% url 'update_profile' %}">
+    <i class="fas fa-cog settings-icon"></i> 
+</a>
 
         </div>
           <!-- User Balances Table -->
@@ -546,6 +593,13 @@ tr:hover {
         // Export the workbook to an Excel file
         XLSX.writeFile(wb, 'ledger-data.xlsx');
     }
+    function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            sidebar.classList.toggle('active');
+            content.classList.toggle('sidebar-active');
+            content.classList.toggle('no-sidebar');
+        }
     </script>
 </body>
 </html>

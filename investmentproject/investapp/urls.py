@@ -20,9 +20,6 @@ urlpatterns = [
     path('reject-transaction/<int:transaction_id>/', views.reject_transaction, name='reject_transaction'),
     path('user_ledger/<int:user_id>/', views.admin_user_home, name='user_ledger'),
     path('profile/update/', views.update_profile, name='update_profile'),
-# 
-#  path('export-users-pdf/', views.export_users_pdf, name='export_users_pdf'),
-#     path('export-users-excel/', views.export_users_excel, name='export_users_excel'),
-
+ 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

@@ -33,20 +33,22 @@
             min-height: 100vh;
         }
 
-        /* Sidebar Styles */
-        .sidebar {
-            position: fixed; /* Fix the sidebar to the left */
-            top: 0;
-            left: 0;
-            width: 250px;
-            background: rgba(26, 61, 55, 0.95);
-            backdrop-filter: blur(var(--blur-amount));
-            padding: 20px;
-            color: var(--text-light);
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto; /* Make the sidebar scrollable */
-        }
+     
+/* Sidebar */
+.sidebar {
+    position: fixed; /* Fix the sidebar to the left */
+    top: 0;
+    left: 0;
+    width: 250px;
+    background: rgba(26, 61, 55, 0.95);
+    backdrop-filter: blur(var(--blur-amount));
+    padding: 20px;
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000; /* Ensure the sidebar is always on top */
+    overflow-y: auto; /* Make the sidebar scrollable */
+}
 
         .sidebar-menu {
             list-style: none;
@@ -75,21 +77,73 @@
             margin-right: 10px;
             font-size: 1.2em;
         }
+
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
-    background: var(--accent-gold); /* Highlight color */
-    color: white; /* Ensure text is visible */
-    font-weight: bold; /* Optional */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Optional */
-}
-
-        /* Main Content Area (Flexbox Layout) */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            margin-left: 290px;
+            background: var(--accent-gold); /* Highlight color */
+            color: white; /* Ensure text is visible */
+            font-weight: bold; /* Optional */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Optional */
         }
 
+        /* Sidebar Toggle Button Styles */
+        .sidebar-toggle {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--accent-gold);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            z-index: 1001;
+            cursor: pointer;
+        }
+
+        /* Content Section Styles */
+        .main-content {
+            margin-left: 330px; /* Default margin when sidebar is active */
+            width: 100%; /* Default width when sidebar is active */
+            padding: 20px;
+            height: 100vh; /* Ensure content section takes the full height */
+            position: relative;
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+     
+
+        /* Hide Sidebar on Small Screens */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%); /* Hide the sidebar */
+            }
+
+            .sidebar-toggle {
+                display: block; /* Show the toggle button */
+            }
+.sidebar h2{
+    margin-top: 50px;
+}
+            .sidebar.active {
+                transform: translateX(0); /* Show the sidebar when active */
+            }
+
+           
+            .main-content.sidebar-active {
+                margin-left: 350px; /* Adjust margin when sidebar is active */
+                
+            }
+           
+            .main-content {
+            margin-left: 190px;
+        }
+
+        }
+
+
+       
         /* Heading directly on top of the table */
         h2.manage-users-header {
             text-align: center;
@@ -212,42 +266,47 @@
     </script>
 </head>
 <body>
-    <!-- Sidebar -->
 
 
-    <div class="sidebar">
-        <h2>Admin Panel</h2>
-        <ul class="sidebar-menu">
-            <li>
-                <a href="{% url 'transaction_list' %}" class="sidebar-link">
-                    <i class="fas fa-home"></i> Dashboard
-                </a>
-            </li>
-            <li>
-                <a href="{% url 'admin-user-list' %}" class="sidebar-link">
-                    <i class="fas fa-users"></i> Admins
-                </a>
-            </li>
-            <li>
-                <a href="{% url 'pending_transactions' %}" class="sidebar-link">
-                    <i class="fas fa-exchange-alt"></i> Transactions
-                </a>
-            </li>
-            <li>
-                <a href="{% url 'admin_user_home' %}" class="sidebar-link">
-                    <i class="fas fa-user-shield"></i> Users
-                </a>
-            </li>
-            <li>
-                <a href="{% url 'logout' %}" class="sidebar-link">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </li>
-        </ul>
-    </div>
+         <!-- Sidebar -->
+<button class="sidebar-toggle" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <h2>Admin Panel</h2>
+    <ul class="sidebar-menu">
+        <li>
+            <a href="{% url 'transaction_list' %}" class="sidebar-link">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'admin-user-list' %}" class="sidebar-link">
+                <i class="fas fa-users"></i> Admins
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'pending_transactions' %}" class="sidebar-link">
+                <i class="fas fa-exchange-alt"></i> Transactions
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'admin_user_home' %}" class="sidebar-link">
+                <i class="fas fa-user-shield"></i> Users
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'logout' %}" class="sidebar-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </li>
+    </ul>
+</div>
     
     <!-- Main Content Area (Table and Heading) -->
-    <div class="main-content">
+    <div class="main-content" id="content">
         
         <form method="get" action="{% url 'admin-user-list' %}">
             <input type="text" name="search" value="{{ search_query }}" placeholder="Search by first or last name" class="search-bar">
@@ -313,6 +372,14 @@
             </tbody>
         </table>
         
-
+<script>
+    function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            sidebar.classList.toggle('active');
+            content.classList.toggle('sidebar-active');
+            content.classList.toggle('no-sidebar');
+        }
+</script>
 </body>
 </html>

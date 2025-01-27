@@ -1,16 +1,16 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Profile</title>
     <style>
-         :root {  
+        :root {  
             --accent-gold: #d4af37;
             --text-primary: #2d3436;
             --text-light: rgba(255, 255, 255, 0.9);
         }
-          /* Button */
-          .btn {
+        .btn {
             padding: 12px 24px;
             border-radius: 12px;
             border: none;
@@ -24,17 +24,15 @@
             margin-top: 10px;
             margin-left: 10px;
         }
-    .btn a{
-   
-    width: 10%; text-align: center;
-    text-decoration: none;
-    color: #ffffff;
-    }
+        .btn a{
+            width: 10%; text-align: center;
+            text-decoration: none;
+            color: #ffffff;
+        }
         .btn-gold {
             background: linear-gradient(135deg, var(--accent-gold), #b39429);
             color: #ffffff;
             box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
-            
         }
 
         .btn-gold:hover {
@@ -69,20 +67,42 @@
             border-radius: 4px;
             font-size: 16px;
         }
-      
+
+        .messages {
+            margin: 20px auto;
+            padding: 10px;
+            border-radius: 5px;
+            width: 80%;
+            text-align: center;
+        }
+        .messages .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
     </style>
 </head>
 <body>
     <div>
         <!-- Back Button -->
         {% if user.is_superuser %}
-        <a href="{% url 'transaction_list' %}"><button class="btn btn-gold"> Back</button></a>
+        <a href="{% url 'transaction_list' %}"><button class="btn btn-gold">Back</button></a>
         {% else %}
-        <a href="{% url 'dashboard' %}" >   <button  class="btn btn-gold">  Back</button></a>
+        <a href="{% url 'dashboard' %}"><button class="btn btn-gold">Back</button></a>
         {% endif %}
     </div>
     <div class="profile-update-container">
         <h2>Update Profile</h2>
+        
+        <!-- Display messages -->
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="success">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
         <form method="post" class="profile-form">
             {% csrf_token %}
             
