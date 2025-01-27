@@ -350,7 +350,13 @@
 
         <!-- Manage Users Section - Heading above the table -->
         <h2 class="manage-users-header">Manage Users</h2>
-
+        <div class="messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="success">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
         <!-- Users Table -->
         <table class="ledger-table">
             <thead>

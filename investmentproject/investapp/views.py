@@ -144,6 +144,7 @@ def admin_user_list(request):
             user.save()
             status = "activated" if user.is_approved else "deactivated"
             messages.success(request, f"User {user.username} has been {status}.")
+            return redirect('admin-user-list')  # Redirect to ensure message is shown on the same page
         elif action == 'promote':  # Promote to admin
             if not user.is_superuser:  # Avoid promoting an already superuser
                 user.is_staff = True
