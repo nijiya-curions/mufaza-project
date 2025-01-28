@@ -370,6 +370,7 @@ def admin_user_home(request, user_id=None):
             'credit_total': total_credit,
             'total_returns': total_returns,  # Use value from the user's dashboard
             'status': 'Active' if total_returns > 0 else 'Inactive',
+
         })
 
     # Paginate the user data
@@ -398,7 +399,7 @@ def admin_user_home(request, user_id=None):
     return render(request, 'admin-user-dashboard.html', {
         'page_obj': page_obj,
         'ledger_data': ledger_data,
-        'selected_user': selected_user,
+        'selected_user': selected_user
     })
 
 
@@ -454,7 +455,8 @@ def dashboard_view(request):
         'total_credit': transaction_summary['total_credit'],  # Total credit from approved transactions
         'total_debit': transaction_summary['total_debit'],    # Total debit from approved transactions
         'total_returns': transaction_summary['total_returns'],  # Total returns as a percentage
-        'start_index': (page_obj.number - 1) * page_obj.paginator.per_page  # Add this to calculate serial number
+        'start_index': (page_obj.number - 1) * page_obj.paginator.per_page,  # Add this to calculate serial number
+        'all_transactions':user_transactions
     }
 
     return render(request, 'dashboard.html', context)
@@ -539,3 +541,17 @@ def admin_update_profile(request):
         form = UserProfileUpdateForm(instance=admin_user)
 
     return render(request, 'updateprofile.html', {'form': form})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
