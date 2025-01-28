@@ -259,12 +259,24 @@ def transaction_list(request):
 
 # approvals and rejections and create transaction for user by admin
 
+@never_cache
 @login_required
 @user_passes_test(lambda u: u.is_staff)  # Ensure only staff can access
-@never_cache
 def pending_transactions(request):
-    # Get all transactions with 'pending' status
-    transactions = Transaction.objects.filter(status='pending').order_by('-date')
+    # Get the sort filter from the request
+    sort_option = request.GET.get('sort', '')  # 'credit', 'debit'
+
+    # Filter transactions by 'pending' status
+    transactions = Transaction.objects.filter(status='pending')
+
+    # Apply sorting based on the `amount_type`
+    if sort_option == 'credit':
+        transactions = transactions.filter(amount_type='credit')
+    elif sort_option == 'debit':
+        transactions = transactions.filter(amount_type='debit')
+
+    # Order transactions by date (most recent first)
+    transactions = transactions.order_by('-date')
 
     # Pagination
     paginator = Paginator(transactions, 4)  # Show 4 transactions per page
@@ -297,6 +309,7 @@ def pending_transactions(request):
     return render(request, 'pending_transactions.html', {
         'page_obj': page_obj,
         'form': form,  # Pass the form to the template
+        'sort_option': sort_option,  # Pass the current sort option to the template
     })
 
 

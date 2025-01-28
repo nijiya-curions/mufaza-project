@@ -359,6 +359,14 @@
                 margin-right: auto; /* Ensure it remains centered */
             }
         }
+        #sort-select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+   margin: auto;
+   display: block;
+}
 
 </style>
 
@@ -429,7 +437,16 @@
         </div>
     
         <!-- Content -->
-         
+        <div style="margin-bottom: 1rem;">
+            <form method="get" id="sort-form">
+                <select id="sort-select" name="sort" onchange="document.getElementById('sort-form').submit();">
+                    <option value="" {% if sort_option == '' %}selected{% endif %}>All</option>
+                    <option value="credit" {% if sort_option == 'credit' %}selected{% endif %}>Credit</option>
+                    <option value="debit" {% if sort_option == 'debit' %}selected{% endif %}>Debit</option>
+                </select>
+            </form>
+        </div>
+
       <!-- Content -->
 <div class="content">
     <h1>Pending Transactions</h1>
@@ -516,7 +533,7 @@
       {% endfor %}
   </div>
   {% endif %}
-
+  
         <form method="post" enctype="multipart/form-data" class="profile-form">
             {% csrf_token %}
 
