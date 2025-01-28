@@ -17,8 +17,9 @@ from django.views.decorators.cache import never_cache
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .forms import ProfileUpdateForm
 from django.contrib.auth import logout
+
+from .forms import UserProfileUpdateForm
 
 
 # home page
@@ -389,7 +390,6 @@ def admin_user_home(request, user_id=None):
 
 
 
-
 # for users creating transaction view
 
 @never_cache
@@ -448,29 +448,7 @@ def dashboard_view(request):
 
 
 
-# .............................
-# update profile
-
-@never_cache
-@login_required
-def update_profile(request):
-    user = request.user
-    if request.method == 'POST':
-        form = ProfileUpdateForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()
-            # Add a success message
-            messages.success(request, 'Your profile has been updated successfully.')
-            # Redirect to the same page to display the message
-            return redirect('update_profile')
-    else:
-        form = ProfileUpdateForm(instance=user)
-    
-    return render(request, 'updateprofile.html', {'form': form})
-
-# =============================
-
-
+# common calculation for both user and admin side
 def calculate_user_dashboard_returns(user):
     transactions = Transaction.objects.filter(user=user, status='approved')
     total_credit = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
@@ -492,3 +470,59 @@ def calculate_user_dashboard_returns(user):
         'initial_value': initial_value,
         'current_value': current_value,
     }
+
+
+# update profile for users
+@never_cache
+@login_required
+def update_profile(request):
+    user = request.user
+
+    if request.method == 'POST':
+        form = UserProfileUpdateForm(request.POST, instance=user)
+
+        if form.is_valid():
+            # Check if the password field is changed
+            password_changed = bool(form.cleaned_data.get('password'))
+
+            # Save the form
+            form.save()
+
+            # Redirect to login only if the password was changed
+            if password_changed:
+                logout(request)  # Log the user out
+                return redirect('login')  # Redirect to login page
+
+            # Redirect to the dashboard if no password was changed
+            return redirect('dashboard')  # Redirect prevents the form from resubmitting
+    else:
+        form = UserProfileUpdateForm(instance=user)
+
+    return render(request, 'update_profile.html', {'form': form})
+
+
+# for admins profile update form
+# Decorator to ensure only admins can access this view
+def admin_only(user):
+    return user.is_staff or user.is_superuser
+
+@never_cache
+@user_passes_test(admin_only)
+def admin_update_profile(request):
+    admin_user = request.user
+
+    if request.method == 'POST':
+        form = UserProfileUpdateForm(request.POST, instance=admin_user)
+
+        if form.is_valid():
+            # Save the admin profile
+            form.save()
+
+            # Redirect back to the admin dashboard
+            return redirect('transaction_list')  # Adjust the name of the admin dashboard URL
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = UserProfileUpdateForm(instance=admin_user)
+
+    return render(request, 'updateprofile.html', {'form': form})

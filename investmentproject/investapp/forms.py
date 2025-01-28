@@ -2,7 +2,6 @@
 from django import forms
 from .models import CustomUser,Transaction
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.forms import UserChangeForm
 from django.core.validators import RegexValidator
 
 
@@ -57,9 +56,6 @@ class TransactionForm(forms.ModelForm):
 
 # investapp/forms.py
 
-from django import forms
-from .models import Transaction
-
 class InvestmentForm(forms.ModelForm):
     class Meta:
         model = Transaction
@@ -67,40 +63,36 @@ class InvestmentForm(forms.ModelForm):
 
 
 
-# forms.py
 
-from django import forms
-from .models import CustomUser
-class CustomUserCreationForm(forms.ModelForm):
+
+# update profile form
+
+class UserProfileUpdateForm(forms.ModelForm):
+    password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={'class': 'input-field'}),
+        help_text="Leave blank if you don't want to change the password.",
+    )
+
     class Meta:
-        model = CustomUser
-        fields = ['username', 'password', 'first_name', 'last_name', 'email', 'phone_number', 'address']
-
-    password = forms.CharField(widget=forms.PasswordInput)
+        model = get_user_model()
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone_number', 'address', 'password']
 
     def save(self, commit=True):
-        # Create the user instance, but don't save yet
         user = super().save(commit=False)
-        
-        # Automatically approve the user (set is_approved to True)
-        user.is_approved = True
-        
-        # Set the user's password
-        user.set_password(self.cleaned_data['password'])
-        
+
+        # Get the new password entered in the form
+        new_password = self.cleaned_data.get('password')
+
+        # Only update the password if a new one is provided
+        if new_password:
+            user.set_password(new_password)  # Hash and set the password
+        else:
+            # Retain the existing password by re-fetching it from the database
+            user.password = get_user_model().objects.get(pk=user.pk).password
+
         if commit:
-            # Save the user to the database
             user.save()
-        
+
         return user
 
-# change profile form
-
-class ProfileUpdateForm(forms.ModelForm):
-    class Meta:
-        model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'email', 'phone_number', 'address']
-        widgets = {
-            'phone_number': forms.TextInput(attrs={'class': 'input-field'}),
-            'address': forms.Textarea(attrs={'class': 'input-field', 'rows': 3}),
-        }

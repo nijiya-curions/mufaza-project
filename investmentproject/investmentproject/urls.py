@@ -22,7 +22,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('pineapplepie/', admin.site.urls),
-      path('', views.home, name='home'),
+    path('', views.home, name='home'),
     path('investapp/', include('investapp.urls'))
 ]
 if settings.DEBUG:
