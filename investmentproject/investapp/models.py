@@ -44,6 +44,6 @@ class Transaction(models.Model):
         return credit_total - debit_total
 
     def __str__(self):
-        return f"{self.particulars} - {self.date} - {self.amount_type} - {self.amount} - {self.status}"
+        return f"User: {self.user.username}, {self.user.first_name} {self.user.last_name}, {self.user.email}, {self.user.phone_number}, {self.user.address} | Transaction: {self.particulars} - {self.date} - {self.amount_type} - {self.amount} - {self.status}"
 
 

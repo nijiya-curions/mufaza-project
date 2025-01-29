@@ -45,7 +45,6 @@ def signup_view(request):
 
 
 
-
 # login for all
 
 @never_cache
@@ -100,8 +99,6 @@ def logout_view(request):
     logout(request)
     request.session.flush()  # Clear the session entirely
     return redirect('home')  # Redirect to login page
-
-
 
 # Admin view to list all users
 def admin_required(user):
@@ -590,5 +587,4 @@ def get_all_users(request):
         })
 
     return JsonResponse({'users': user_data})
-
 

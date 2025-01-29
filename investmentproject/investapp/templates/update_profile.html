@@ -9,6 +9,8 @@
             --accent-gold: #d4af37;
             --text-primary: #2d3436;
             --text-light: rgba(255, 255, 255, 0.9);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
         }
         .btn {
             padding: 12px 24px;
@@ -59,7 +61,7 @@
         }
         .profile-form input,
         .profile-form textarea {
-            width: calc(100% - 20px);
+            width: 100%;
             padding: 10px;
             margin: 10px 0;
             border: 1px solid #ccc;
@@ -72,6 +74,7 @@
             margin-top: 5px;
             color: #666;
         }
+
         @media (max-width: 600px) {
             .profile-update-container {
                 padding: 15px;
@@ -115,7 +118,8 @@
             <label for="id_password">Password</label>
             {{ form.password }}
             <small>{{ form.password.help_text }}</small>
-            <button type="submit" class="btn btn-gold" style="margin: auto; display: block;">Update Profile</button>
+
+            <button type="submit" class="btn btn-gold" style="margin: auto; display: block; margin-top: 30px;">Update Profile</button>
         </form>
     </div>
 </body>

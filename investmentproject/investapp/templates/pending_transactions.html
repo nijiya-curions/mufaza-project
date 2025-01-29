@@ -21,12 +21,13 @@
             --warning: #f39c12;
             --success: #27ae60;
             --danger: #e74c3c;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
         }
 
         body {
             background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
             min-height: 100vh;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             margin: 0;
             padding: 20px;
             background-attachment: fixed;
@@ -270,14 +271,14 @@
             color: #2d3436;
             font-weight: 600;
         }
-
-        .form-group {
+    .form-group {
             margin-bottom: 20px;
         }
 
         label {
             font-weight: bold;
-            margin-bottom: 18px;
+            margin-bottom: 10px;
+            margin-top: 15px;
             display: block;
             color: #2d3436;
             font-size: 14px;
@@ -333,7 +334,7 @@
     /* Additional styles to ensure responsiveness */
     @media (max-width: 768px) {
         .form-container {
-            max-width: 80%;
+            max-width: 100%;
             margin-left: 0;
         }
     }
@@ -348,14 +349,14 @@
  @media (min-width: 1024px) and (max-width: 1439px) {
         .form-container {
             max-width: 70%;
-            margin-left: 35%;
+            margin-left: 30%;
         }
     }
 
     /* Media query for 1440px width */
     @media (min-width: 1440px) {
         .form-container {
-            max-width: 60%;
+            max-width: 80%;
             margin-left: 20%;
         }
     }
@@ -586,7 +587,7 @@
                 </div>
 
                 <div class="text-center">
-                    <button type="submit" class="btn btn-gold w-100">Create</button>
+                    <button type="submit" class="btn btn-gold" style="width: 50%; margin: auto; display: block; margin-top: 25px;">Create</button>
                 </div>
             </form>
         </div>

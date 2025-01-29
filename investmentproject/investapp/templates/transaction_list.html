@@ -112,9 +112,7 @@
             position: relative;
             transition: margin-left 0.3s ease, width 0.3s ease;
         }
-
-     
-
+        
         /* Hide Sidebar on Small Screens */
         @media (max-width: 768px) {
             .sidebar {
@@ -523,13 +521,11 @@ tr:hover {
                     <i class="fas fa-search"></i> Search
                 </button>
             </form>
-         <div style="display: flex; justify-content: flex-end; margin-bottom: 30px;">
-            <!-- Settings Icon -->
-            <!-- Assuming you have the user object available in the template -->
-<a href="{% url 'update_profile' %}">
-    <i class="fas fa-cog settings-icon"></i> 
-</a>
-</div>
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 30px;">
+            <a href="{% url 'update_profile' %}">
+            <i class="fas fa-cog settings-icon"></i> 
+            </a>
+        </div>
 
 <!-- User Balances Table -->
            

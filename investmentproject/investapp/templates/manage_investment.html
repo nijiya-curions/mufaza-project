@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Transaction</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+    body{
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+    }   
+    </style>
 </head>
 <body>
     <a href="{% url 'dashboard' %}"  style="text-decoration: none;">
@@ -15,7 +21,7 @@
          </button></a>
 
      <div class="container">
-        <h2>Create </h2>
+        <h2>Create Transaction</h2>
   <!-- Display messages -->
   {% if messages %}
   <div class="messages">
