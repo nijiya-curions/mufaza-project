@@ -22,6 +22,7 @@ class Transaction(models.Model):
         ('credit', 'Credit'),
     ]
 
+
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('approved', 'Approved'),

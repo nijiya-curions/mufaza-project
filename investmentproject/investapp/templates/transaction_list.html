@@ -46,6 +46,7 @@
             padding: 20px;
             color: var(--text-light);
             display: flex;
+            height: 100vh;
             flex-direction: column;
             overflow-y: auto; /* Make the sidebar scrollable */
         }
@@ -123,9 +124,9 @@
             .sidebar-toggle {
                 display: block; /* Show the toggle button */
             }
-.sidebar h2{
-    margin-top: 50px;
-}
+            .sidebar h2{
+                 margin-top: 50px;
+            }
             .sidebar.active {
                 transform: translateX(0); /* Show the sidebar when active */
             }
@@ -298,13 +299,13 @@ tr:hover {
             cursor: pointer;
             transition: all 0.3s ease;
             color: var(--primary-dark);
-}
+            }
 
-.icon:hover {
-    transform: rotate(90deg);
+        .icon:hover {
+            transform: rotate(90deg);
             background: rgba(255, 255, 255, 0.35);
             color: var(--accent-gold);
-}
+            }
 
 
 /* status button */
@@ -405,6 +406,7 @@ tr:hover {
     cursor: pointer;
     transition: all 0.3s ease;
     color: var(--primary-dark);
+
 }
 
 /* Media query for large screens */
@@ -527,9 +529,9 @@ tr:hover {
 <a href="{% url 'update_profile' %}">
     <i class="fas fa-cog settings-icon"></i> 
 </a>
+</div>
 
-        </div>
-          <!-- User Balances Table -->
+<!-- User Balances Table -->
            
 <h2 class="manage-users-header">Users with Transactions</h2>
 <table>
@@ -572,7 +574,7 @@ tr:hover {
     {% endif %}
 </div>
 
-       
+
     <script>
         function exportPDF() {
             const element = document.getElementById('ledger-content');
@@ -601,5 +603,6 @@ tr:hover {
             content.classList.toggle('no-sidebar');
         }
     </script>
+
 </body>
 </html>

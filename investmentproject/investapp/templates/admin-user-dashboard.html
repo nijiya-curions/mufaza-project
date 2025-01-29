@@ -44,8 +44,9 @@
             padding: 20px;
             color: var(--text-light);
             display: flex;
-            flex-direction: column;
+            flex-direction: column; 
             z-index: 1000;
+            height: 100vh;
             transition: transform 0.3s ease;
         }
 
@@ -305,124 +306,192 @@
             </ul>
         </div>
 
-        <!-- Content Area -->
-        <div class="content">
-            <h1>User Transactions</h1>
-            <!-- Export Buttons -->
-            <div>
-                <button class="btn" onclick="exportUsersPDF()">
-                    <i class="fas fa-download"></i> Export PDF
-                </button>
-                <button class="btn" onclick="exportUsersExcel()">
-                    <i class="fas fa-file-excel"></i> Export Excel
-                </button>
-            </div>
-            <!-- Users Table -->
-            <div id="user-table-content">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>User ID</th>
-                            <th>Username</th>
-                            <th>Total Invested</th>
-                            <th>Total Returns</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in page_obj.object_list %}
-                        <tr>
-                            <td>#{{ user.user_id }}</td>
-                            <td>{{ user.username }}</td>
-                            <td>${{ user.credit_total }}</td>
-                            <td>${{ user.total_returns }}</td>
-                            <td>{{ user.status }}</td>
-                            <td><a href="{% url 'user_ledger' user.user_id %}" class="fas fa-eye view-icon"></a></td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6">No users found.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination Controls -->
-            <div class="pagination">
-                <span class="step-links">
-                    {% if page_obj.has_previous %}
-                        <a href="?page=1">&laquo; first</a>
-                        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-                    {% endif %}
-
-                    <span class="current">
-                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-                    </span>
-
-                    {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}">next</a>
-                        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-                    {% endif %}
-                </span>
-            </div>
-        </div>
-
-        <!-- Ledger Modal -->
-        {% if ledger_data %}
-        <div class="ledger-modal">
-            <div class="modal-content">
-                <a href="{% url 'admin_user_home' %}" class="close-modal"><i class="fas fa-times"></i></a>
-                {% if selected_user %}
-                <h3>{{ selected_user.username }}'s Ledger</h3>
-                {% else %}
-                <h2>Ledger Details</h2>
-                {% endif %}
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Sl.No</th>
-                            <th>Date</th>
-                            <th>Particulars</th>
-                            <th>Narration</th>
-                            <th>Debit</th>
-                            <th>Credit</th>
-                            <th>Balance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for transaction in ledger_data %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ transaction.date }}</td>
-                            <td>{{ transaction.particulars }}</td>
-                            <td>{{ transaction.narration }}</td>
-                            <td>{% if transaction.amount_type == 'debit' %} ${{ transaction.amount }} {% else %} - {% endif %}</td>
-                            <td>{% if transaction.amount_type == 'credit' %} ${{ transaction.amount }} {% else %} - {% endif %}</td>
-                            <td>${{ transaction.running_balance }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        {% endif %}
+       <!-- Content Area -->
+<div class="content">
+    <h1>User Transactions</h1>
+    <!-- Export Buttons -->
+    <div>
+        <button class="btn" onclick="exportUsersPDF()">
+            <i class="fas fa-download"></i> Export PDF
+        </button>
+        <button class="btn" onclick="exportUsersExcel()">
+            <i class="fas fa-file-excel"></i> Export Excel
+        </button>
     </div>
 
-    <!-- Script to Export Table to PDF and Excel -->
-    <script>
-        function exportUsersPDF() {
-            const element = document.getElementById('user-table-content');
-            html2pdf().from(element).save('user_transactions.pdf');
-        }
+    <!-- Users Table -->
+    <div id="user-table-content">
+        <table>
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Username</th>
+                    <th>Total Invested</th>
+                    <th>Total Returns</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in page_obj.object_list %}
+                <tr>
+                    <td>#{{ user.user_id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>${{ user.credit_total }}</td>
+                    <td>${{ user.total_returns }}</td>
+                    <td>{{ user.status }}</td>
+                    <td><a href="{% url 'user_ledger' user.user_id %}" class="fas fa-eye view-icon"></a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No users found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-        function exportUsersExcel() {
-            const element = document.getElementById('user-table-content');
-            const wb = XLSX.utils.table_to_book(element, {sheet: "User Transactions"});
-            XLSX.writeFile(wb, 'user_transactions.xlsx');
-        }
-    </script>
+    <!-- Pagination Controls -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+</div>
+
+<!-- Ledger Modal -->
+{% if ledger_data %}
+<div class="ledger-modal">
+    <div class="modal-content">
+        <a href="{% url 'admin_user_home' %}" class="close-modal"><i class="fas fa-times"></i></a>
+        {% if selected_user %}
+        <h3>{{ selected_user.username }}'s Ledger</h3>
+        {% else %}
+        <h2>Ledger Details</h2>
+        {% endif %}
+
+        <!-- Export Buttons for Ledger Table -->
+        <div>
+            <button class="btn" onclick="exportLedgerPDF()">
+                <i class="fas fa-download"></i> Export PDF
+            </button>
+            <button class="btn" onclick="exportLedgerExcel()">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </button>
+        </div>
+
+        <div id="ledger-table-content">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sl.No</th>
+                        <th>Date</th>
+                        <th>Particulars</th>
+                        <th>Narration</th>
+                        <th>Debit</th>
+                        <th>Credit</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in ledger_data %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ transaction.date }}</td>
+                        <td>{{ transaction.particulars }}</td>
+                        <td>{{ transaction.narration }}</td>
+                        <td>{% if transaction.amount_type == 'debit' %} ${{ transaction.amount }} {% else %} - {% endif %}</td>
+                        <td>{% if transaction.amount_type == 'credit' %} ${{ transaction.amount }} {% else %} - {% endif %}</td>
+                        <td>${{ transaction.running_balance }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Script to Export Tables to PDF and Excel -->
+<script>
+    function exportLedgerPDF() {
+        const element = document.getElementById('ledger-table-content');
+        html2pdf().from(element).save('ledger_details.pdf');
+    }
+
+    function exportLedgerExcel() {
+        const element = document.getElementById('ledger-table-content');
+        const wb = XLSX.utils.table_to_book(element, {sheet: "Ledger Details"});
+        XLSX.writeFile(wb, 'ledger_details.xlsx');
+    }
+</script>
+<script>
+    async function fetchAllUsers() {
+        const response = await fetch("{% url 'get_all_users' %}");
+        const data = await response.json();
+        return data.users;
+    }
+
+    async function exportUsersPDF() {
+        const users = await fetchAllUsers();
+
+        // Create a new table dynamically
+        let content = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Total Invested</th>
+                        <th>Total Returns</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        users.forEach(user => {
+            content += `
+                <tr>
+                    <td>#${user.user_id}</td>
+                    <td>${user.username}</td>
+                    <td>$${user.credit_total}</td>
+                    <td>$${user.total_returns}</td>
+                    <td>${user.status}</td>
+                </tr>
+            `;
+        });
+
+        content += `</tbody></table>`;
+
+        const element = document.createElement('div');
+        element.innerHTML = content;
+
+        html2pdf().from(element).save('all_users.pdf');
+    }
+
+    async function exportUsersExcel() {
+        const users = await fetchAllUsers();
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(users);
+
+        XLSX.utils.book_append_sheet(wb, ws, "Users");
+        XLSX.writeFile(wb, "all_users.xlsx");
+    }
+</script>
+
 </body>
 </html>

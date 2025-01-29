@@ -7,9 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pending Transactions</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
-        /* Inherit styles from the provided dashboard design */
         :root {
             --glass-bg: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.18);
@@ -19,9 +18,9 @@
             --accent-gold: #d4af37;
             --text-primary: #2d3436;
             --text-light: rgba(255, 255, 255, 0.9);
-            --warning: #f39c12; /* Color for Pending */
-            --success: #27ae60; /* Color for Approved */
-            --danger: #e74c3c; /* Color for Rejected */
+            --warning: #f39c12;
+            --success: #27ae60;
+            --danger: #e74c3c;
         }
 
         body {
@@ -31,14 +30,10 @@
             margin: 0;
             padding: 20px;
             background-attachment: fixed;
-
-          
         }
 
-
-        /* Sidebar Styles */
         .sidebar {
-            position: fixed; /* Fix the sidebar to the left */
+            position: fixed;
             top: 0;
             left: 0;
             width: 250px;
@@ -48,8 +43,9 @@
             color: var(--text-light);
             display: flex;
             flex-direction: column;
-            overflow-y: auto; /* Make the sidebar scrollable */
+            overflow-y: auto;
             z-index: 1000;
+            height: 100vh;
             transition: transform 0.3s ease;
         }
 
@@ -83,15 +79,14 @@
 
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
-            background: var(--accent-gold); /* Highlight color */
-            color: white; /* Ensure text is visible */
-            font-weight: bold; /* Optional */
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Optional */
+            background: var(--accent-gold);
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
-        /* Sidebar Toggle Button Styles */
         .sidebar-toggle {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed;
             top: 20px;
             left: 20px;
@@ -105,10 +100,9 @@
             cursor: pointer;
         }
 
-        /* Content Section Styles */
         .content {
-            margin-left: 300px; /* Default margin when sidebar is active */
-            flex-grow: 1; /* Content takes remaining space */
+            margin-left: 300px;
+            flex-grow: 1;
             background: rgba(255, 255, 255, 0.25);
             backdrop-filter: blur(10px);
             border-radius: 20px;
@@ -121,8 +115,8 @@
         }
 
         .content.no-sidebar {
-            margin-left: 0; /* No margin when sidebar is inactive */
-            width: 100%; /* Full width when sidebar is inactive */
+            margin-left: 0;
+            width: 100%;
         }
 
         h1 {
@@ -153,30 +147,27 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
-        /* Hide Sidebar on Small Screens */
         @media (max-width: 768px) {
             .sidebar {
-                transform: translateX(-100%); /* Hide the sidebar */
+                transform: translateX(-100%);
             }
 
             .sidebar-toggle {
-                display: block; /* Show the toggle button */
+                display: block;
             }
 
             .sidebar.active {
-                transform: translateX(0); /* Show the sidebar when active */
+                transform: translateX(0);
             }
-            .sidebar h2{
-                margin-top: 50px;
-            }
+
             .content {
-                margin-left: 0; /* No margin on small screens by default */
-                width: 100%; /* Full width on small screens by default */
+                margin-left: 0;
+                width: 100%;
             }
 
             .content.sidebar-active {
-                margin-left: 250px; /* Adjust margin when sidebar is active */
-                width: calc(100% - 250px); /* Adjust width when sidebar is active */
+                margin-left: 250px;
+                width: calc(100% - 250px);
             }
         }
 
@@ -235,6 +226,7 @@
             background: linear-gradient(135deg, var(--accent-gold), #b39429);
             color: white;
             box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+            margin-top: 15px;
         }
 
         .btn-gold:hover {
@@ -264,40 +256,11 @@
             border-radius: 4px;
         }
 
-        /* Main container styling */
-        .container {
-            width: 100%;
-            max-width: 500px; /* Initial width on larger screens */
-            margin: 0 auto;  /* Center the form horizontally */
-            padding: 30px;
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            box-sizing: border-box;
-        }
-
-        /* For screens between 1024px and 1440px (tablets and small laptops) */
-        @media (min-width: 1024px) and (max-width: 1440px) {
-            .container {
-                max-width: 50%; /* Set width to 50% for medium-large screens */
-                padding: 25px;
+        @media (max-width: 320px) {
+            .pagination {
+                font-size: 10px;
             }
-        }
-
-        /* For screens between 768px and 1024px (tablet and smaller laptops) */
-        @media (min-width: 768px) and (max-width: 1024px) {
-            .container {
-                max-width: 40%; /* Set width to 40% for tablets */
-                padding: 20px;
-            }
-        }
-
-        /* For screens less than 768px (mobile devices) */
-        @media (max-width: 768px) {
-            .container {
-                max-width: 95%; /* Take up almost full width */
-                padding: 15px;
-            }
+         
         }
 
         .container h2 {
@@ -314,7 +277,7 @@
 
         label {
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 18px;
             display: block;
             color: #2d3436;
             font-size: 14px;
@@ -322,23 +285,21 @@
 
         .form-control {
             width: 100%;
-            padding: 12px;
+            padding: 15px;
             font-size: 16px;
             border: 2px solid #ddd;
-            border-radius: 12px; /* Rounded corners */
+            border-radius: 12px;
             background-color: #f5f5f5;
             box-sizing: border-box;
             transition: all 0.3s ease;
         }
 
-        /* Hover effect for input fields */
         .form-control:hover {
             border-color: #d4af37;
             background-color: #fff;
             box-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
         }
 
-        /* Focus effect for input fields */
         .form-control:focus {
             outline: none;
             border-color: #d4af37;
@@ -346,29 +307,67 @@
             box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
         }
 
-        /* Textarea specific styling */
         textarea.form-control {
             resize: none;
             height: 120px;
         }
 
-        /* Centering form when sidebar is present and screen is larger */
-        @media (min-width: 768px) {
-            .container {
-                margin-left: auto;
-                margin-right: auto; /* Ensure it remains centered */
+        .form-container {
+            max-width: 70%;
+            margin: 0 auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+
+        @media (max-width: 991px) {
+        .form-container {
+            max-width: 60%;
+            margin-left: 35%;
+        }
+    }
+
+    /* Additional styles to ensure responsiveness */
+    @media (max-width: 768px) {
+        .form-container {
+            max-width: 80%;
+            margin-left: 0;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .form-container {
+            max-width: 50%;
+            margin-left: 0;
+        }
+    }
+ /* Media query for 1024px width */
+ @media (min-width: 1024px) and (max-width: 1439px) {
+        .form-container {
+            max-width: 70%;
+            margin-left: 35%;
+        }
+    }
+
+    /* Media query for 1440px width */
+    @media (min-width: 1440px) {
+        .form-container {
+            max-width: 60%;
+            margin-left: 20%;
+        }
+    }
+     /* Media query for screens between 325px and 425px */
+     @media (min-width: 320px) and (max-width: 695px) {
+            .form-container {
+                max-width: 90%;
+                margin-left: 5%;
+                padding: 20px;
             }
         }
-        #sort-select {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
-   margin: auto;
-   display: block;
-}
-
-</style>
+    </style>
 
     <script>
         // Wait for the DOM to load
@@ -523,61 +522,75 @@
 </div><br><br><br><br><br><br>
 
      <!-- New Transaction Form (Below the Table) -->
-     <div class="container">
-        <h2>Create Transaction</h2>
-        <!-- Display messages -->
-  {% if messages %}
-  <div class="messages">
-      {% for message in messages %}
-      <div class="success">{{ message }}</div>
-      {% endfor %}
-  </div>
-  {% endif %}
-  
-        <form method="post" enctype="multipart/form-data" class="profile-form">
-            {% csrf_token %}
+     <div class="container mt-4">
+        <div class="form-container">
+            <h2 class="text-center">Create Transaction</h2>
 
-            <div class="form-group">
-                <label for="id_user">Select User</label>
-                <select name="user" id="id_user" class="form-control" required>
-                    {% for user in form.user.field.queryset %}
-                        <option value="{{ user.id }}" {% if form.user.value == user.id %}selected{% endif %}>
-                            {{ user }}
-                        </option>
-                    {% endfor %}
-                </select>
+            <!-- Display Messages -->
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-success">{{ message }}</div>
+                {% endfor %}
             </div>
-            <div class="form-group">
-                <label for="id_particulars">Particulars</label>
-                <input type="text" name="particulars" id="id_particulars" value="{{ form.particulars.value|default:'' }}" class="form-control" placeholder="Enter particulars" required>
-            </div>
+            {% endif %}
 
-            <div class="form-group">
-                <label for="id_narration">Narration</label>
-                <textarea name="narration" id="id_narration" class="form-control" placeholder="Enter Narration" required>{{ form.narration.value|default:'' }}</textarea>
-            </div>
+            <form method="post" enctype="multipart/form-data" class="profile-form">
+                {% csrf_token %}
+                <div class="row">
+                    <!-- User Search -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_user" class="form-label">Search User</label>
+                        <input type="text" id="userSearch" class="form-control" placeholder="Search for a user" onkeyup="filterUsers()"><br><br>
+                        <select name="user" id="id_user" class="form-control mt-2" required>
+                            {% for user in form.user.field.queryset %}
+                                <option value="{{ user.id }}">{{ user }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-            <div class="form-group">
-                 <label for="id_amount_type">Amount Type</label>
-                <select name="amount_type" id="id_amount_type" class="form-control" required>
-                    <option value="" disabled selected hidden>Choose Debit or Credit</option>
-                    {% for choice_value, choice_label in form.amount_type.field.choices %}
-                        <option value="{{ choice_value }}" {% if form.amount_type.value == choice_value %}selected{% endif %}>
-                            {{ choice_label }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
+                    <!-- Particulars -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_particulars" class="form-label">Particulars</label>
+                        <input type="text" name="particulars" id="id_particulars" value="{{ form.particulars.value|default:'' }}" class="form-control" placeholder="Enter particulars" required>
+                    </div>
+                </div>
 
-            <div class="form-group">
-                <label for="id_amount">Amount</label>
-                <input type="number" name="amount" id="id_amount" value="{{ form.amount.value|default:'' }}" class="form-control" placeholder="Enter Amount" required>
-            </div>
+                <div class="row">
+                    <!-- Narration -->
+                    <div class="col-md-12 mb-3">
+                        <label for="id_narration" class="form-label">Narration</label>
+                        <textarea name="narration" id="id_narration" class="form-control" placeholder="Enter Narration" required>{{ form.narration.value|default:'' }}</textarea>
+                    </div>
+                </div>
 
-            <button type="submit" class="btn btn-gold">Create</button>
-        </form>
+                <div class="row">
+                    <!-- Amount Type -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_amount_type" class="form-label">Amount Type</label>
+                        <select name="amount_type" id="id_amount_type" class="form-control" required>
+                            <option value="" disabled selected hidden>Choose Debit or Credit</option>
+                            {% for choice_value, choice_label in form.amount_type.field.choices %}
+                                <option value="{{ choice_value }}" {% if form.amount_type.value == choice_value %}selected{% endif %}>
+                                    {{ choice_label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_amount" class="form-label">Amount</label>
+                        <input type="number" name="amount" id="id_amount" value="{{ form.amount.value|default:'' }}" class="form-control" placeholder="Enter Amount" required>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-gold w-100">Create</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
 <script>
      function toggleSidebar() {
@@ -588,6 +601,24 @@
             content.classList.toggle('no-sidebar');
         }
 
+</script>
+<script>
+    function filterUsers() {
+        var input, filter, select, options, i, txtValue;
+        input = document.getElementById("userSearch");
+        filter = input.value.toUpperCase();
+        select = document.getElementById("id_user");
+        options = select.getElementsByTagName("option");
+
+        for (i = 0; i < options.length; i++) {
+            txtValue = options[i].textContent || options[i].innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                options[i].style.display = "";
+            } else {
+                options[i].style.display = "none";
+            }
+        }
+    }
 </script>
 </body>
 </html>

@@ -36,10 +36,8 @@ def signup_view(request):
             user = form.save(commit=False)
             user.is_approved = False  # New users will not be approved automatically
             user.save()
-
-            # Add a success message
-            messages.success(request, "Your account has been created. Please wait for approval.")
-            return render(request, 'signup.html', {'form': form})  # Re-render signup page with the success message
+            # Redirect to the pending approval page
+            return redirect('pendingapproval')
     else:
         form = SignupForm()
 
@@ -47,50 +45,48 @@ def signup_view(request):
 
 
 
+
 # login for all
 
 @never_cache
 def login_view(request):
-    if request.user.is_authenticated:  # Check if the user is already logged in
-        # Redirect to the appropriate dashboard based on user type
+    if request.user.is_authenticated:  # Check if user is already logged in
+        # Redirect based on user type
         if request.user.is_superuser:
-            return redirect('transaction_list')  # Redirect superusers
-        elif request.user.username == 'developer':
-            return redirect('/pineapplepie/')  # Redirect developer users
+            return redirect('/pineapplepie/')  # Redirect superusers to Django admin
+        elif request.user.is_staff:
+            return redirect('transaction_list')  # Redirect staff to admin dashboard
         else:
-            return redirect('dashboard')  # Redirect normal users
+            return redirect('dashboard')  # Redirect normal users to user dashboard
         
     if request.method == 'POST':
-        username_or_email = request.POST['username']  # Field for username or email
+        username_or_email = request.POST['username']
         password = request.POST['password']
         
-        # Try to authenticate using the username or email
+        # Try to authenticate using username or email
         user = None
-        if '@' in username_or_email:  # If the input looks like an email
+        if '@' in username_or_email:
             try:
-                user = CustomUser.objects.get(email=username_or_email)  # Get user by email (CustomUser model)
+                user = CustomUser.objects.get(email=username_or_email)
             except CustomUser.DoesNotExist:
                 user = None
         else:
-            user = authenticate(request, username=username_or_email, password=password)  # Authenticate by username
+            user = authenticate(request, username=username_or_email, password=password)
         
         if user is not None and user.check_password(password):
-            if not user.is_approved:  # Check if user is approved
-                return render(request, 'login.html', {'error': 'Your account is awaiting approval by an administrator.'})
+            if not user.is_approved and not (user.is_superuser or user.is_staff):
+                return render(request, 'pending_approval.html', 
+                    {'error': 'Your account is awaiting approval by an administrator.'})
             
-            # Check if user is a developer with specific password
-            if user.username == 'developer' and user.check_password('SecurePassword2025!'):
-                login(request, user)
-                return redirect('/pineapplepie/')  # Redirect to Django admin interface for the developer
-            
-            # Check if user is a superuser
-            if user.is_superuser:
-                login(request, user)
-                return redirect('transaction_list')  # Redirect for superusers
-            
-            # Default redirection for normal users
             login(request, user)
-            return redirect('dashboard')  # Redirect for normal users
+            
+            # Redirect based on user type
+            if user.is_superuser:
+                return redirect('/pineapplepie/')  # Django admin dashboard
+            elif user.is_staff:
+                return redirect('transaction_list')  # Admin dashboard
+            else:
+                return redirect('dashboard')  # User dashboard
             
         else:
             return render(request, 'login.html', {'error': 'Invalid credentials'})
@@ -108,11 +104,10 @@ def logout_view(request):
 
 
 # Admin view to list all users
-# Check if user is superuser
-def superuser_required(user):
-    return user.is_authenticated and user.is_superuser
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
 
-@user_passes_test(superuser_required)
+
 @never_cache
 def admin_user_list(request):
     User = get_user_model()
@@ -122,13 +117,13 @@ def admin_user_list(request):
 
     # Filter users based on the search query (first name or last name contains the search term)
     if search_query:
-        users = User.objects.exclude(username='developer').filter(
+        users = User.objects.exclude(is_superuser=True).filter(
             first_name__icontains=search_query
-        ) | User.objects.exclude(username='developer').filter(
+        ) | User.objects.exclude(is_superuser=True).filter(
             last_name__icontains=search_query
         )
     else:
-        users = User.objects.exclude(username='developer')  # If no search query, show all users
+        users = User.objects.exclude(is_superuser=True)  
 
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
@@ -140,31 +135,34 @@ def admin_user_list(request):
             messages.error(request, "User not found.")
             return redirect('admin-user-list')
 
-        if action == 'confirm_toggle':
-            user.is_approved = not user.is_approved
-            user.save()
-            status = "activated" if user.is_approved else "deactivated"
-            messages.success(request, f"User {user.username} has been {status}.")
-            return redirect('admin-user-list')  # Redirect to ensure message is shown on the same page
-        elif action == 'promote':  # Promote to admin
-            if not user.is_superuser:  # Avoid promoting an already superuser
-                user.is_staff = True
-                user.is_superuser = True
+        # Only allow staff users to promote/demote other users
+        if request.user.is_staff:
+            if action == 'confirm_toggle':
+                user.is_approved = not user.is_approved
                 user.save()
-                messages.success(request, f"User {user.username} has been promoted to Admin.")
+                status = "activated" if user.is_approved else "deactivated"
+                messages.success(request, f"User {user.username} has been {status}.")
+                return redirect('admin-user-list')  # Redirect to ensure message is shown on the same page
+            elif action == 'promote':  # Promote to staff
+                if not user.is_staff:  # Avoid promoting an already staff member
+                    user.is_staff = True
+                    user.save()
+                    messages.success(request, f"User {user.username} has been promoted to Staff.")
+                else:
+                    messages.error(request, "User is already a Staff member.")
+            elif action == 'demote':  # Demote from staff
+                if user.is_staff:  # Ensure only staff members can be demoted
+                    user.is_staff = False
+                    user.save()
+                    messages.success(request, f"User {user.username} has been demoted to a regular user.")
+                else:
+                    messages.error(request, "User is not a Staff member.")
             else:
-                messages.error(request, "User is already an Admin.")
-        elif action == 'demote':  # Demote from admin
-            if user.is_superuser:  # Ensure only superusers can be demoted
-                user.is_staff = False
-                user.is_superuser = False
-                user.save()
-                messages.success(request, f"User {user.username} has been demoted to a regular user.")
-            else:
-                messages.error(request, "User is not an Admin.")
+                # Render the admin user list with the confirmation form
+                return render(request, 'manage_users.html', {'users': users, 'search_query': search_query, 'confirm_user': user, 'confirm_action': action})
         else:
-            # Render the admin user list with the confirmation form
-            return render(request, 'manage_users.html', {'users': users, 'search_query': search_query, 'confirm_user': user, 'confirm_action': action})
+            messages.error(request, "You do not have the necessary permissions to perform this action.")
+            return redirect('admin-user-list')
 
     return render(request, 'manage_users.html', {'users': users, 'search_query': search_query})
 
@@ -179,8 +177,11 @@ def admin_required(user):
 @user_passes_test(admin_required, login_url='login')
 @never_cache
 def transaction_list(request):
-    if not request.user.is_authenticated:
-        return redirect('home')
+    # Redirect superusers to Django admin
+    if request.user.is_superuser:
+        return redirect('/pineapplepie/')
+    elif not request.user.is_staff:
+        return redirect('dashboard')
     
     # Get the search query (if any)
     search_query = request.GET.get('search', '')
@@ -305,6 +306,8 @@ def pending_transactions(request):
 
     else:
         form = TransactionForm()  # Create an empty form for GET request
+        # Exclude superusers from the user field's queryset
+        form.fields['user'].queryset = CustomUser.objects.filter(is_superuser=False)
 
     return render(request, 'pending_transactions.html', {
         'page_obj': page_obj,
@@ -402,7 +405,7 @@ def admin_user_home(request, user_id=None):
         'selected_user': selected_user
     })
 
-
+ 
 
 # for users creating transaction view
 
@@ -425,42 +428,53 @@ def manage_investment(request):
 
 
 # user transaction list
-
 @never_cache
 @login_required
 def dashboard_view(request):
-    # Filter all transactions for the logged-in user and transactions created by the admin
-    user_transactions = Transaction.objects.filter(user=request.user) | Transaction.objects.filter(user__id=request.user.id)
+    # Redirect users based on their role
+    if request.user.is_superuser:
+        return redirect('/pineapplepie/')
+    elif request.user.is_staff:
+        return redirect('transaction_list')
+    
+    # Separate the transactions into pending and approved/rejected
+    pending_transactions = Transaction.objects.filter(user=request.user, status='pending')
+    approved_rejected_transactions = Transaction.objects.filter(user=request.user).exclude(status='pending').order_by('date')
 
-    # Order by status (pending first) and then by date (latest first)
-    user_transactions = user_transactions.order_by(
-        models.Case(
-            models.When(status='pending', then=0),
-            default=1,
-            output_field=models.IntegerField()
-        ),
-        '-date'  # Sort by date in descending order (latest first)
-    )
+    # Initialize the running balance
+    running_balance = 0
+    for transaction in approved_rejected_transactions:
+        if transaction.amount_type == 'credit':
+            running_balance += transaction.amount
+        elif transaction.amount_type == 'debit':
+            running_balance -= transaction.amount
+        transaction.running_balance = running_balance
 
-    # Pagination
-    paginator = Paginator(user_transactions, 6)  # Show 6 transactions per page
-    page_number = request.GET.get('page')  # Get the current page number from query parameters
-    page_obj = paginator.get_page(page_number)  # Get the transactions for the current page
+    # Pagination for pending transactions
+    pending_paginator = Paginator(pending_transactions, 6)  # Show 6 pending transactions per page
+    pending_page_number = request.GET.get('pending_page')  # Get the current page number for pending transactions
+    pending_page_obj = pending_paginator.get_page(pending_page_number)  # Get the transactions for the current page
+
+    # Pagination for approved/rejected transactions
+    approved_rejected_paginator = Paginator(approved_rejected_transactions, 6)  # Show 6 approved/rejected transactions per page
+    approved_rejected_page_number = request.GET.get('approved_rejected_page')  # Get the current page number for approved/rejected transactions
+    approved_rejected_page_obj = approved_rejected_paginator.get_page(approved_rejected_page_number)  # Get the transactions for the current page
 
     # Use the helper function to calculate the transaction summary
     transaction_summary = calculate_user_dashboard_returns(request.user)
 
     context = {
-        'transactions': page_obj,  # Paginated transactions
+        'pending_transactions': pending_page_obj,  # Paginated pending transactions
+        'approved_rejected_transactions': approved_rejected_page_obj,  # Paginated approved/rejected transactions
         'total_credit': transaction_summary['total_credit'],  # Total credit from approved transactions
         'total_debit': transaction_summary['total_debit'],    # Total debit from approved transactions
         'total_returns': transaction_summary['total_returns'],  # Total returns as a percentage
-        'start_index': (page_obj.number - 1) * page_obj.paginator.per_page,  # Add this to calculate serial number
-        'all_transactions':user_transactions
+        'pending_start_index': (pending_page_obj.number - 1) * pending_page_obj.paginator.per_page,  # Add this to calculate serial number
+        'approved_rejected_start_index': (approved_rejected_page_obj.number - 1) * approved_rejected_page_obj.paginator.per_page,  # Add this to calculate serial number
+        'all_approved_rejected_transactions': approved_rejected_transactions  # Pass all transactions for the hidden table
     }
 
     return render(request, 'dashboard.html', context)
-
 
 
 # common calculation for both user and admin side
@@ -544,14 +558,37 @@ def admin_update_profile(request):
 
 
 
+# pending approval
+def pendingapproval(request):
+    return render(request,'pending_approval.html')
 
+# for downloading all user transaction details
 
+from django.http import JsonResponse
 
+def get_all_users(request):
+    users_with_transactions = CustomUser.objects.filter(
+        transactions__status='approved'
+    ).distinct()
 
+    user_data = []
+    for user in users_with_transactions:
+        transactions = Transaction.objects.filter(user=user, status='approved')
 
+        total_credit = transactions.filter(amount_type='credit').aggregate(Sum('amount'))['amount__sum'] or 0
+        total_debit = transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
 
+        dashboard_view_data = calculate_user_dashboard_returns(user)
+        total_returns = dashboard_view_data['total_returns']
 
+        user_data.append({
+            'user_id': user.id,
+            'username': user.username,
+            'credit_total': total_credit,
+            'total_returns': total_returns,
+            'status': 'Active' if total_returns > 0 else 'Inactive',
+        })
 
-
+    return JsonResponse({'users': user_data})
 
 

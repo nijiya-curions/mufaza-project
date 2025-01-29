@@ -78,6 +78,7 @@
     padding: 20px;
     color: var(--text-light);
     display: flex;
+    height: 100vh;
     flex-direction: column;
     z-index: 1000; /* Ensure the sidebar is always on top */
     overflow-y: auto; /* Make the sidebar scrollable */
@@ -268,8 +269,6 @@
 
 /* responsive */
 
-
-
     </style>
     <script>
         // Wait for the DOM to load
@@ -406,7 +405,7 @@
                         <form method="post">
                             {% csrf_token %}
                             <input type="hidden" name="user_id" value="{{ user.id }}">
-                            {% if user.is_superuser %}
+                            {% if user.is_staff %}
                                 <button type="submit" name="action" value="demote" class="status status-debited">Demote</button>
                             {% else %}
                                 <button type="submit" name="action" value="promote" class="status status-approved">Promote</button>

@@ -21,6 +21,8 @@ urlpatterns = [
     path('user_ledger/<int:user_id>/', views.admin_user_home, name='user_ledger'),
     path('profileupdate/', views.admin_update_profile, name='update_profile'),
     path('profile/update/', views.update_profile, name='update_profilenew'),
+    path('pendingapproval', views.pendingapproval, name='pendingapproval'),
+    path('get-all-users/', views.get_all_users, name='get_all_users'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
