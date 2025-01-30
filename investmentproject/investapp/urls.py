@@ -21,6 +21,7 @@ urlpatterns = [
     path('user_ledger/<int:user_id>/', views.admin_user_home, name='user_ledger'),
     path('pendingapproval', views.pendingapproval, name='pendingapproval'),
     path('get-all-users/', views.get_all_users, name='get_all_users'),
+    path('export-transactions/',views.export_transactions_pdf, name='export_transactions'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

@@ -14,13 +14,14 @@ from decimal import Decimal
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
-
 from .forms import UserProfileUpdateForm
-
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
 
 # home page
 def home(request):
@@ -527,8 +528,8 @@ def calculate_user_dashboard_returns(user):
 def pendingapproval(request):
     return render(request,'pending_approval.html')
 
-# for downloading all user transaction details
 
+# for downloading all user transaction details by admin
 from django.http import JsonResponse
 
 def get_all_users(request):
@@ -556,3 +557,54 @@ def get_all_users(request):
 
     return JsonResponse({'users': user_data})
 
+
+
+# for user dashboard download pdf
+def export_transactions_pdf(request):
+    user = request.user
+    transactions = Transaction.objects.filter(user=user).exclude(status='pending').order_by('date')
+
+    # Create a PDF response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="transactions.pdf"'
+
+    # Create PDF object
+    pdf = canvas.Canvas(response, pagesize=letter)
+    pdf.setTitle("Transaction Report")
+
+    # Set starting position
+    y_position = 750  # Adjust Y position for each row
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(200, y_position, "Transaction Report")  
+    y_position -= 30
+
+    # Column Titles
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(50, y_position, "Date")
+    pdf.drawString(150, y_position, "Particulars")
+    pdf.drawString(300, y_position, "Amount Type")
+    pdf.drawString(400, y_position, "Amount")
+    pdf.drawString(500, y_position, "Status")
+    y_position -= 20
+
+    # Draw a line
+    pdf.setStrokeColor(colors.black)
+    pdf.line(50, y_position, 550, y_position)
+    y_position -= 15
+
+    # Transaction Data
+    pdf.setFont("Helvetica", 10)
+    for transaction in transactions:
+        if y_position < 50:  # Start new page if needed
+            pdf.showPage()
+            y_position = 750  # Reset position
+
+        pdf.drawString(50, y_position, str(transaction.date))
+        pdf.drawString(150, y_position, transaction.particulars[:20])  # Truncate for space
+        pdf.drawString(300, y_position, transaction.amount_type.capitalize())
+        pdf.drawString(400, y_position, str(transaction.amount))
+        pdf.drawString(500, y_position, transaction.status.capitalize())
+        y_position -= 20  # Move down
+
+    pdf.save()
+    return response

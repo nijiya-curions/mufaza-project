@@ -618,9 +618,7 @@
     </div>
 </div>
 
-
 <!--  -->
-
         <div class="dashboard-container">
             <div class="welcome-section">
                 <h1 class="welcome-title">
@@ -713,11 +711,11 @@
 
                 <!-- Approved and Rejected Transactions -->
                 <div class="ledger-header">
-                    <button class="btn btn-gold" onclick="exportPDF()">
+                    <a href="{% url 'export_transactions' %}" class="btn btn-gold">
                         <i class="fas fa-download"></i> Export PDF
-                    </button>
+                    </a>
                 </div>
-
+                
                 <h2>Your Transactions</h2>
                 {% if approved_rejected_transactions %}
                 <div class="table-container">
@@ -787,74 +785,7 @@
                 {% endif %}
             </div>
         </div>
-                        <!-- Hidden table with all transactions for PDF export -->
-                       <div id="approved-rejected-table" style="display: none;">
-                        <table class="approved-rejected-table">
-                            <thead>
-                                <tr>
-                                    <th>Sl.No</th>
-                                    <th>Date</th>
-                                    <th>Particulars</th>
-                                    <th>Narration</th>
-                                    <th>Amount Type</th>
-                                    <th>Amount</th>
-                                    <th>Balance</th>
-                                    <th>Receipt</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for transaction in all_approved_rejected_transactions %}
-                                    <tr>
-                                        <td>{{ forloop.counter }}</td>
-                                        <td>{{ transaction.date }}</td>
-                                        <td>{{ transaction.particulars }}</td>
-                                        <td>{{ transaction.narration }}</td>
-                                        <td>{{ transaction.amount_type }}</td>
-                                        <td>{{ transaction.amount }}</td>
-                                        <td>{{ transaction.running_balance }}</td>
-                                        <td>
-                                            {% if transaction.transaction_receipt %}
-                                                <img src="{{ transaction.transaction_receipt.url }}" alt="Receipt" style="max-width: 150px; max-height: 150px;">
-                                            {% else %}
-                                                No Receipt
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if transaction.status == 'approved' %}
-                                                <span class="status status-approved">Approved</span>
-                                            {% elif transaction.status == 'rejected' %}
-                                                <span class="status status-debited">Rejected</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-</div>
-
-<script>
-    function exportPDF() {
-        const element = document.getElementById('approved-rejected-table');
-
-        // Temporarily show the hidden content
-        element.style.display = 'block';
-
-        const options = {
-            margin: [10, 10, 10, 10], // Top, right, bottom, left margins
-            filename: 'approved-rejected-table.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        html2pdf().set(options).from(element).save().then(() => {
-            // Hide the content again after exporting
-            element.style.display = 'none';
-        });
-    }
-</script>
+                   
     </body>
     </html>
     
