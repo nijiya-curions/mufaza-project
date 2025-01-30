@@ -82,8 +82,8 @@ textarea.form-control {
     letter-spacing: 0.3px;
     text-transform: uppercase;
     margin: auto;
-    display: block; /* Ensure it's block-level */
-    width: auto;    /* Remove fixed width and allow natural width */
+    display: block; 
+    width: auto;   
 }
 
 /* Gold Button specific styles */

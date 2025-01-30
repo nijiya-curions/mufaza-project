@@ -23,3 +23,4 @@ tzdata==2024.2
 ua-parser==1.0.0
 ua-parser-builtins==0.18.0.post1
 user-agents==2.2.0
+openpyxl-3.1.5

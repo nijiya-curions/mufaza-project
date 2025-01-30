@@ -104,8 +104,6 @@ def logout_view(request):
 # Admin view to list all users
 def admin_required(user):
     return user.is_authenticated and user.is_staff
-
-
 @never_cache
 def admin_user_list(request):
     User = get_user_model()
@@ -347,7 +345,6 @@ def reject_transaction(request, transaction_id):
         return redirect('pending_transactions')
 
 
-
 # admin user dahsboard
 def decimal_to_float(value):
     if isinstance(value, Decimal):
@@ -442,6 +439,11 @@ def manage_investment(request):
 @never_cache
 @login_required
 def dashboard_view(request):
+     # Redirect users based on their role
+    if request.user.is_superuser:
+        return redirect('/pineapplepie/')
+    elif request.user.is_staff:
+        return redirect('transaction_list')
     # Handle profile update form submission
     user = request.user
     if request.method == 'POST' and 'update_profile' in request.POST:
@@ -458,11 +460,6 @@ def dashboard_view(request):
     else:
         form = UserProfileUpdateForm(instance=user)
 
-    # Redirect users based on their role
-    if request.user.is_superuser:
-        return redirect('/pineapplepie/')
-    elif request.user.is_staff:
-        return redirect('transaction_list')
 
     # Fetch transactions
     pending_transactions = Transaction.objects.filter(user=request.user, status='pending')
@@ -558,7 +555,6 @@ def get_all_users(request):
     return JsonResponse({'users': user_data})
 
 
-
 # for user dashboard download pdf
 def export_transactions_pdf(request):
     user = request.user
@@ -607,4 +603,91 @@ def export_transactions_pdf(request):
         y_position -= 20  # Move down
 
     pdf.save()
+    return response
+
+
+# to download data on manage_user page by admin
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from io import BytesIO
+
+def download_users_pdf(request):
+    User = get_user_model()
+    users = User.objects.exclude(is_superuser=True)
+
+    # Create a PDF response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="user_list.pdf"'
+
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    # Title
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(200, height - 50, "User List")
+
+    # Table Header
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(50, height - 80, "ID")
+    p.drawString(100, height - 80, "Username")
+    p.drawString(200, height - 80, "First Name")
+    p.drawString(300, height - 80, "Last Name")
+    p.drawString(400, height - 80, "Phone Number")
+    p.drawString(500, height - 80, "Email")
+    p.drawString(600, height - 80, "Is Staff")
+
+    # Table Data
+    y = height - 100
+    p.setFont("Helvetica", 10)
+    for user in users:
+        p.drawString(50, y, str(user.id))
+        p.drawString(100, y, user.username)
+        p.drawString(200, y, user.first_name or "-")
+        p.drawString(300, y, user.last_name or "-")
+        p.drawString(400, y, user.phone_number or "-")
+        p.drawString(500, y, user.email or "-")
+        p.drawString(600, y, "Yes" if user.is_staff else "No")
+        y -= 20
+
+    p.save()
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+    return response
+
+
+import openpyxl
+from django.http import HttpResponse
+
+def download_users_excel(request):
+    User = get_user_model()
+    users = User.objects.exclude(is_superuser=True)
+
+    # Create an Excel workbook and sheet
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Users"
+
+    # Add headers
+    headers = ["ID", "Username", "First Name", "Last Name","Phone Number","Email", "Is Staff"]
+    ws.append(headers)
+
+    # Add user data
+    for user in users:
+        ws.append([
+            user.id,
+            user.username,
+            user.first_name or "-",
+            user.last_name or "-",
+            user.phone_number or "-",
+            user.email or "-",
+            "Yes" if user.is_staff else "No"
+        ])
+
+    # Create response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="user_list.xlsx"'
+    wb.save(response)
     return response

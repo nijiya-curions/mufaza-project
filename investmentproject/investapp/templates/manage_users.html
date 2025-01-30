@@ -267,6 +267,60 @@
             margin-right: 10px;
         }
 
+.download-container {
+    display: flex;
+    justify-content: left;
+    gap: 20px; /* Space between buttons */
+    margin-top: 20px;
+    flex-wrap: wrap; /* Allows wrapping for smaller screens */
+}
+
+/* Default button styles */
+.download-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    text-decoration: none;
+    color: white;
+    width: 160px;
+    text-align: center;
+}
+
+/* Icon styling */
+.download-btn i {
+    font-size: 18px;
+}
+
+/* PDF & Excel Button Colors */
+.btn-pdf, .btn-excel {
+    background-color: #d4af37;
+}
+
+.btn-pdf:hover, .btn-excel:hover {
+    background-color: #b79530;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 600px) {
+    .download-container {
+        flex-direction: column; /* Stack buttons on smaller screens */
+        align-items: center;
+    }
+
+    .download-btn {
+        width: 100%; /* Full width on small screens */
+        max-width: 300px; /* Prevents overly large buttons */
+    }
+}
+
 /* responsive */
 
     </style>
@@ -352,7 +406,18 @@
             <button type="submit" class="btn btn-gold">
                 <i class="fas fa-search"></i> Search
             </button>
-        </form>
+        </form><br>
+
+        <div class="download-container">
+            <a href="{% url 'download-users-pdf' %}" class="download-btn btn-pdf">
+                <i class="fas fa-file-pdf"></i> Download PDF
+            </a>
+            
+            <a href="{% url 'download-users-excel' %}" class="download-btn btn-excel">
+                <i class="fas fa-file-excel"></i> Download Excel
+            </a>
+        </div>
+        
 
         <!-- Manage Users Section - Heading above the table -->
         <h2 class="manage-users-header">Manage Users</h2>
