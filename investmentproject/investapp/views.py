@@ -179,7 +179,19 @@ def transaction_list(request):
         return redirect('/pineapplepie/')
     elif not request.user.is_staff:
         return redirect('dashboard')
-    
+
+    # Handle Profile Update Form Submission
+    if request.method == "POST" and "update_profile" in request.POST:
+        form = UserProfileUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully!")
+            return redirect('transaction_list')  # Stay on the same page
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = UserProfileUpdateForm(instance=request.user)
+
     # Get the search query (if any)
     search_query = request.GET.get('search', '')
 
@@ -252,7 +264,9 @@ def transaction_list(request):
         'total_return_amount': total_return_amount,  # Total return amount of all users
         'search_query': search_query,
         'start_index': start_index,  # Pass the starting index
+        'form': form,  # Pass the form to the template
     })
+
 
 
 # approvals and rejections and create transaction for user by admin
@@ -403,7 +417,6 @@ def admin_user_home(request, user_id=None):
     })
 
  
-
 # for users creating transaction view
 
 @never_cache
@@ -428,17 +441,32 @@ def manage_investment(request):
 @never_cache
 @login_required
 def dashboard_view(request):
+    # Handle profile update form submission
+    user = request.user
+    if request.method == 'POST' and 'update_profile' in request.POST:
+        form = UserProfileUpdateForm(request.POST, instance=user)
+        if form.is_valid():
+            password_changed = bool(form.cleaned_data.get('password'))
+            form.save()
+
+            if password_changed:
+                logout(request)  # Log out the user if they change the password
+                return redirect('login')
+
+            return redirect('dashboard')  # Stay on the dashboard after update
+    else:
+        form = UserProfileUpdateForm(instance=user)
+
     # Redirect users based on their role
     if request.user.is_superuser:
         return redirect('/pineapplepie/')
     elif request.user.is_staff:
         return redirect('transaction_list')
-    
-    # Separate the transactions into pending and approved/rejected
+
+    # Fetch transactions
     pending_transactions = Transaction.objects.filter(user=request.user, status='pending')
     approved_rejected_transactions = Transaction.objects.filter(user=request.user).exclude(status='pending').order_by('date')
 
-    # Initialize the running balance
     running_balance = 0
     for transaction in approved_rejected_transactions:
         if transaction.amount_type == 'credit':
@@ -447,28 +475,24 @@ def dashboard_view(request):
             running_balance -= transaction.amount
         transaction.running_balance = running_balance
 
-    # Pagination for pending transactions
-    pending_paginator = Paginator(pending_transactions, 6)  # Show 6 pending transactions per page
-    pending_page_number = request.GET.get('pending_page')  # Get the current page number for pending transactions
-    pending_page_obj = pending_paginator.get_page(pending_page_number)  # Get the transactions for the current page
+    # Pagination
+    pending_paginator = Paginator(pending_transactions, 6)
+    pending_page_obj = pending_paginator.get_page(request.GET.get('pending_page'))
+    approved_rejected_paginator = Paginator(approved_rejected_transactions, 6)
+    approved_rejected_page_obj = approved_rejected_paginator.get_page(request.GET.get('approved_rejected_page'))
 
-    # Pagination for approved/rejected transactions
-    approved_rejected_paginator = Paginator(approved_rejected_transactions, 6)  # Show 6 approved/rejected transactions per page
-    approved_rejected_page_number = request.GET.get('approved_rejected_page')  # Get the current page number for approved/rejected transactions
-    approved_rejected_page_obj = approved_rejected_paginator.get_page(approved_rejected_page_number)  # Get the transactions for the current page
-
-    # Use the helper function to calculate the transaction summary
     transaction_summary = calculate_user_dashboard_returns(request.user)
 
     context = {
-        'pending_transactions': pending_page_obj,  # Paginated pending transactions
-        'approved_rejected_transactions': approved_rejected_page_obj,  # Paginated approved/rejected transactions
-        'total_credit': transaction_summary['total_credit'],  # Total credit from approved transactions
-        'total_debit': transaction_summary['total_debit'],    # Total debit from approved transactions
-        'total_returns': transaction_summary['total_returns'],  # Total returns as a percentage
-        'pending_start_index': (pending_page_obj.number - 1) * pending_page_obj.paginator.per_page,  # Add this to calculate serial number
-        'approved_rejected_start_index': (approved_rejected_page_obj.number - 1) * approved_rejected_page_obj.paginator.per_page,  # Add this to calculate serial number
-        'all_approved_rejected_transactions': approved_rejected_transactions  # Pass all transactions for the hidden table
+        'pending_transactions': pending_page_obj,
+        'approved_rejected_transactions': approved_rejected_page_obj,
+        'total_credit': transaction_summary['total_credit'],
+        'total_debit': transaction_summary['total_debit'],
+        'total_returns': transaction_summary['total_returns'],
+        'pending_start_index': (pending_page_obj.number - 1) * pending_page_obj.paginator.per_page,
+        'approved_rejected_start_index': (approved_rejected_page_obj.number - 1) * approved_rejected_page_obj.paginator.per_page,
+        'all_approved_rejected_transactions': approved_rejected_transactions,
+        'form': form  # Add the form to the context
     }
 
     return render(request, 'dashboard.html', context)
@@ -496,62 +520,6 @@ def calculate_user_dashboard_returns(user):
         'initial_value': initial_value,
         'current_value': current_value,
     }
-
-
-# update profile for users
-@never_cache
-@login_required
-def update_profile(request):
-    user = request.user
-
-    if request.method == 'POST':
-        form = UserProfileUpdateForm(request.POST, instance=user)
-
-        if form.is_valid():
-            # Check if the password field is changed
-            password_changed = bool(form.cleaned_data.get('password'))
-
-            # Save the form
-            form.save()
-
-            # Redirect to login only if the password was changed
-            if password_changed:
-                logout(request)  # Log the user out
-                return redirect('login')  # Redirect to login page
-
-            # Redirect to the dashboard if no password was changed
-            return redirect('dashboard')  # Redirect prevents the form from resubmitting
-    else:
-        form = UserProfileUpdateForm(instance=user)
-
-    return render(request, 'update_profile.html', {'form': form})
-
-
-# for admins profile update form
-# Decorator to ensure only admins can access this view
-def admin_only(user):
-    return user.is_staff or user.is_superuser
-
-@never_cache
-@user_passes_test(admin_only)
-def admin_update_profile(request):
-    admin_user = request.user
-
-    if request.method == 'POST':
-        form = UserProfileUpdateForm(request.POST, instance=admin_user)
-
-        if form.is_valid():
-            # Save the admin profile
-            form.save()
-
-            # Redirect back to the admin dashboard
-            return redirect('transaction_list')  # Adjust the name of the admin dashboard URL
-        else:
-            messages.error(request, "Please correct the errors below.")
-    else:
-        form = UserProfileUpdateForm(instance=admin_user)
-
-    return render(request, 'updateprofile.html', {'form': form})
 
 
 

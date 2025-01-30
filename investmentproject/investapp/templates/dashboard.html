@@ -7,6 +7,10 @@
     <title>Mafaza - User Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Bootstrap CSS (Add this in your base template if not included) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <style>
         /* Theme Variables */
         :root {
@@ -148,6 +152,7 @@
         .btn-gold:hover {
             transform: translateY(-3px);
             box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
+            
         }
 
         /* Ledger Section */
@@ -235,6 +240,8 @@
             text-align: center;
             margin-top: 30px;
             padding-bottom: 100px;
+            margin: auto;
+            display: block;
         }
 
         .pagination a {
@@ -391,7 +398,6 @@
             .btn,
             .btn-gold {
                 font-size: 12px;
-                /* Ensure buttons take full width if needed */
                 text-align: center;
                 margin-top: 50px;
             }
@@ -486,15 +492,134 @@
     background-color: #f9f9f9;
 }
 
+/*  */
+
+.profile-form {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-control:focus {
+    border-color: #b7952c;
+    outline: none;
+    box-shadow: 0 0 5px rgba(198, 176, 11, 0.5);
+}
+
+.modal-content {
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background-color: #b7952c;
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.btn-close {
+    color: white;
+    opacity: 1;
+}
+
+       .close-modal {
+            position: absolute;
+            right: 25px;
+            top: 25px;
+            font-size: 15px;
+            cursor: pointer;
+            color: var(--accent-gold);
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            transform: rotate(90deg);
+        }
+
 </style>
 
 </head>
    <body>
 
         <div style="display: flex; justify-content: flex-end; margin-bottom: 30px;">
-             <a href="{% url 'update_profilenew' %}">
-             <i class="fas fa-cog settings-icon"></i></a>
+            <i class="fas fa-cog settings-icon" data-bs-toggle="modal" data-bs-target="#profileUpdateModal" style="cursor: pointer;"></i>
         </div>
+        
+<!-- Profile Update Modal -->
+<div class="modal fade" id="profileUpdateModal" tabindex="-1" aria-labelledby="profileUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileUpdateModalLabel">Update Profile</h5>
+                <button type="button" class="btn-close close-modal" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" class="profile-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="update_profile" value="1">
+            
+                    <div class="form-group">
+                        <label for="id_username">Username</label>
+                        <input type="text" id="id_username" name="username" value="{{ form.username.value }}" required class="form-control">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="id_first_name">First Name</label>
+                        <input type="text" id="id_first_name" name="first_name" value="{{ form.first_name.value }}" required class="form-control">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="id_last_name">Last Name</label>
+                        <input type="text" id="id_last_name" name="last_name" value="{{ form.last_name.value }}" required class="form-control">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="id_email">Email</label>
+                        <input type="email" id="id_email" name="email" value="{{ form.email.value }}" required class="form-control">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="id_phone_number">Phone Number</label>
+                        <input type="text" id="id_phone_number" name="phone_number" value="{{ form.phone_number.value }}" required class="form-control">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="id_address">Address</label>
+                        <textarea id="id_address" name="address" rows="3" required class="form-control">{{ form.address.value }}</textarea>
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="id_password">Password</label>
+                        {{ form.password }}
+                        <small class="form-text text-muted"><br>{{ form.password.help_text }}</small>
+                    </div>
+            
+                    <button type="submit" class="btn btn-gold btn-block mt-3">Update Profile</button>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+
+<!--  -->
 
         <div class="dashboard-container">
             <div class="welcome-section">
