@@ -1,3 +1,4 @@
+{%load static%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -241,7 +242,9 @@
             .sidebar-toggle {
                 display: block;
             }
-
+            .sidebar h2{
+                margin-top: 50px;
+            }
             .content {
                 margin-left: 0;
                 width: 100%;
@@ -251,6 +254,34 @@
                 margin-left: 300px;
                 width: calc(100% - 250px);
             }
+
+        }
+@media (max-width:570px){
+    .close-modal {
+            position: absolute;
+            left: 107%;
+            top: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--accent-gold);
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            transform: rotate(90deg);
+        }
+}
+        .logo {
+             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;            
+             position: fixed;
+            top: 525px;
+            left: 12px;
+            right: 0;
+            z-index: 1000;
+            width: 100vw;
         }
     </style>
     <script>
@@ -304,6 +335,9 @@
                 <li><a href="{% url 'admin_user_home' %}" class="sidebar-link"><i class="fas fa-user-shield"></i> Users</a></li>
                 <li><a href="{% url 'logout' %}" class="sidebar-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
+            <div class="logo">
+                <img src="{% static 'images/logo.svg' %}" alt="Logo">
+            </div>
         </div>
 
        <!-- Content Area -->

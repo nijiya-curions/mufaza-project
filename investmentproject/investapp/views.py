@@ -107,11 +107,11 @@ def admin_required(user):
 @never_cache
 def admin_user_list(request):
     User = get_user_model()
-    
+
     # Get the search query from the GET request
     search_query = request.GET.get('search', '')
 
-    # Filter users based on the search query (first name or last name contains the search term)
+    # Filter users based on the search query
     if search_query:
         users = User.objects.exclude(is_superuser=True).filter(
             first_name__icontains=search_query
@@ -119,7 +119,15 @@ def admin_user_list(request):
             last_name__icontains=search_query
         )
     else:
-        users = User.objects.exclude(is_superuser=True)  
+        users = User.objects.exclude(is_superuser=True)
+
+    # Sort users: Show not activated (is_approved=False) first, then activated users
+    users = users.order_by('is_approved', 'first_name')
+
+    # Pagination: Show 10 users per page
+    paginator = Paginator(users, 10)
+    page_number = request.GET.get('page')
+    page_users = paginator.get_page(page_number)
 
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
@@ -131,36 +139,36 @@ def admin_user_list(request):
             messages.error(request, "User not found.")
             return redirect('admin-user-list')
 
-        # Only allow staff users to promote/demote other users
+        # Only staff users can promote/demote other users
         if request.user.is_staff:
             if action == 'confirm_toggle':
                 user.is_approved = not user.is_approved
                 user.save()
                 status = "activated" if user.is_approved else "deactivated"
                 messages.success(request, f"User {user.username} has been {status}.")
-                return redirect('admin-user-list')  # Redirect to ensure message is shown on the same page
+                return redirect('admin-user-list')
             elif action == 'promote':  # Promote to staff
-                if not user.is_staff:  # Avoid promoting an already staff member
+                if not user.is_staff:
                     user.is_staff = True
                     user.save()
                     messages.success(request, f"User {user.username} has been promoted to Staff.")
                 else:
                     messages.error(request, "User is already a Staff member.")
             elif action == 'demote':  # Demote from staff
-                if user.is_staff:  # Ensure only staff members can be demoted
+                if user.is_staff:
                     user.is_staff = False
                     user.save()
                     messages.success(request, f"User {user.username} has been demoted to a regular user.")
                 else:
                     messages.error(request, "User is not a Staff member.")
-            else:
-                # Render the admin user list with the confirmation form
-                return render(request, 'manage_users.html', {'users': users, 'search_query': search_query, 'confirm_user': user, 'confirm_action': action})
         else:
-            messages.error(request, "You do not have the necessary permissions to perform this action.")
+            messages.error(request, "You do not have permission to perform this action.")
             return redirect('admin-user-list')
 
-    return render(request, 'manage_users.html', {'users': users, 'search_query': search_query})
+    return render(request, 'manage_users.html', {
+        'users': page_users,  # Paginated users
+        'search_query': search_query
+    })
 
 
 #  admin transaction list
@@ -691,3 +699,8 @@ def download_users_excel(request):
     response['Content-Disposition'] = 'attachment; filename="user_list.xlsx"'
     wb.save(response)
     return response
+
+
+
+
+

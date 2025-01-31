@@ -156,6 +156,9 @@
             .sidebar-toggle {
                 display: block;
             }
+            .sidebar h2{
+             margin-top: 50px;
+            }
 
             .sidebar.active {
                 transform: translateX(0);
@@ -384,6 +387,20 @@
             border-color: #d4af37;
             box-shadow: 0 0 5px rgba(186, 154, 25, 0.5);
         }
+  
+        .logo {
+             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;            
+            position: fixed;
+            top: 525px;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            width: 100vw;
+        }
+
     </style>
 
     <script>
@@ -450,6 +467,13 @@
                     </a>
                 </li>
             </ul>
+
+            <div class="logo">
+
+                <img src="{% static 'images/logo.svg' %}" alt="Logo">
+                
+            </div>
+
         </div>
     
         <!-- Content -->
@@ -463,6 +487,7 @@
                 </select>
             </form>
         </div>
+
 
       <!-- Content -->
 <div class="content">
@@ -500,6 +525,7 @@
                         No Receipt
                     {% endif %}
                 </td>
+
                 <td>
                     <form method="post" action="{% url 'approve_transaction' transaction.id %}" style="display:inline;">
                         {% csrf_token %}
@@ -537,7 +563,8 @@
             {% endif %}
         </span>
     </div>
-</div><br><br><br><br><br><br>
+</div>
+<br><br><br><br><br><br>
 
      <!-- New Transaction Form (Below the Table) -->
      <div class="container mt-4">
@@ -620,6 +647,7 @@
         }
 
 </script>
+
 <script>
     function filterUsers() {
         var input, filter, select, options, i, txtValue;

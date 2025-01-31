@@ -1,3 +1,4 @@
+{%load static%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,6 +32,8 @@
             background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
             display: flex;
             min-height: 100vh;
+            background-attachment: fixed;
+            overflow-x: hidden;
         }
 
          /* Add your styles here */
@@ -157,27 +160,24 @@
             .sidebar-toggle {
                 display: block; /* Show the toggle button */
             }
-.sidebar h2{
-    margin-top: 50px;
-}
+            .sidebar h2{
+                 margin-top: 50px;
+            }
             .sidebar.active {
                 transform: translateX(0); /* Show the sidebar when active */
             }
 
-           
             .main-content.sidebar-active {
                 margin-left: 350px; /* Adjust margin when sidebar is active */
                 
             }
            
             .main-content {
-            margin-left: 190px;
+            margin-left: 50px;
         }
 
         }
 
-
-       
         /* Heading directly on top of the table */
         h2.manage-users-header {
             text-align: center;
@@ -265,6 +265,7 @@
             border-radius: 6px;
             cursor: pointer;
             margin-right: 10px;
+            
         }
 
 .download-container {
@@ -292,6 +293,7 @@
     color: white;
     width: 160px;
     text-align: center;
+    
 }
 
 /* Icon styling */
@@ -323,6 +325,40 @@
 
 /* responsive */
 
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+          
+        }
+
+        .pagination a {
+            padding: 8px 16px;
+            margin: 0 5px;
+            background-color: var(--accent-gold);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .pagination .current {
+            padding: 8px 16px;
+            margin: 0 5px;
+            background-color: #b39429;
+            color: white;
+            border-radius: 4px;
+        }
+        .logo {
+             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;            
+             position: fixed;
+            top: 525px;
+            left: 12px;
+            right: 0;
+            z-index: 1000;
+            width: 100vw;
+        }
     </style>
     <script>
         // Wait for the DOM to load
@@ -396,6 +432,9 @@
             </a>
         </li>
     </ul>
+    <div class="logo">
+        <img src="{% static 'images/logo.svg' %}" alt="Logo">
+    </div>
 </div>
     
     <!-- Main Content Area (Table and Heading) -->
@@ -406,7 +445,9 @@
             <button type="submit" class="btn btn-gold">
                 <i class="fas fa-search"></i> Search
             </button>
-        </form><br>
+        </form>
+    <br>
+
 
         <div class="download-container">
             <a href="{% url 'download-users-pdf' %}" class="download-btn btn-pdf">
@@ -418,7 +459,6 @@
             </a>
         </div>
         
-
         <!-- Manage Users Section - Heading above the table -->
         <h2 class="manage-users-header">Manage Users</h2>
         <div class="messages">
@@ -428,7 +468,8 @@
                 {% endfor %}
             {% endif %}
         </div>
-        <!-- Users Table -->
+
+        <!-- Users Table -->   
         <table class="ledger-table">
             <thead>
                 <tr>
@@ -446,7 +487,7 @@
             </thead>
             <tbody>
                 {% for user in users %}
-                <tr>
+                <tr class="{% if not user.is_approved %}table-warning{% endif %}">
                     <td>{{ forloop.counter }}</td>
                     <td>{{ user.first_name }}</td>
                     <td>{{ user.last_name }}</td>
@@ -456,16 +497,15 @@
                     <td>{{ user.address }}</td>
                     <td>{{ user.is_approved|yesno:"Yes,No" }}</td>
                     <td>
-                        <form method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="user_id" value="{{ user.id }}">
-                            {% if user.is_approved %}
-                                <button type="submit" name="action" value="toggle" class="status status-debited">Deactivate</button>
-                            {% else %}
-                                <button type="submit" name="action" value="toggle" class="status status-approved">Activate</button>
-                            {% endif %}
-                        </form>
+                        <button type="button"
+                            class="toggle-button status {% if user.is_approved %}status-debited{% else %}status-approved{% endif %}"
+                            data-user-id="{{ user.id }}"
+                            data-username="{{ user.username }}"
+                            data-is-approved="{{ user.is_approved }}">
+                            {% if user.is_approved %}Deactivate{% else %}Activate{% endif %}
+                        </button>
                     </td>
+                    
                     <td>
                         <form method="post">
                             {% csrf_token %}
@@ -482,20 +522,67 @@
             </tbody>
         </table>
     
-        <!-- Modal for Confirmation -->
-        {% if confirm_user %}
-        <div class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="document.querySelector('.modal').style.display='none'">&times;</span>
-                <p>Are you sure you want to {{ confirm_user.is_approved|yesno:"deactivate,activate" }} user {{ confirm_user.username }}?</p>
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="user_id" value="{{ confirm_user.id }}">
-                    <button type="submit" name="action" value="confirm_toggle" class="btn btn-gold">Yes</button>
-                    <a href="{% url 'admin-user-list' %}" class="btn btn-gold">No</a>
-                </form> 
-            </div>
-        </div>
+   <!-- pagination -->
+
+   <div class="pagination" style="padding-bottom: 50px; margin: auto;display: block;">
+    <span class="step-links">
+        {% if users.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ users.previous_page_number }}">previous</a>
         {% endif %}
+
+        <span class="current">
+            Page {{ users.number }} of {{ users.paginator.num_pages }}.
+        </span>
+
+        {% if users.has_next %}
+            <a href="?page={{ users.next_page_number }}">next</a>
+            <a href="?page={{ users.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+        <!-- Modal for Confirmation -->
+<div id="confirm-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="document.getElementById('confirm-modal').style.display='none'">&times;</span>
+        <p id="confirm-message"></p>
+        <form id="confirm-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" id="confirm-user-id">
+            <button type="submit" name="action" value="confirm_toggle" class="btn btn-gold">Yes</button>
+            <button type="button" class="btn btn-gold" onclick="document.getElementById('confirm-modal').style.display='none'">No</button>
+        </form>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".toggle-button").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+    
+                let userId = this.dataset.userId;
+                let username = this.dataset.username;
+                let isApproved = this.dataset.isApproved === "True";
+    
+                let confirmMessage = `Are you sure you want to ${isApproved ? "deactivate" : "activate"} user ${username}?`;
+                document.getElementById("confirm-message").textContent = confirmMessage;
+                document.getElementById("confirm-user-id").value = userId;
+                
+                // Show the modal
+                document.getElementById("confirm-modal").style.display = "block";
+            });
+        });
+    });
+    </script>
+  
     </body>
     </html>
+
+
+
+
+
+
+
+

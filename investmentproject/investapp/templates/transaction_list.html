@@ -1,3 +1,4 @@
+{%load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,7 +39,7 @@
 
  /* Sidebar Styles */
 
-      .sidebar {
+        .sidebar {
             position: fixed;
             top: 0;
             left: 0;
@@ -51,7 +52,7 @@
             flex-direction: column;
             overflow-y: auto;
             z-index: 1000;
-            height: 100vh;
+            height: 150vh;
             transition: transform 0.3s ease;
         }
 
@@ -98,7 +99,7 @@
             display: none; /* Hidden by default */
             position: fixed;
             top: 20px;
-            left: 20px;
+            left: 20px;           
             background: var(--accent-gold);
             color: white;
             border: none;
@@ -123,6 +124,7 @@
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%); /* Hide the sidebar */
+                position: fixed;
             }
 
             .sidebar-toggle {
@@ -137,7 +139,8 @@
 
             .content {
                 margin-left: 0; /* No margin on small screens by default */
-                width: 100%; /* Full width on small screens by default */
+                width: 100%;
+                margin-top: 50px;
             }
 
             .content.sidebar-active {
@@ -435,8 +438,6 @@ tr:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -450,6 +451,7 @@ tr:hover {
         right: 20px;  /* Move it closer to the right side for smaller screens */
     }
 }
+
 
 @media (max-width: 480px) {
     .settings-icon {
@@ -537,7 +539,18 @@ tr:hover {
         .close-modal:hover {
             transform: rotate(90deg);
         }
-
+        .logo {
+             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;            
+             position: fixed;
+            top: 525px;
+            left: 12px;
+            right: 0;
+            z-index: 1000;
+            width: 100vw;
+        }
     </style>
 
     <script>
@@ -609,6 +622,9 @@ tr:hover {
             </a>
         </li>
     </ul>
+    <div class="logo">
+        <img src="{% static 'images/logo.svg' %}" alt="Logo">
+    </div>
 </div>
         
         <!-- Content Section -->
