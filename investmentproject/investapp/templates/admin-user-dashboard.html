@@ -47,7 +47,7 @@
             display: flex;
             flex-direction: column; 
             z-index: 1000;
-            height: 100vh;
+            height: 118vh;
             transition: transform 0.3s ease;
         }
 
@@ -250,11 +250,6 @@
                 width: 100%;
             }
 
-            .content.sidebar-active {
-                margin-left: 300px;
-                width: calc(100% - 250px);
-            }
-
         }
 @media (max-width:570px){
     .close-modal {
@@ -366,6 +361,7 @@
                     <th>Actions</th>
                 </tr>
             </thead>
+
             <tbody>
                 {% for user in page_obj.object_list %}
                 <tr>
@@ -378,7 +374,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6">No users found.</td>
+                    <td colspan="6">No users.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -409,6 +405,7 @@
 {% if ledger_data %}
 <div class="ledger-modal">
     <div class="modal-content">
+
         <a href="{% url 'admin_user_home' %}" class="close-modal"><i class="fas fa-times"></i></a>
         {% if selected_user %}
         <h3>{{ selected_user.username }}'s Ledger</h3>
@@ -471,6 +468,7 @@
         XLSX.writeFile(wb, 'ledger_details.xlsx');
     }
 </script>
+
 <script>
     async function fetchAllUsers() {
         const response = await fetch("{% url 'get_all_users' %}");
@@ -525,7 +523,7 @@
         XLSX.utils.book_append_sheet(wb, ws, "Users");
         XLSX.writeFile(wb, "all_users.xlsx");
     }
-</script>
 
+</script>
 </body>
 </html>

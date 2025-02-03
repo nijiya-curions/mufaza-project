@@ -112,7 +112,7 @@
 
         /* Content Section Styles */
         .content {
-            margin-left: 330px; /* Default margin when sidebar is active */
+            margin-left: 330px; 
             width: 100%; /* Default width when sidebar is active */
             padding: 20px;
             height: 100vh; /* Ensure content section takes the full height */
@@ -125,10 +125,11 @@
             .sidebar {
                 transform: translateX(-100%); /* Hide the sidebar */
                 position: fixed;
+               height: 100%;
             }
 
             .sidebar-toggle {
-                display: block; /* Show the toggle button */
+                display: block; 
             }
             .sidebar h2{
                  margin-top: 50px;
@@ -138,15 +139,12 @@
             }
 
             .content {
-                margin-left: 0; /* No margin on small screens by default */
+                margin-left: 0;
                 width: 100%;
                 margin-top: 50px;
             }
 
-            .content.sidebar-active {
-                margin-left: 350px; /* Adjust margin when sidebar is active */
-                width: calc(100% - 250px); /* Adjust width when sidebar is active */
-            }
+         
         }
 
 /* Summary Cards, Tables, and Other Elements Styles */
@@ -458,6 +456,7 @@ tr:hover {
         top: 10px;  /* Adjust the top position for very small screens */
         right: 10px; /* Adjust the right position */
     }
+   
 }
 .settings-icon:hover {
             transform: rotate(90deg);
@@ -503,7 +502,9 @@ tr:hover {
     font-size: 20px;
     font-weight: bold;
 }
+
 /*  */
+
     .btn {
             padding: 12px 24px;
             border-radius: 12px;
@@ -526,6 +527,7 @@ tr:hover {
             transform: translateY(-3px);
             box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
         }
+        
         .close-modal {
             position: absolute;
             right: 25px;
@@ -551,6 +553,7 @@ tr:hover {
             z-index: 1000;
             width: 100vw;
         }
+
     </style>
 
     <script>
@@ -578,11 +581,12 @@ tr:hover {
                 }
             });
         });
-        
+   
     </script>
 
 </head>
 <body>
+
     <div class="main-container">
 
         <!-- Sidebar -->

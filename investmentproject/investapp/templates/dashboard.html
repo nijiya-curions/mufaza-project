@@ -29,15 +29,17 @@
         }
 
         body {
-            background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
+            /* background: linear-gradient(135deg, #f0f2f5, #e3e6e8); */
             min-height: 100vh;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             margin: 0;
             padding: 20px;
+            background-color: #1a3d37; 
         }
 
         .dashboard-container {
             max-width: 1200px;
+
             margin: 0 auto;
             padding: 20px;
             position: relative;
@@ -52,6 +54,8 @@
             margin-bottom: 30px;
             border: 1px solid var(--glass-border);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
+        
         }
 
         .welcome-title {
@@ -69,20 +73,23 @@
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 25px;
             margin-bottom: 30px;
+
         }
 
         /* Themed Card */
 
         .card {
-            background: rgba(255, 255, 255, 0.25);
+            /* background: rgba(255, 255, 255, 0.25); */
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 20px;
             padding: 25px;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            /* box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15); */
             position: relative;
             overflow: hidden;
+            background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
+
         }
 
         .card-title {
@@ -126,10 +133,10 @@
 
         .card:hover {
             transform: translateY(-8px);
-            box-shadow: 
+            /* box-shadow: 
                 0 30px 60px rgba(0, 0, 0, 0.2),
                 0 0 40px rgba(212, 175, 55, 0.15);
-            background: rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.35); */
         }
 
         /* Button */
@@ -165,6 +172,8 @@
             padding: 30px;
             border: 1px solid var(--glass-border);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
+
         }
 
         .ledger-title {
@@ -176,12 +185,17 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
+
+
         }
 
         .ledger-table th,
         .ledger-table td {
             padding: 12px;
             text-align: left;
+            /* background: linear-gradient(135deg, #f0f2f5, #e3e6e8); */
+
             border-bottom: 1px solid var(--glass-border);
         }
 
@@ -459,7 +473,9 @@
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
-            color: var(--primary-dark);
+            color: #b7952c;
+            /* background: linear-gradient(135deg, #f0f2f5, #e3e6e8); */
+
         }
 
         .settings-icon:hover {
@@ -472,6 +488,8 @@
 .table-container {
     width: 100%;
     overflow-x: auto;
+    background: linear-gradient(135deg, #f0f2f5, #e3e6e8);
+
 }
 
 .approved-rejected-table {
@@ -533,14 +551,8 @@
         font-weight: bold;
     }
    
-   
 
-.btn-close {
-    color: white;
-    opacity: 1;
-}
-
-       .close-modal {
+  .close-modal {
             position: absolute;
             right: 25px;
             top: 25px;
@@ -564,8 +576,8 @@
     left: 12px;
     right: 0;
     z-index: 1000;
-    width: 10vw;
-    background-color: #1a3d37; /* Set the background color */
+    width: 15vw;
+    /* background-color: #1a3d37; Set the background color */
 }
 
 .logo img {
@@ -584,58 +596,56 @@
         </div>
         
 <!-- Profile Update Modal -->
+
 <div class="modal fade" id="profileUpdateModal" tabindex="-1" aria-labelledby="profileUpdateModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- Centered & Large Modal -->
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="profileUpdateModalLabel">Update Profile</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close close-modal " data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form method="post" class="profile-form">
                     {% csrf_token %}
                     <input type="hidden" name="update_profile" value="1">
-                    
-                    <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label for="id_username">Username</label>
-                            <input type="text" id="id_username" name="username" value="{{ form.username.value }}" required class="form-control">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label for="id_email">Email</label>
-                            <input type="email" id="id_email" name="email" value="{{ form.email.value }}" required class="form-control">
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label for="id_first_name">First Name</label>
-                            <input type="text" id="id_first_name" name="first_name" value="{{ form.first_name.value }}" required class="form-control">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label for="id_last_name">Last Name</label>
-                            <input type="text" id="id_last_name" name="last_name" value="{{ form.last_name.value }}" required class="form-control">
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label for="id_phone_number">Phone Number</label>
-                            <input type="text" id="id_phone_number" name="phone_number" value="{{ form.phone_number.value }}" required class="form-control">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label for="id_address">Address</label>
-                            <textarea id="id_address" name="address" rows="2" required class="form-control">{{ form.address.value }}</textarea>
-                        </div>
-                    </div>
-                    
+            
                     <div class="form-group">
-                        <label for="id_password">Password (Leave blank to keep current password)</label>
-                        {{ form.password }}
-                        <small class="form-text text-muted">{{ form.password.help_text }}</small>
+                        <label for="id_username">Username</label>
+                        <input type="text" id="id_username" name="username" value="{{ form.username.value }}" required class="form-control">
                     </div>
-                    
-                    <button type="submit" class="btn btn-gold w-100 mt-3">Update Profile</button>
+            
+                    <div class="form-group">
+                        <label for="id_first_name">First Name</label>
+                        <input type="text" id="id_first_name" name="first_name" value="{{ form.first_name.value }}" required class="form-control">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="id_last_name">Last Name</label>
+                        <input type="text" id="id_last_name" name="last_name" value="{{ form.last_name.value }}" required class="form-control">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="id_email">Email</label>
+                        <input type="email" id="id_email" name="email" value="{{ form.email.value }}" required class="form-control">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="id_phone_number">Phone Number</label>
+                        <input type="text" id="id_phone_number" name="phone_number" value="{{ form.phone_number.value }}" required class="form-control">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="id_address">Address</label>
+                        <textarea id="id_address" name="address" rows="3" required class="form-control">{{ form.address.value }}</textarea>
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="id_password">Password</label>
+                        {{ form.password }}
+                        <small class="form-text text-muted"><br>{{ form.password.help_text }}</small>
+                    </div>
+            
+                    <button type="submit" class="btn btn-gold btn-block mt-3">Update Profile</button>
                 </form>
             </div>
         </div>
@@ -655,7 +665,7 @@
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
             </h1>
-                <a href="{% url 'manage_investment' %}" style="color: hsl(0, 0%, 100%);"> 
+                <a href="{% url 'manage_investment' %}" style="color: hsl(0, 0%, 100%);" > 
                     <button class="btn btn-gold">New Transaction</button> 
                 </a>
             </div>
@@ -739,7 +749,7 @@
                             </span>
                         </div>
                     {% else %}
-                        <p>No pending transactions found.</p>
+                        <p>You Have No Pending Transactions</p>
                     {% endif %}
                 </div>
             </div>
@@ -754,7 +764,7 @@
                 </div>
                 <br>
                 
-                <h2>Your Transactions</h2>
+                <h2 style="color: #e3e6e8;">Your Transactions</h2>
                 {% if approved_rejected_transactions %}
                 <div class="table-container">
                     <table class="approved-rejected-table">
@@ -819,7 +829,7 @@
                         </span>
                     </div>
                 {% else %}
-                    <p>No approved or rejected transactions found.</p>
+                    <p>You Have No Transactions To Show</p>
                 {% endif %}
             </div>
         </div>

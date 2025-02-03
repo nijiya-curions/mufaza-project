@@ -31,6 +31,7 @@
             margin: 0;
             padding: 20px;
             background-attachment: fixed;
+            overflow-x: auto;
         }
 
         .sidebar {
@@ -38,22 +39,26 @@
             top: 0;
             left: 0;
             width: 250px;
+            height: 100vh;
             background: rgba(26, 61, 55, 0.95);
-            backdrop-filter: blur(var(--blur-amount));
             padding: 20px;
             color: var(--text-light);
             display: flex;
             flex-direction: column;
             overflow-y: auto;
             z-index: 1000;
-            height: 100vh;
             transition: transform 0.3s ease;
+            transform: translateX(0);
+        }
+
+        .sidebar h2 {
+            margin-bottom: 40px;
         }
 
         .sidebar-menu {
             list-style: none;
             padding: 0;
-            margin-top: 40px;
+            margin: 0;
         }
 
         .sidebar-menu li {
@@ -71,6 +76,7 @@
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+
         }
 
         .sidebar-menu a i {
@@ -83,7 +89,6 @@
             background: var(--accent-gold);
             color: white;
             font-weight: bold;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
         .sidebar-toggle {
@@ -153,15 +158,16 @@
                 transform: translateX(-100%);
             }
 
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
             .sidebar-toggle {
                 display: block;
             }
-            .sidebar h2{
-             margin-top: 50px;
-            }
 
-            .sidebar.active {
-                transform: translateX(0);
+            .sidebar h2 {
+                margin-top: 50px;
             }
 
             .content {
@@ -264,7 +270,6 @@
             .pagination {
                 font-size: 10px;
             }
-         
         }
 
         .container h2 {
@@ -274,7 +279,7 @@
             color: #2d3436;
             font-weight: 600;
         }
-    .form-group {
+        .form-group {
             margin-bottom: 20px;
         }
 
@@ -326,52 +331,52 @@
             box-sizing: border-box;
         }
 
-
         @media (max-width: 991px) {
-        .form-container {
-            max-width: 60%;
-            margin-left: 35%;
+            .form-container {
+                max-width: 60%;
+                margin-left: 35%;
+            }
         }
-    }
 
-    /* Additional styles to ensure responsiveness */
-    @media (max-width: 768px) {
-        .form-container {
-            max-width: 100%;
-            margin-left: 0;
+        /* Additional styles to ensure responsiveness */
+        @media (max-width: 768px) {
+            .form-container {
+                max-width: 100%;
+                margin-left: 0;
+            }
         }
-    }
 
-    @media (max-width: 576px) {
-        .form-container {
-            max-width: 50%;
-            margin-left: 0;
+        @media (max-width: 576px) {
+            .form-container {
+                max-width: 50%;
+                margin-left: 0;
+            }
         }
-    }
- /* Media query for 1024px width */
- @media (min-width: 1024px) and (max-width: 1439px) {
-        .form-container {
-            max-width: 70%;
-            margin-left: 30%;
-        }
-    }
 
-    /* Media query for 1440px width */
-    @media (min-width: 1440px) {
-        .form-container {
-            max-width: 80%;
-            margin-left: 20%;
+        /* Media query for 1024px width */
+        @media (min-width: 1024px) and (max-width: 1439px) {
+            .form-container {
+                max-width: 70%;
+                margin-left: 30%;
+            }
         }
-    }
-     /* Media query for screens between 325px and 425px */
-     @media (min-width: 320px) and (max-width: 695px) {
+
+        /* Media query for 1440px width */
+        @media (min-width: 1440px) {
+            .form-container {
+                max-width: 80%;
+                margin-left: 20%;
+            }
+        }
+
+        /* Media query for screens between 325px and 425px */
+        @media (min-width: 320px) and (max-width: 695px) {
             .form-container {
                 max-width: 90%;
                 margin-left: 5%;
                 padding: 20px;
             }
         }
-
 
         select {
             padding: 10px;
@@ -387,20 +392,19 @@
             border-color: #d4af37;
             box-shadow: 0 0 5px rgba(186, 154, 25, 0.5);
         }
-  
+
         .logo {
-             display: flex;
+            display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 5%;            
+            padding: 1rem 5%;
             position: fixed;
-            top: 525px;
+            top: 500px;
             left: 0;
             right: 0;
             z-index: 1000;
             width: 100vw;
         }
-
     </style>
 
     <script>
@@ -446,11 +450,13 @@
                         <i class="fas fa-home"></i> Dashboard
                     </a>
                 </li>
+
                 <li>
                     <a href="{% url 'admin-user-list' %}" class="sidebar-link">
                         <i class="fas fa-users"></i> Admins
                     </a>
                 </li>
+
                 <li>
                     <a href="{% url 'pending_transactions' %}" class="sidebar-link">
                         <i class="fas fa-exchange-alt"></i> Transactions
@@ -471,7 +477,7 @@
             <div class="logo">
 
                 <img src="{% static 'images/logo.svg' %}" alt="Logo">
-                
+
             </div>
 
         </div>
@@ -539,7 +545,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="9">No pending transactions found.</td>
+                <td colspan="9">No pending transactions here.</td>
             </tr>
             {% endfor %}
         </tbody>
