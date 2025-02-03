@@ -1,4 +1,4 @@
-{%load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,11 +33,10 @@
             display: flex;
             min-height: 100vh;
             background-attachment: fixed;
-           
         }
 
-         /* Add your styles here */
-         .modal {
+        /* Add your styles here */
+        .modal {
             display: block; /* Hidden by default */
             position: fixed;
             z-index: 1000;
@@ -48,6 +47,7 @@
             overflow: auto;
             background-color: rgba(0, 0, 0, 0.4);
         }
+
         .modal-content {
             background-color: #fefefe;
             margin: 15% auto;
@@ -57,35 +57,37 @@
             max-width: 500px;
             text-align: center;
         }
+
         .close {
             color: #aaa;
             float: right;
             font-size: 28px;
             font-weight: bold;
         }
+
         .close:hover,
         .close:focus {
             color: black;
             text-decoration: none;
             cursor: pointer;
         }
-     /*  */
-/* Sidebar */
-.sidebar {
-    position: fixed; /* Fix the sidebar to the left */
-    top: 0;
-    left: 0;
-    width: 250px;
-    background: rgba(26, 61, 55, 0.95);
-    backdrop-filter: blur(var(--blur-amount));
-    padding: 20px;
-    color: var(--text-light);
-    display: flex;
-    height: 118vh;
-    flex-direction: column;
-    z-index: 1000; /* Ensure the sidebar is always on top */
-    overflow-y: auto; /* Make the sidebar scrollable */
-}
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed; /* Fix the sidebar to the left */
+            top: 0;
+            left: 0;
+            width: 250px;
+            background: rgba(26, 61, 55, 0.95);
+            backdrop-filter: blur(var(--blur-amount));
+            padding: 20px;
+            color: var(--text-light);
+            display: flex;
+            height: 100%;
+            flex-direction: column;
+            z-index: 1000; /* Ensure the sidebar is always on top */
+            overflow-x: hidden;
+        }
 
         .sidebar-menu {
             list-style: none;
@@ -142,14 +144,12 @@
         /* Content Section Styles */
         .main-content {
             margin-left: 330px; /* Default margin when sidebar is active */
-            width: 100%; /* Default width when sidebar is active */
+            width: calc(100% - 330px); /* Default width when sidebar is active */
             padding: 20px;
             height: 100vh; /* Ensure content section takes the full height */
             position: relative;
             transition: margin-left 0.3s ease, width 0.3s ease;
         }
-
-     
 
         /* Hide Sidebar on Small Screens */
         @media (max-width: 768px) {
@@ -160,18 +160,21 @@
             .sidebar-toggle {
                 display: block; /* Show the toggle button */
             }
-            .sidebar h2{
-                 margin-top: 50px;
+
+            .sidebar h2 {
+                margin-top: 50px;
             }
+
             .sidebar.active {
                 transform: translateX(0); /* Show the sidebar when active */
             }
 
-           
             .main-content {
-            margin-left: 50px;
-        }
-
+                margin-left: 5px;
+               
+                width: 100%;
+                margin-top: 50px;
+            }
         }
 
         /* Heading directly on top of the table */
@@ -208,52 +211,52 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
-      
-/*  */
-.status-approved {
-    background: linear-gradient(135deg, var(--success), #1a4d31);
-}
+        /* Status Styles */
+        .status-approved {
+            background: linear-gradient(135deg, var(--success), #1a4d31);
+        }
 
-.status-debited {
-    background: linear-gradient(135deg, var(--danger), #4d1a1a);
-}
+        .status-debited {
+            background: linear-gradient(135deg, var(--danger), #4d1a1a);
+        }
 
-.status {
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    color: white;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-}
+        .status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
 
-.status:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
+        .status:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
 
-.status::before {
-    content: '';
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: white;
-    display: inline-block;
-}
+        .status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+            display: inline-block;
+        }
 
-.search-bar {
-    padding: 8px;
-    margin-right: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-}
-   button {
+        .search-bar {
+            padding: 8px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        button {
             padding: 6px 12px;
             border: none;
             background: var(--accent-gold);
@@ -261,70 +264,66 @@
             border-radius: 6px;
             cursor: pointer;
             margin-right: 10px;
-            
         }
 
-.download-container {
-    display: flex;
-    justify-content: left;
-    gap: 20px; /* Space between buttons */
-    margin-top: 20px;
-    flex-wrap: wrap; /* Allows wrapping for smaller screens */
-}
+        .download-container {
+            display: flex;
+            justify-content: left;
+            gap: 20px; /* Space between buttons */
+            margin-top: 20px;
+            flex-wrap: wrap; /* Allows wrapping for smaller screens */
+        }
 
-/* Default button styles */
-.download-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 12px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-    text-decoration: none;
-    color: white;
-    width: 160px;
-    text-align: center;
-    
-}
+        /* Default button styles */
+        .download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s ease-in-out;
+            text-decoration: none;
+            color: white;
+            width: 160px;
+            text-align: center;
+        }
 
-/* Icon styling */
-.download-btn i {
-    font-size: 18px;
-}
+        /* Icon styling */
+        .download-btn i {
+            font-size: 18px;
+        }
 
-/* PDF & Excel Button Colors */
-.btn-pdf, .btn-excel {
-    background-color: #d4af37;
-}
+        /* PDF & Excel Button Colors */
+        .btn-pdf, .btn-excel {
+            background-color: #d4af37;
+        }
 
-.btn-pdf:hover, .btn-excel:hover {
-    background-color: #b79530;
-}
+        .btn-pdf:hover, .btn-excel:hover {
+            background-color: #b79530;
+        }
 
-/* Responsive Design */
-@media screen and (max-width: 600px) {
-    .download-container {
-        flex-direction: column; /* Stack buttons on smaller screens */
-        align-items: center;
-    }
+        /* Responsive Design */
+        @media screen and (max-width: 600px) {
+            .download-container {
+                flex-direction: column; /* Stack buttons on smaller screens */
+                align-items: center;
+            }
 
-    .download-btn {
-        width: 100%; /* Full width on small screens */
-        max-width: 300px; /* Prevents overly large buttons */
-    }
-}
+            .download-btn {
+                width: 100%; /* Full width on small screens */
+                max-width: 300px; /* Prevents overly large buttons */
+            }
+        }
 
-/* responsive */
-
+        /* Responsive Pagination */
         .pagination {
             text-align: center;
             margin-top: 20px;
-          
         }
 
         .pagination a {
@@ -343,12 +342,13 @@
             color: white;
             border-radius: 4px;
         }
+
         .logo {
-             display: flex;
+            display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 5%;            
-             position: fixed;
+            padding: 1rem 5%;
+            position: fixed;
             top: 525px;
             left: 12px;
             right: 0;

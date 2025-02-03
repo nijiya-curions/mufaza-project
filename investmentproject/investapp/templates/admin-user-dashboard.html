@@ -47,7 +47,8 @@
             display: flex;
             flex-direction: column; 
             z-index: 1000;
-            height: 118vh;
+            overflow-x: hidden;
+            height: 100%;
             transition: transform 0.3s ease;
         }
 
@@ -105,7 +106,7 @@
 
         /* Content Area */
         .content {
-            margin-left: 400px;
+            margin-left: 500px;
             padding: 20px;
             width: 100%;
             transition: margin-left 0.3s ease, width 0.3s ease;
@@ -229,7 +230,20 @@
         .pagination .current {
             background-color: #b39429;
         }
-
+        
+        @media (max-width: 1440px){
+            .content{
+                width: 100%;
+                margin-left: 350px;
+            }
+        }
+        @media (max-width: 1024px){
+            .content{
+               margin-left: 350px;
+               width:auto;
+            }
+        }
+       
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -246,11 +260,15 @@
                 margin-top: 50px;
             }
             .content {
-                margin-left: 0;
+                margin-left: 40px;            
                 width: 100%;
             }
-
+            .pagination{
+                margin: auto;
+                display: block;
+            }
         }
+       
 @media (max-width:570px){
     .close-modal {
             position: absolute;
@@ -265,7 +283,7 @@
         .close-modal:hover {
             transform: rotate(90deg);
         }
-}
+    }
         .logo {
              display: flex;
             justify-content: space-between;
@@ -278,6 +296,7 @@
             z-index: 1000;
             width: 100vw;
         }
+
     </style>
     <script>
         // Wait for the DOM to load
@@ -379,7 +398,7 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
+    </div><br>
 
     <!-- Pagination Controls -->
     <div class="pagination">

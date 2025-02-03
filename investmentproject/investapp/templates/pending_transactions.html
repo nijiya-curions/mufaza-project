@@ -45,7 +45,7 @@
             color: var(--text-light);
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
+            overflow-x: hidden;
             z-index: 1000;
             transition: transform 0.3s ease;
             transform: translateX(0);
@@ -75,7 +75,7 @@
             transition: all 0.3s ease;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
 
         }
 
@@ -331,6 +331,26 @@
             box-sizing: border-box;
         }
 
+        @media (min-width: 2560px){
+            .container {
+                max-width: 100%;
+                margin-left: -100px;
+            }
+        }
+        @media (min-width: 1024px) and (max-width: 1439px) {
+            .form-container {
+                max-width: 70%;
+                margin-left: 30%;
+            }
+        }
+
+        /* Media query for 1440px width */
+        @media (min-width: 1440px) {
+            .form-container {
+                max-width: 80%;
+                margin-left: 20%;
+            }
+        }
         @media (max-width: 991px) {
             .form-container {
                 max-width: 60%;
@@ -354,28 +374,16 @@
         }
 
         /* Media query for 1024px width */
-        @media (min-width: 1024px) and (max-width: 1439px) {
-            .form-container {
-                max-width: 70%;
-                margin-left: 30%;
-            }
-        }
-
-        /* Media query for 1440px width */
-        @media (min-width: 1440px) {
-            .form-container {
-                max-width: 80%;
-                margin-left: 20%;
-            }
-        }
+      
 
         /* Media query for screens between 325px and 425px */
         @media (min-width: 320px) and (max-width: 695px) {
             .form-container {
-                max-width: 90%;
-                margin-left: 5%;
+                max-width: 100%;
+                margin-left: 5%; 
                 padding: 20px;
             }
+
         }
 
         select {
