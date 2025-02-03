@@ -140,7 +140,14 @@
             z-index: 1001;
             cursor: pointer;
         }
-
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
         /* Content Section Styles */
         .main-content {
             margin-left: 330px; /* Default margin when sidebar is active */
@@ -149,6 +156,8 @@
             height: 100vh; /* Ensure content section takes the full height */
             position: relative;
             transition: margin-left 0.3s ease, width 0.3s ease;
+            opacity: 0; /* Start with the table hidden */
+            animation: fadeIn 2s ease-in-out forwards; /* Apply the fadeIn animation */
         }
 
         /* Hide Sidebar on Small Screens */
@@ -182,9 +191,14 @@
             text-align: center;
             margin-top: 40px;
             margin-bottom: 20px;
-            color: var(--primary-dark);
-            font-size: 1.8em;
+            font-size: 2em;
             font-weight: 600;
+            background: linear-gradient(135deg, var(--primary-dark), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
         }
 
         /* Table Styles */

@@ -53,6 +53,7 @@
 
         .sidebar h2 {
             margin-bottom: 40px;
+
         }
 
         .sidebar-menu {
@@ -105,7 +106,14 @@
             z-index: 1001;
             cursor: pointer;
         }
-
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
         .content {
             margin-left: 300px;
             flex-grow: 1;
@@ -118,6 +126,8 @@
             overflow-x: auto;
             margin-top: 55px;
             transition: margin-left 0.3s ease, width 0.3s ease;
+            opacity: 0; /* Start with the table hidden */
+            animation: fadeIn 2s ease-in-out forwards; /* Apply the fadeIn animation */
         }
 
         .content.no-sidebar {
@@ -126,7 +136,14 @@
         }
 
         h1 {
-            color: var(--primary-dark);
+            font-size: 2em;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary-dark), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
             text-align: center;
             margin-bottom: 20px;
         }
@@ -329,6 +346,16 @@
             border-radius: 15px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             box-sizing: border-box;
+        }
+        .form-container h2{
+            font-size: 2em;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary-dark), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
         }
 
         @media (min-width: 2560px){

@@ -18,12 +18,12 @@
             --primary-dark: #1a3d37;
             --primary-light: #2c5851;
             --accent-gold: #d4af37;
+            --success: #2c7a51;
+            --info: #2c5178;
+            --warning: #7a632c;
+            --danger: #7a2c2c;
             --text-primary: #2d3436;
             --text-light: rgba(255, 255, 255, 0.9);
-            --warning: #f39c12;
-            --success: #27ae60;
-            --danger: #e74c3c;
-            --blur-amount: 12px;
         }
 
         body {
@@ -103,18 +103,35 @@
             z-index: 1001;
             cursor: pointer;
         }
-
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
         /* Content Area */
         .content {
             margin-left: 500px;
             padding: 20px;
             width: 100%;
             transition: margin-left 0.3s ease, width 0.3s ease;
+            opacity: 0; /* Start with the table hidden */
+            animation: fadeIn 2s ease-in-out forwards; /* Apply the fadeIn animation */
         }
 
        
         .content h1 {
             text-align: center;
+            font-size: 2em;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary-dark), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
         }
 
         .btn {
@@ -295,6 +312,16 @@
             right: 0;
             z-index: 1000;
             width: 100vw;
+        }
+        h3{
+            font-size: 2em;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary-dark), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 4px rgba(120, 122, 24, 0.4);
         }
 
     </style>
