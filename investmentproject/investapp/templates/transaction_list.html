@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"> -->
+
     <title>Your Transactions</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -95,6 +97,7 @@
             font-weight: bold;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
+
         /* Sidebar Toggle Button Styles */
         .sidebar-toggle {
             display: none; /* Hidden by default */
@@ -110,6 +113,7 @@
             z-index: 1001;
             cursor: pointer;
         }
+
 /* Define the fade-in animation */
 @keyframes fadeIn {
             from {
@@ -130,8 +134,7 @@
             position: relative;
             opacity: 0; /* Start with the table hidden */
             animation: fadeIn 2s ease-in-out forwards; /* Apply the fadeIn animation */
-     
-            
+ 
         }
         
         /* Hide Sidebar on Small Screens */
@@ -159,7 +162,6 @@
                  
             }
 
-         
         }
 
 /* Summary Cards, Tables, and Other Elements Styles */
@@ -177,8 +179,6 @@ h2.manage-users-header {
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
             display: block;
         }
-
- 
 
         /* Apply styles to the table */
         table {
@@ -358,7 +358,7 @@ tr:hover {
 
 @media (max-width: 2560px) {
     .logo {
-        margin-left: 5px;
+        margin-left: 10px;
         left: 20px;
     }
     .content{
@@ -400,7 +400,7 @@ tr:hover {
     .modal{
         margin-left: 150px;
     }
-
+   
 }
 
 .settings-icon:hover {
@@ -408,7 +408,6 @@ tr:hover {
             color: var(--accent-gold);
         }
 
-/*  */
 
 /* Custom styles for the modal backdrop */
 
@@ -512,6 +511,7 @@ tr:hover {
             z-index: 1000;
             width: 100vw;
         }
+        
 
     </style>
 
@@ -568,23 +568,30 @@ tr:hover {
                 <i class="fas fa-users"></i> Admins
             </a>
         </li>
+        
         <li>
             <a href="{% url 'pending_transactions' %}" class="sidebar-link">
                 <i class="fas fa-exchange-alt"></i> Transactions
             </a>
         </li>
-        <li>
 
+        <li>
             <a href="{% url 'admin_user_home' %}" class="sidebar-link">
                 <i class="fas fa-user-shield"></i> Users
             </a>
-
         </li>
+        <li>
+            <a href="{% url 'project_list' %}" class="sidebar-link">
+                <i class="fas fa-user-shield"></i> Projects
+            </a>
+        </li>
+
         <li>
             <a href="{% url 'logout' %}" class="sidebar-link">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </li>
+
     </ul>
     <div class="logo">
         <img src="{% static 'images/logo.svg' %}" alt="Logo">
@@ -617,7 +624,6 @@ tr:hover {
                     <i class="fas fa-search"></i>
                 </button>
             </form>
-            
 
             {% if messages %}
             <div class="alert alert-info">
@@ -731,7 +737,6 @@ tr:hover {
         <a href="?page={{ user_balances.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Last</a>
     {% endif %}
 </div>
-
 
     <script>
         

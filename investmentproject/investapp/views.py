@@ -367,6 +367,7 @@ def admin_user_home(request, user_id=None):
     users_with_transactions = CustomUser.objects.filter(
         transactions__status='approved'
     ).distinct()
+    # users_with_transactions = CustomUser.objects.all().distinct()
 
     user_data = []
     for user in users_with_transactions:
@@ -703,4 +704,136 @@ def download_users_excel(request):
 
 
 
+# project view
 
+
+from .models import InvestmentProject
+from .forms import InvestmentProjectForm
+
+
+# Display the list of projects
+@login_required
+def project_list(request):
+    projects = InvestmentProject.objects.filter(user=request.user)  # Show only user's projects
+    return render(request, 'projects_list.html', {'projects': projects})
+
+# Create a new project
+@login_required
+def project_create(request):
+    if request.method == 'POST':
+        form = InvestmentProjectForm(request.POST)
+        if form.is_valid():
+            project = form.save(commit=False)
+            project.user = request.user  # Assign logged-in user
+            project.save()
+            return redirect('project_list')
+    else:
+        form = InvestmentProjectForm()
+
+    return render(request, 'project_create.html', {'form': form})
+
+
+
+# Edit an existing project
+@login_required
+def project_edit(request, pk):
+    project = get_object_or_404(InvestmentProject, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        form = InvestmentProjectForm(request.POST, instance=project)
+        if form.is_valid():
+            form.save()
+            return redirect('project_list')
+    else:
+        form = InvestmentProjectForm(instance=project)
+
+    return render(request, 'project_edit.html', {'form': form})
+
+# Delete a project
+@login_required
+def project_delete(request, pk):
+    project = get_object_or_404(InvestmentProject, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        project.delete()
+        return redirect('project_list')
+
+    return redirect('project_list')
+
+
+# document section
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import UserDocument
+from .forms import UserDocumentForm
+
+@login_required
+def document_list(request):
+    """List all documents uploaded by the user."""
+    documents = UserDocument.objects.filter(user=request.user)
+    return render(request, 'document_list.html', {'documents': documents})
+
+@login_required
+def upload_document(request):
+    """Handle document upload."""
+    if request.method == 'POST':
+        form = UserDocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            document = form.save(commit=False)
+            document.user = request.user
+            document.save()
+            return redirect('document_list')  # Redirect to the list view
+    else:
+        form = UserDocumentForm()
+
+    return render(request, 'upload_document.html', {'form': form})
+
+@login_required
+def edit_document(request, document_id):
+    """Allow users to edit their uploaded document details."""
+    document = get_object_or_404(UserDocument, id=document_id, user=request.user)
+
+    if request.method == 'POST':
+        form = UserDocumentForm(request.POST, request.FILES, instance=document)
+        if form.is_valid():
+            form.save()
+            return redirect('document_list')
+    else:
+        form = UserDocumentForm(instance=document)
+
+    return render(request, 'edit_document.html', {'form': form, 'document': document})
+
+@login_required
+def delete_document(request, document_id):
+    """Allow users to delete their uploaded documents."""
+    document = get_object_or_404(UserDocument, id=document_id, user=request.user)
+    document.file.delete()  # Delete the actual file from storage
+    document.delete()
+    return redirect('document_list')
+
+
+
+# document for admin side
+
+
+def is_admin(user):
+    return user.is_staff  # Only staff can access
+
+@user_passes_test(is_admin)
+def admin_user_documents(request, user_id):
+    User = get_user_model()
+    """Admin can view and download documents uploaded by a user."""
+    user = get_object_or_404(User, id=user_id)
+    documents = UserDocument.objects.filter(user=user)
+
+    return render(request, 'admin_user_documents.html', {'user': user, 'documents': documents})
+
+@user_passes_test(is_admin)
+def admin_delete_document(request, document_id):
+    """Admin can delete a user's document."""
+    document = get_object_or_404(UserDocument, id=document_id)
+    document.file.delete()  # Deletes the file from storage
+    document.delete()
+    messages.success(request, "Document deleted successfully.")
+    return redirect('admin_user_documents', user_id=document.user.id)

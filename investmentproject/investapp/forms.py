@@ -1,6 +1,6 @@
 # forms.py
 from django import forms
-from .models import CustomUser,Transaction
+from .models import CustomUser,Transaction,InvestmentProject
 from django.contrib.auth.hashers import make_password
 from django.core.validators import RegexValidator
 
@@ -94,3 +94,60 @@ class UserProfileUpdateForm(forms.ModelForm):
 
         return user
 
+
+# project 
+
+from django import forms
+from .models import InvestmentProject
+
+class InvestmentProjectForm(forms.ModelForm):
+    class Meta:
+        model = InvestmentProject
+        fields = ['project_name', 'return_type', 'fixed_return_percentage', 'min_return_percentage', 'max_return_percentage', 'status']
+        widgets = {
+            'return_type': forms.Select(attrs={'onchange': 'this.form.submit();'}),  # Auto-submit to refresh fields
+            'fixed_return_percentage': forms.NumberInput(attrs={'step': '0.01'}),
+            'min_return_percentage': forms.NumberInput(attrs={'step': '0.01'}),
+            'max_return_percentage': forms.NumberInput(attrs={'step': '0.01'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'return_type' in self.data:  # Check if return_type is in the form data
+            return_type = self.data.get('return_type')
+            if return_type == 'fixed':
+                self.fields['min_return_percentage'].widget = forms.HiddenInput()
+                self.fields['max_return_percentage'].widget = forms.HiddenInput()
+            elif return_type == 'variable':
+                self.fields['fixed_return_percentage'].widget = forms.HiddenInput()
+        else:
+            # Default state (before selection)
+            self.fields['fixed_return_percentage'].widget = forms.HiddenInput()
+            self.fields['min_return_percentage'].widget = forms.HiddenInput()
+            self.fields['max_return_percentage'].widget = forms.HiddenInput()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        return_type = cleaned_data.get("return_type")
+        fixed_return = cleaned_data.get("fixed_return_percentage")
+        min_return = cleaned_data.get("min_return_percentage")
+        max_return = cleaned_data.get("max_return_percentage")
+
+        if return_type == "fixed" and fixed_return is None:
+            raise forms.ValidationError("Fixed return percentage is required for fixed return type.")
+        if return_type == "variable":
+            if min_return is None or max_return is None:
+                raise forms.ValidationError("Minimum and Maximum return percentages are required for variable return type.")
+            if min_return > max_return:
+                raise forms.ValidationError("Minimum return percentage cannot be greater than Maximum return percentage.")
+
+        return cleaned_data
+
+
+from django import forms
+from .models import UserDocument
+
+class UserDocumentForm(forms.ModelForm):
+    class Meta:
+        model = UserDocument
+        fields = ['document_type', 'file']

@@ -1,0 +1,155 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Project</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+
+</head>
+<body class="bg-light">
+    <a href="{% url 'project_list' %}" style="text-decoration: none; display: block; text-align: left;">
+        <button class="btn btn-gold btngold2">
+            Back
+        </button>
+    </a><br>
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <h2 class="text-center mb-4">Create a New Project</h2>
+
+        <!-- Form for Creating Project -->
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Project Name -->
+            <div class="mb-3">
+                <label class="form-label">Project Name</label>
+                <input type="text" name="project_name" class="form-control" required>
+            </div>
+
+            <!-- Return Type -->
+            <div class="mb-3">
+                <label class="form-label">Return Type</label>
+                <select name="return_type" class="form-select" onchange="toggleReturnFields(this.value)" required>
+                    <option value="">Select Return Type</option>
+                    <option value="fixed">Fixed</option>
+                    <option value="variable">Variable</option>
+                </select>
+            </div>
+
+            <!-- Fixed Return Percentage -->
+            <div class="mb-3 d-none" id="fixed_return">
+                <label class="form-label">Fixed Return Percentage</label>
+                <input type="number" name="fixed_return_percentage" class="form-control" step="0.01">
+            </div>
+
+            <!-- Variable Return Percentage -->
+            <div class="row d-none" id="variable_return">
+                <div class="col-md-6">
+                    <label class="form-label">Minimum Return Percentage</label>
+                    <input type="number" name="min_return_percentage" class="form-control" step="0.01">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Maximum Return Percentage</label>
+                    <input type="number" name="max_return_percentage" class="form-control" step="0.01">
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="mb-3">
+                <label class="form-label">Project Status</label>
+                <select name="status" class="form-select" required>
+                    <option value="">Select Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-save"></i> Save Project
+                </button>
+                <a href="{% url 'project_list' %}" class="btn btn-secondary">
+                    <i class="fa fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript to Toggle Return Fields -->
+<script>
+    function toggleReturnFields(returnType) {
+        document.getElementById('fixed_return').classList.add('d-none');
+        document.getElementById('variable_return').classList.add('d-none');
+
+        if (returnType === 'fixed') {
+            document.getElementById('fixed_return').classList.remove('d-none');
+        } else if (returnType === 'variable') {
+            document.getElementById('variable_return').classList.remove('d-none');
+        }
+    }
+</script>
+
+<style>
+    
+:root {  
+    --form-field-bg: #ffffff;
+    --form-border-color: #ccc;
+    --form-border-radius: 8px;
+    --form-padding: 12px;
+    --form-font-size: 16px;             
+    --accent-gold: #d4af37;
+    --text-primary: #2d3436;
+    --text-light: rgba(255, 255, 255, 0.9);
+
+    
+}
+    body {
+        font-family: Arial, sans-serif;
+    }
+    .card {
+        border-radius: 10px;
+    }
+    .form-control, .form-select {
+        border-radius: 5px;
+    }
+    
+
+/* Gold Button specific styles */
+.btn-gold, .btngold2 {
+    background: linear-gradient(135deg, var(--accent-gold), #b39429);
+    color: #ffffff;
+    box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+}
+
+.btn-gold:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
+}
+
+/* .btngold2: Specific Button Styles */
+.btngold2 {
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    margin-left: 10px;
+    display: inline-block;  /* Default inline-block */
+}
+</style>
+
+</body>
+</html>

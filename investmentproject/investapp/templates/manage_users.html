@@ -408,7 +408,7 @@
 <body>
 
 
-         <!-- Sidebar -->
+<!-- Sidebar -->
 <button class="sidebar-toggle" onclick="toggleSidebar()">
     <i class="fas fa-bars"></i>
 </button>
@@ -438,6 +438,11 @@
             </a>
         </li>
         <li>
+            <a href="{% url 'project_list' %}" class="sidebar-link">
+                <i class="fas fa-user-shield"></i> Projects
+            </a>
+        </li>
+        <li>
             <a href="{% url 'logout' %}" class="sidebar-link">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
@@ -458,7 +463,6 @@
             </button>
         </form>
     <br>
-
 
         <div class="download-container">
             <a href="{% url 'download-users-pdf' %}" class="download-btn btn-pdf">
@@ -494,6 +498,7 @@
                     <th>Approved</th>
                     <th>Actions</th>
                     <th>Admin Actions</th>
+                    <th>Documents</th>  
                 </tr>
             </thead>
             <tbody>
@@ -527,6 +532,11 @@
                                 <button type="submit" name="action" value="promote" class="status status-approved">Promote</button>
                             {% endif %}
                         </form>
+                    </td>
+                    <td>
+                        <a href="{% url 'admin_user_documents' user.id %}" class="btn btn-info">
+                            <i class="fa fa-files-o"></i> Documents
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -589,10 +599,6 @@
   
     </body>
     </html>
-
-
-
-
 
 
 

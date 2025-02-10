@@ -125,11 +125,13 @@ textarea.form-control {
     }
 }
 
+    
 /* For mobile screens under 480px */
 @media (max-width: 480px) {
     .btngold2 {
         font-size: 18px;  /* Adjust font size for very small screens */
         padding: 16px 24px;  /* Adjust padding */
-        width: 25%; /* Ensure button takes full width on mobile */
+        width: 35%; /* Ensure button takes full width on mobile */
     }
 }
+

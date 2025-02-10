@@ -47,3 +47,77 @@ class Transaction(models.Model):
         return f"User: {self.user.username}, {self.user.first_name} {self.user.last_name}, {self.user.email}, {self.user.phone_number}, {self.user.address} | Transaction: {self.particulars} - {self.date} - {self.amount_type} - {self.amount} - {self.status}"
 
 
+
+
+
+class InvestmentProject(models.Model):
+    RETURN_TYPE_CHOICES = [
+        ('fixed', 'Fixed'),
+        ('variable', 'Variable'),
+    ]
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    ]
+    
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='investment_projects'
+    )
+    project_name = models.CharField(max_length=255)
+    return_type = models.CharField(max_length=8, choices=RETURN_TYPE_CHOICES)
+    fixed_return_percentage = models.DecimalField(
+        max_digits=5, decimal_places=2, blank=True, null=True, 
+        help_text="Required if return type is Fixed"
+    )
+    min_return_percentage = models.DecimalField(
+        max_digits=5, decimal_places=2, blank=True, null=True, 
+        help_text="Required if return type is Variable"
+    )
+    max_return_percentage = models.DecimalField(
+        max_digits=5, decimal_places=2, blank=True, null=True, 
+        help_text="Required if return type is Variable"
+    )
+    status = models.CharField(
+        max_length=8, choices=STATUS_CHOICES, default='active'
+    )  
+
+    def __str__(self):
+        return f"{self.project_name} ({self.return_type}) - {self.status}"
+
+    def clean(self):
+        """Ensure correct percentage fields are filled based on return type"""
+        from django.core.exceptions import ValidationError
+        
+        if self.return_type == 'fixed' and self.fixed_return_percentage is None:
+            raise ValidationError("Fixed return percentage is required for fixed return type.")
+        if self.return_type == 'variable':
+            if self.min_return_percentage is None or self.max_return_percentage is None:
+                raise ValidationError("Minimum and Maximum return percentages are required for variable return type.")
+            if self.min_return_percentage > self.max_return_percentage:
+                raise ValidationError("Minimum return percentage cannot be greater than Maximum return percentage.")
+
+        super().clean()
+
+
+
+# documents
+
+class UserDocument(models.Model):
+    DOCUMENT_TYPES = [
+        ('aadhaar', 'Aadhaar Card'),
+        ('voter_id', 'Voter ID'),
+        ('passbook', 'Passbook'),
+        ('other', 'Other')
+    ]
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='documents')
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES)
+    file = models.FileField(upload_to='user_documents/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.get_document_type_display()}"
+
+

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Documents</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .documents-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .documents-table th, .documents-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .documents-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .documents-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        .documents-table .actions {
+            white-space: nowrap;
+        }
+        .documents-table .actions a {
+            margin-right: 10px;
+        }
+        .no-documents {
+            color: #666;
+            font-style: italic;
+        }
+        @media (max-width: 600px) {
+            .documents-table th, .documents-table td {
+                padding: 8px;
+            }
+            .documents-table .actions a {
+                display: block;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="{% url 'dashboard' %}" style="text-decoration: none; display: block; text-align: left;">
+        <button class="btn btn-gold btngold2">
+            Back
+        </button>
+    </a><br>
+    <h2>Your Documents</h2>
+    <a href="{% url 'upload_document' %}">Upload New Document</a>
+    
+    <table class="documents-table">
+        <thead>
+            <tr>
+                <th>Document Type</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for document in documents %}
+                <tr>
+                    <td>{{ document.get_document_type_display }}</td>
+                    <td class="actions">
+                        <a href="{{ document.file.url }}" target="_blank">View</a>
+                        <a href="{% url 'edit_document' document.id %}">Edit</a>
+                        <a href="{% url 'delete_document' document.id %}" onclick="return confirm('Are you sure?');">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2" class="no-documents">No documents uploaded yet.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

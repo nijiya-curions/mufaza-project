@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Project</title>
+
+    <!-- Bootstrap & FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+
+<div class="container mt-4">
+    <h2>Edit Project</h2>
+
+    <!-- Display Success/Error Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card shadow-sm p-4">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="id_project_name" class="form-label">Project Name</label>
+                {{ form.project_name }}
+            </div>
+
+            <div class="mb-3">
+                <label for="id_return_type" class="form-label">Return Type</label>
+                {{ form.return_type }}
+            </div>
+
+            <!-- Fixed Return Percentage (Shown Only for Fixed Return Type) -->
+            <div class="mb-3" id="fixed_return">
+                <label for="id_fixed_return_percentage" class="form-label">Fixed Return (%)</label>
+                {{ form.fixed_return_percentage }}
+            </div>
+
+            <!-- Variable Return (Shown Only for Variable Return Type) -->
+            <div class="mb-3" id="variable_return">
+                <label for="id_min_return_percentage" class="form-label">Min Return (%)</label>
+                {{ form.min_return_percentage }}
+                <label for="id_max_return_percentage" class="form-label">Max Return (%)</label>
+                {{ form.max_return_percentage }}
+            </div>
+
+            <div class="mb-3">
+                <label for="id_status" class="form-label">Status</label>
+                {{ form.status }}
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'project_list' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript for Showing/ Hiding Fields Based on Return Type -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        function updateReturnFields() {
+            var returnType = document.getElementById("id_return_type").value;
+            var fixedReturn = document.getElementById("fixed_return");
+            var variableReturn = document.getElementById("variable_return");
+
+            if (returnType === "fixed") {
+                fixedReturn.style.display = "block";
+                variableReturn.style.display = "none";
+            } else if (returnType === "variable") {
+                fixedReturn.style.display = "none";
+                variableReturn.style.display = "block";
+            } else {
+                fixedReturn.style.display = "none";
+                variableReturn.style.display = "none";
+            }
+        }
+
+        // Initialize Fields Based on Existing Data
+        updateReturnFields();
+
+        // Update Fields When Return Type Changes
+        document.getElementById("id_return_type").addEventListener("change", function() {
+            updateReturnFields();
+        });
+    });
+</script>
+
+</body>
+</html>
