@@ -10,89 +10,265 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</head>
-<body>
 
-<div class="container mt-4">
-    <h2>Edit Project</h2>
+    <style>
+        :root {
+            --form-bg: #ffffff;
+            --form-border: #ced4da;
+            --form-radius: 12px;
+            --form-padding: 14px;
+            --form-font-size: 16px;
+            --accent-gold: #d4af37;
+            --text-primary: #2d3436;
+            --hover-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+        }
 
-    <!-- Display Success/Error Messages -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
+        body {
+            background-color: #f8f9fa;
+        }
 
-    <div class="card shadow-sm p-4">
-        <form method="POST">
-            {% csrf_token %}
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 30px;
+            background: var(--form-bg);
+        }
 
-            <div class="mb-3">
-                <label for="id_project_name" class="form-label">Project Name</label>
-                {{ form.project_name }}
-            </div>
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
 
-            <div class="mb-3">
-                <label for="id_return_type" class="form-label">Return Type</label>
-                {{ form.return_type }}
-            </div>
+        .form-label i {
+            margin-right: 8px;
+            color: var(--accent-gold);
+        }
 
-            <!-- Fixed Return Percentage (Shown Only for Fixed Return Type) -->
-            <div class="mb-3" id="fixed_return">
-                <label for="id_fixed_return_percentage" class="form-label">Fixed Return (%)</label>
-                {{ form.fixed_return_percentage }}
-            </div>
+        .form-control, .form-select {
+            border-radius: var(--form-radius);
+            padding: var(--form-padding);
+            font-size: var(--form-font-size);
+            border: 1px solid var(--form-border);
+            transition: all 0.3s ease-in-out;
+            background: #fff;
+        }
 
-            <!-- Variable Return (Shown Only for Variable Return Type) -->
-            <div class="mb-3" id="variable_return">
-                <label for="id_min_return_percentage" class="form-label">Min Return (%)</label>
-                {{ form.min_return_percentage }}
-                <label for="id_max_return_percentage" class="form-label">Max Return (%)</label>
-                {{ form.max_return_percentage }}
-            </div>
+        .form-control:focus, .form-select:focus {
+            border-color: #d4af37;
+            box-shadow: var(--hover-shadow);
+            transform: scale(1.02);
+        }
 
-            <div class="mb-3">
-                <label for="id_status" class="form-label">Status</label>
-                {{ form.status }}
-            </div>
+        .btn-primary {
+            background-color: #d4af37;
+            border-color: #d4af37;
+            border-radius: var(--form-radius);
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease-in-out;
+        }
 
-            <div class="d-flex justify-content-between">
-                <a href="{% url 'project_list' %}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-            </div>
-        </form>
-    </div>
-</div>
+        .btn-primary:hover {
+            background-color: #d4af37;
+            border-color: #d4af37;
+            transform: scale(1.05);
+        }
 
-<!-- JavaScript for Showing/ Hiding Fields Based on Return Type -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        function updateReturnFields() {
-            var returnType = document.getElementById("id_return_type").value;
-            var fixedReturn = document.getElementById("fixed_return");
-            var variableReturn = document.getElementById("variable_return");
+        .alert {
+            border-radius: var(--form-radius);
+            font-size: 15px;
+        }
 
-            if (returnType === "fixed") {
-                fixedReturn.style.display = "block";
-                variableReturn.style.display = "none";
-            } else if (returnType === "variable") {
-                fixedReturn.style.display = "none";
-                variableReturn.style.display = "block";
-            } else {
-                fixedReturn.style.display = "none";
-                variableReturn.style.display = "none";
+        .container {
+            max-width: 650px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--accent-gold), #b39429);
+            color: #ffffff;
+            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+            border-radius: var(--form-radius);
+            font-weight: bold;
+            transition: all 0.3s ease-in-out;
+            padding: 12px 24px;
+            display: inline-block;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Conditional Display Sections */
+        #fixed_return, #variable_return {
+            display: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* Animation */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        // Initialize Fields Based on Existing Data
-        updateReturnFields();
+        /* General Form Input Styling */
+        .custom-input {
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            transition: all 0.3s ease-in-out;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-        // Update Fields When Return Type Changes
-        document.getElementById("id_return_type").addEventListener("change", function() {
-            updateReturnFields();
+        /* Focus Effect */
+        .custom-input:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+            transform: scale(1.02);
+        }
+
+        /* Placeholder Styling */
+        .custom-input::placeholder {
+            color: #888;
+            font-style: italic;
+        }
+
+        /* Dropdown Styling */
+        .form-select {
+            background-color: #fff;
+            color: #333;
+        }
+
+        /* Submit Button */
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37, #d4af37);
+            color: #fff;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gold:hover {
+            background: linear-gradient(135deg, #d4af37, #d4af37);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <a href="{% url 'project_list' %}" style="text-decoration: none;">
+        <button class="btn btn-gold">
+            <i class="fa fa-arrow-left"></i> Back
+        </button>
+    </a>
+
+    <div class="container mt-5">
+        <h2 class="text-center "><i class="fa fa-edit"></i> Edit Project</h2>
+
+        <!-- Display Success/Error Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="card shadow-sm p-4">
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-12 form-group">
+                        <label for="id_project_name" class="form-label"><i class="fa fa-folder"></i> Project Name</label>
+                        {{ form.project_name }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 form-group">
+                        <label for="id_return_type" class="form-label"><i class="fa fa-chart-line"></i> Return Type</label>
+                        {{ form.return_type }}
+                    </div>
+                </div>
+
+                <div class="row" id="fixed_return" class="form-group fade-in">
+                    <div class="col-md-12">
+                        <label for="id_fixed_return_percentage" class="form-label"><i class="fa fa-percentage"></i> Fixed Return (%)</label>
+                        {{ form.fixed_return_percentage }}
+                    </div>
+                </div>
+
+                <div class="row" id="variable_return" class="form-group fade-in">
+                    <div class="col-md-6">
+                        <label for="id_min_return_percentage" class="form-label"><i class="fa fa-arrow-down"></i> Min Return (%)</label>
+                        {{ form.min_return_percentage }}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_max_return_percentage" class="form-label mt-2"><i class="fa fa-arrow-up"></i> Max Return (%)</label>
+                        {{ form.max_return_percentage }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 form-group">
+                        <label for="id_status" class="form-label"><i class="fa fa-toggle-on"></i> Status</label>
+                        {{ form.status }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-gold w-100"><i class="fa fa-save"></i> Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let returnTypeField = document.getElementById("id_return_type");
+            let fixedReturn = document.getElementById("fixed_return");
+            let variableReturn = document.getElementById("variable_return");
+
+            function toggleReturnFields() {
+                let returnType = returnTypeField.value;
+
+                if (returnType === "fixed") {
+                    fixedReturn.style.display = "block";
+                    variableReturn.style.display = "none";
+                } else if (returnType === "variable") {
+                    fixedReturn.style.display = "none";
+                    variableReturn.style.display = "block";
+                } else {
+                    fixedReturn.style.display = "none";
+                    variableReturn.style.display = "none";
+                }
+            }
+
+            // Initial call to set the correct field visibility
+            toggleReturnFields();
+
+            // Add event listener to update fields on change
+            returnTypeField.addEventListener("change", toggleReturnFields);
         });
-    });
-</script>
+    </script>
 
 </body>
 </html>

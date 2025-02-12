@@ -23,6 +23,12 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 
+
+from .models import InvestmentProject, UserProjectAssignment, CustomUser,UserDocument
+from .forms import UserProjectAssignmentForm,UserDocumentForm
+
+
+
 # home page
 def home(request):
     return render(request, 'home.html')
@@ -101,9 +107,12 @@ def logout_view(request):
     request.session.flush()  # Clear the session entirely
     return redirect('home')  # Redirect to login page
 
+
 # Admin view to list all users
 def admin_required(user):
     return user.is_authenticated and user.is_staff
+
+@user_passes_test(admin_required, login_url='home')
 @never_cache
 def admin_user_list(request):
     User = get_user_model()
@@ -171,6 +180,7 @@ def admin_user_list(request):
     })
 
 
+
 #  admin transaction list
 # Check if the user is an admin (superuser)
 from investapp.models import CustomUser  # Make sure you import the custom user model
@@ -178,7 +188,7 @@ from investapp.models import CustomUser  # Make sure you import the custom user 
 def admin_required(user):
     return user.is_authenticated and user.is_staff
 
-@user_passes_test(admin_required, login_url='login')
+@user_passes_test(admin_required, login_url='home')
 @never_cache
 def transaction_list(request):
     # Redirect superusers to Django admin
@@ -278,9 +288,11 @@ def transaction_list(request):
 
 # approvals and rejections and create transaction for user by admin
 
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
+
+@user_passes_test(admin_required, login_url='home')
 @never_cache
-@login_required
-@user_passes_test(lambda u: u.is_staff)  # Ensure only staff can access
 def pending_transactions(request):
     # Get the sort filter from the request
     sort_option = request.GET.get('sort', '')  # 'credit', 'debit'
@@ -334,8 +346,11 @@ def pending_transactions(request):
     })
 
 
-@login_required
-@user_passes_test(lambda user: user.is_staff)
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
+
+@user_passes_test(admin_required, login_url='home')
+@never_cache
 def approve_transaction(request, transaction_id):
     if request.method == 'POST':
         transaction = get_object_or_404(Transaction, id=transaction_id)
@@ -343,8 +358,12 @@ def approve_transaction(request, transaction_id):
         transaction.save()
         return redirect('pending_transactions')
 
-@login_required
-@user_passes_test(lambda user: user.is_staff)
+
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
+
+@user_passes_test(admin_required, login_url='login')
+@never_cache
 def reject_transaction(request, transaction_id):
     if request.method == 'POST':
         transaction = get_object_or_404(Transaction, id=transaction_id)
@@ -359,15 +378,27 @@ def decimal_to_float(value):
         return float(value)
     return value
 
-@login_required
-@user_passes_test(lambda user: user.is_staff)
+
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
+
+@user_passes_test(admin_required, login_url='home')
 @never_cache
 def admin_user_home(request, user_id=None):
+    # Get the search query from the request
+    search_query = request.GET.get('search', '')
+
     # Filter users who have at least one approved transaction
     users_with_transactions = CustomUser.objects.filter(
         transactions__status='approved'
     ).distinct()
-    # users_with_transactions = CustomUser.objects.all().distinct()
+
+    # Apply search filter if a search query is provided
+    if search_query:
+        users_with_transactions = users_with_transactions.filter(
+            Q(username__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
 
     user_data = []
     for user in users_with_transactions:
@@ -379,7 +410,6 @@ def admin_user_home(request, user_id=None):
         total_debit = transactions.filter(amount_type='debit').aggregate(Sum('amount'))['amount__sum'] or 0
 
         # Use total returns from the user's dashboard
-        # (Fetch `dashboard_view` data dynamically or calculate here)
         dashboard_view_data = calculate_user_dashboard_returns(user)  # Reuse logic
         total_returns = dashboard_view_data['total_returns']  # Get from user dashboard
 
@@ -391,11 +421,10 @@ def admin_user_home(request, user_id=None):
             'credit_total': total_credit,
             'total_returns': total_returns,  # Use value from the user's dashboard
             'status': 'Active' if total_returns > 0 else 'Inactive',
-
         })
 
     # Paginate the user data
-    paginator = Paginator(user_data, 10)  # Show 10 users per page
+    paginator = Paginator(user_data, 7)  # Show 7 users per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -420,14 +449,22 @@ def admin_user_home(request, user_id=None):
     return render(request, 'admin-user-dashboard.html', {
         'page_obj': page_obj,
         'ledger_data': ledger_data,
-        'selected_user': selected_user
+        'selected_user': selected_user,
+        'search_query': search_query,  # Pass the search query to the template
     })
 
- 
+
 # for users creating transaction view
 
+def user_required(user):
+    return user.is_authenticated and not user.is_staff  # Ensures only non-admin users can access
+
+user_login_required = user_passes_test(user_required, login_url='home')
+
+
+
 @never_cache
-@login_required
+@user_login_required
 def manage_investment(request):
     if request.method == 'POST':
         form = InvestmentForm(request.POST, request.FILES)
@@ -446,7 +483,7 @@ def manage_investment(request):
 
 # user transaction list
 @never_cache
-@login_required
+@user_login_required
 def dashboard_view(request):
      # Redirect users based on their role
     if request.user.is_superuser:
@@ -712,20 +749,26 @@ from .forms import InvestmentProjectForm
 
 
 # Display the list of projects
-@login_required
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
+
+@user_passes_test(admin_required, login_url='home')
+@never_cache
 def project_list(request):
-    projects = InvestmentProject.objects.filter(user=request.user)  # Show only user's projects
+    projects = InvestmentProject.objects.all()  # Show only user's projects
     return render(request, 'projects_list.html', {'projects': projects})
 
 # Create a new project
-@login_required
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
+
+@user_passes_test(admin_required, login_url='home')
+@never_cache
 def project_create(request):
     if request.method == 'POST':
         form = InvestmentProjectForm(request.POST)
         if form.is_valid():
-            project = form.save(commit=False)
-            project.user = request.user  # Assign logged-in user
-            project.save()
+            form.save()  # Save project without assigning a user
             return redirect('project_list')
     else:
         form = InvestmentProjectForm()
@@ -735,24 +778,36 @@ def project_create(request):
 
 
 # Edit an existing project
-@login_required
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
+
+@user_passes_test(admin_required, login_url='home')
+@never_cache
 def project_edit(request, pk):
-    project = get_object_or_404(InvestmentProject, pk=pk, user=request.user)
-    
+    project = get_object_or_404(InvestmentProject, pk=pk)
+
     if request.method == 'POST':
         form = InvestmentProjectForm(request.POST, instance=project)
         if form.is_valid():
+            print("Form is valid. Saving project...")  # Debugging
             form.save()
             return redirect('project_list')
+        else:
+            print("Form errors:", form.errors)  # Debugging
     else:
         form = InvestmentProjectForm(instance=project)
 
-    return render(request, 'project_edit.html', {'form': form})
+    return render(request, 'project_edit.html', {'form': form, 'project': project})
+
 
 # Delete a project
-@login_required
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
+
+@user_passes_test(admin_required, login_url='home')
+@never_cache
 def project_delete(request, pk):
-    project = get_object_or_404(InvestmentProject, pk=pk, user=request.user)
+    project = get_object_or_404(InvestmentProject, pk=pk)
     
     if request.method == 'POST':
         project.delete()
@@ -761,50 +816,114 @@ def project_delete(request, pk):
     return redirect('project_list')
 
 
-# document section
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import UserDocument
-from .forms import UserDocumentForm
+# assigning project for user
 
-@login_required
-def document_list(request):
-    """List all documents uploaded by the user."""
-    documents = UserDocument.objects.filter(user=request.user)
-    return render(request, 'document_list.html', {'documents': documents})
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
 
-@login_required
-def upload_document(request):
-    """Handle document upload."""
-    if request.method == 'POST':
-        form = UserDocumentForm(request.POST, request.FILES)
+@user_passes_test(admin_required, login_url='home')
+@never_cache
+def manage_project_assignments(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)  # Get the selected user
+    assignments = UserProjectAssignment.objects.filter(user=user)  # Get user's assignments
+    form = UserProjectAssignmentForm(initial={'user': user})  # Pre-fill user
+
+    if request.method == "POST":
+        form = UserProjectAssignmentForm(request.POST)
         if form.is_valid():
-            document = form.save(commit=False)
-            document.user = request.user
-            document.save()
-            return redirect('document_list')  # Redirect to the list view
-    else:
-        form = UserDocumentForm()
+            assignment = form.save(commit=False)
+            assignment.user = user  # Ensure the user is set
+            assignment.save()
+            return redirect('manage_project_assignments', user_id=user.id)  # Redirect with user_id
 
-    return render(request, 'upload_document.html', {'form': form})
+    return render(request, 'manage_projects.html', {
+        'assignments': assignments,
+        'form': form,
+        'user': user
+    })
 
-@login_required
-def edit_document(request, document_id):
-    """Allow users to edit their uploaded document details."""
-    document = get_object_or_404(UserDocument, id=document_id, user=request.user)
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
 
-    if request.method == 'POST':
-        form = UserDocumentForm(request.POST, request.FILES, instance=document)
+@user_passes_test(admin_required, login_url='home')
+@never_cache
+def edit_assignment(request, assignment_id):
+    assignment = get_object_or_404(UserProjectAssignment, id=assignment_id)
+    user_id = assignment.user.id  # Get the user ID
+
+    if request.method == "POST":
+        form = UserProjectAssignmentForm(request.POST, instance=assignment)
         if form.is_valid():
             form.save()
-            return redirect('document_list')
+            return redirect('manage_project_assignments', user_id=user_id)  # Redirect to correct user
+
     else:
-        form = UserDocumentForm(instance=document)
+        form = UserProjectAssignmentForm(instance=assignment)
 
-    return render(request, 'edit_document.html', {'form': form, 'document': document})
+    return render(request, 'edit_assignment.html', {'form': form, 'user_id': user_id})
 
-@login_required
+
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
+
+@user_passes_test(admin_required, login_url='home')
+@never_cache
+def delete_assignment(request, assignment_id):
+    assignment = get_object_or_404(UserProjectAssignment, id=assignment_id)
+    user_id = assignment.user.id  # Get user ID before deleting
+    assignment.delete()
+    return redirect('manage_project_assignments', user_id=user_id)  # Redirect to correct user
+
+
+
+# document section for users
+
+
+@user_login_required
+def document_list(request):
+    """List all documents and handle document uploads and edits in the same view."""
+    documents = UserDocument.objects.filter(user=request.user)
+    form = UserDocumentForm()
+    edit_form = None
+    document_to_edit = None
+
+    if request.method == 'POST':
+        # Check if it's an edit request
+        document_id = request.POST.get('edit_document_id')
+
+        if document_id:
+            document_to_edit = get_object_or_404(UserDocument, id=document_id, user=request.user)
+            edit_form = UserDocumentForm(request.POST, request.FILES, instance=document_to_edit)
+
+            if edit_form.is_valid():
+                edit_form.save()
+                return redirect('document_list')  # Redirect after edit
+
+        else:
+            # This is a new document upload
+            form = UserDocumentForm(request.POST, request.FILES)
+            if form.is_valid():
+                document = form.save(commit=False)
+                document.user = request.user
+                document.save()
+                return redirect('document_list')  # Redirect after upload
+
+    # Handle edit request (GET request for edit form)
+    document_id = request.GET.get('edit')
+    if document_id:
+        document_to_edit = get_object_or_404(UserDocument, id=document_id, user=request.user)
+        edit_form = UserDocumentForm(instance=document_to_edit)
+
+    return render(request, 'document_list.html', {
+        'documents': documents,
+        'form': form,
+        'edit_form': edit_form,
+        'document_to_edit': document_to_edit
+    })
+
+
+@user_login_required
 def delete_document(request, document_id):
     """Allow users to delete their uploaded documents."""
     document = get_object_or_404(UserDocument, id=document_id, user=request.user)
@@ -817,10 +936,11 @@ def delete_document(request, document_id):
 # document for admin side
 
 
-def is_admin(user):
-    return user.is_staff  # Only staff can access
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
 
-@user_passes_test(is_admin)
+@user_passes_test(admin_required, login_url='home')
+@never_cache
 def admin_user_documents(request, user_id):
     User = get_user_model()
     """Admin can view and download documents uploaded by a user."""
@@ -829,7 +949,11 @@ def admin_user_documents(request, user_id):
 
     return render(request, 'admin_user_documents.html', {'user': user, 'documents': documents})
 
-@user_passes_test(is_admin)
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
+
+@user_passes_test(admin_required, login_url='home')
+@never_cache
 def admin_delete_document(request, document_id):
     """Admin can delete a user's document."""
     document = get_object_or_404(UserDocument, id=document_id)

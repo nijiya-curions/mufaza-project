@@ -101,49 +101,75 @@ from django import forms
 from .models import InvestmentProject
 
 class InvestmentProjectForm(forms.ModelForm):
+    return_type = forms.ChoiceField(
+        choices=[("fixed", "Fixed"), ("variable", "Variable")],
+        widget=forms.Select(attrs={'class': 'form-select custom-input'}),
+        initial="fixed"  # 👈 Set default to "fixed"
+    )
+
     class Meta:
         model = InvestmentProject
         fields = ['project_name', 'return_type', 'fixed_return_percentage', 'min_return_percentage', 'max_return_percentage', 'status']
-        widgets = {
-            'return_type': forms.Select(attrs={'onchange': 'this.form.submit();'}),  # Auto-submit to refresh fields
-            'fixed_return_percentage': forms.NumberInput(attrs={'step': '0.01'}),
-            'min_return_percentage': forms.NumberInput(attrs={'step': '0.01'}),
-            'max_return_percentage': forms.NumberInput(attrs={'step': '0.01'}),
-        }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if 'return_type' in self.data:  # Check if return_type is in the form data
-            return_type = self.data.get('return_type')
-            if return_type == 'fixed':
-                self.fields['min_return_percentage'].widget = forms.HiddenInput()
-                self.fields['max_return_percentage'].widget = forms.HiddenInput()
-            elif return_type == 'variable':
-                self.fields['fixed_return_percentage'].widget = forms.HiddenInput()
-        else:
-            # Default state (before selection)
-            self.fields['fixed_return_percentage'].widget = forms.HiddenInput()
-            self.fields['min_return_percentage'].widget = forms.HiddenInput()
-            self.fields['max_return_percentage'].widget = forms.HiddenInput()
+        widgets = {
+            'project_name': forms.TextInput(attrs={
+                'class': 'form-control custom-input',
+                'placeholder': 'Enter project name...'
+            }),
+            'return_type': forms.Select(attrs={'class': 'form-select custom-input'}),
+            'fixed_return_percentage': forms.NumberInput(attrs={
+                'class': 'form-control custom-input',
+                'placeholder': 'Enter fixed return %'
+            }),
+            'min_return_percentage': forms.NumberInput(attrs={
+                'class': 'form-control custom-input',
+                'placeholder': 'Min return %'
+            }),
+            'max_return_percentage': forms.NumberInput(attrs={
+                'class': 'form-control custom-input',
+                'placeholder': 'Max return %'
+            }),
+            'status': forms.Select(attrs={'class': 'form-select custom-input'}),
+        }
 
     def clean(self):
         cleaned_data = super().clean()
         return_type = cleaned_data.get("return_type")
-        fixed_return = cleaned_data.get("fixed_return_percentage")
-        min_return = cleaned_data.get("min_return_percentage")
-        max_return = cleaned_data.get("max_return_percentage")
 
-        if return_type == "fixed" and fixed_return is None:
-            raise forms.ValidationError("Fixed return percentage is required for fixed return type.")
-        if return_type == "variable":
+        # Reset values that are not needed
+        if return_type == "fixed":
+            cleaned_data["min_return_percentage"] = None
+            cleaned_data["max_return_percentage"] = None
+        elif return_type == "variable":
+            cleaned_data["fixed_return_percentage"] = None
+
+            min_return = cleaned_data.get("min_return_percentage")
+            max_return = cleaned_data.get("max_return_percentage")
+
             if min_return is None or max_return is None:
-                raise forms.ValidationError("Minimum and Maximum return percentages are required for variable return type.")
+                raise forms.ValidationError("Min and Max return percentages are required for variable return type.")
             if min_return > max_return:
                 raise forms.ValidationError("Minimum return percentage cannot be greater than Maximum return percentage.")
 
         return cleaned_data
 
 
+
+# assigning project
+from django import forms
+from .models import UserProjectAssignment, CustomUser, InvestmentProject
+
+class UserProjectAssignmentForm(forms.ModelForm):
+    user = forms.ModelChoiceField(queryset=CustomUser.objects.all(), widget=forms.HiddenInput())
+    project = forms.ModelChoiceField(queryset=InvestmentProject.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}))
+    return_percentage = forms.DecimalField(required=False, widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Optional Return %'}))
+
+    class Meta:
+        model = UserProjectAssignment
+        fields = ['user', 'project', 'return_percentage']
+
+
+# document
 from django import forms
 from .models import UserDocument
 

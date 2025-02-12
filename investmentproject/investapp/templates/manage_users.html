@@ -439,7 +439,7 @@
         </li>
         <li>
             <a href="{% url 'project_list' %}" class="sidebar-link">
-                <i class="fas fa-user-shield"></i> Projects
+                <i class="fas fa-project-diagram"></i> Projects
             </a>
         </li>
         <li>
@@ -498,7 +498,7 @@
                     <th>Approved</th>
                     <th>Actions</th>
                     <th>Admin Actions</th>
-                    <th>Documents</th>  
+                    <th>Documents</th> 
                 </tr>
             </thead>
             <tbody>
@@ -530,7 +530,7 @@
                                 <button type="submit" name="action" value="demote" class="status status-debited">Demote</button>
                             {% else %}
                                 <button type="submit" name="action" value="promote" class="status status-approved">Promote</button>
-                            {% endif %}
+                            {% endif %}  
                         </form>
                     </td>
                     <td>
@@ -538,6 +538,8 @@
                             <i class="fa fa-files-o"></i> Documents
                         </a>
                     </td>
+
+                                   
                 </tr>
                 {% endfor %}
             </tbody>

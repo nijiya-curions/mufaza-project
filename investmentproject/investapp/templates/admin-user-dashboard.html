@@ -154,6 +154,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+          
         }
 
         table th, table td {
@@ -202,7 +203,7 @@
             border-radius: 10px;
             width: 80%;
             max-height: 90%;
-            overflow-y: auto;
+            /* overflow-y: auto; */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             position: relative;
         }
@@ -247,13 +248,18 @@
         .pagination .current {
             background-color: #b39429;
         }
-        
+  
+        @media (min-width: 2561px) {
+    .logo {
+        margin-left: -50px; 
+    }
+}
+
 @media (max-width: 2560px) {
     .logo {
-        margin-left: -70px;
+        margin-left: -90px;
         left: 20px;
     }
-   
 }
         @media (max-width: 1440px){
             .content{
@@ -296,14 +302,15 @@
                 display: block;
             }
             .logo{
-        margin-left: 10px;
+                margin-top: 30px;
+        margin-left: -50px;
     }
         }
        
 @media (max-width:570px){
     .close-modal {
             position: absolute;
-            left: 107%;
+            left: 90%;
             top: 15px;
             font-size: 24px;
             cursor: pointer;
@@ -319,13 +326,12 @@
              display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 5%;            
+                  
              position: fixed;
-            top: 525px;
-            left: 12px;
+            top: 555px;
+            left: 100px;
             right: 0;
-            z-index: 1000;
-            width: 100vw;
+           
         }
         h3{
             font-size: 2em;
@@ -337,6 +343,153 @@
             color: transparent;
             text-shadow: 2px 2px 4px rgba(120, 122, 24, 0.4);
         }
+
+       
+/*  */
+
+/* From Uiverse.io by mrhyddenn */ 
+.icon-btn {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #cdcdcd;
+  background: white;
+  border-radius: 25px;
+  overflow: hidden;
+  position: relative;
+  transition: width 0.2s ease-in-out;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.add-btn:hover {
+  width: 120px;
+}
+
+.add-btn::before,
+.add-btn::after {
+  transition: width 0.2s ease-in-out, border-radius 0.2s ease-in-out;
+  content: "";
+  position: absolute;
+  height: 4px;
+  width: 10px;
+  top: calc(50% - 2px);
+  background: rgb(209, 178, 23);
+}
+
+.add-btn::after {
+  right: 14px;
+  overflow: hidden;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+
+.add-btn::before {
+  left: 14px;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+
+.icon-btn:focus {
+  outline: none;
+}
+
+.btn-txt {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.add-btn:hover::before,
+.add-btn:hover::after {
+  width: 4px;
+  border-radius: 2px;
+}
+
+.add-btn:hover .btn-txt {
+  opacity: 1;
+}
+
+.add-icon::after,
+.add-icon::before {
+  transition: all 0.2s ease-in-out;
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 2px;
+  top: calc(50% - 10px);
+  background: seagreen;
+  overflow: hidden;
+}
+
+.add-icon::before {
+  left: 22px;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+
+.add-icon::after {
+  right: 22px;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+
+.add-btn:hover .add-icon::before {
+  left: 15px;
+  height: 4px;
+  top: calc(50% - 2px);
+}
+
+.add-btn:hover .add-icon::after {
+  right: 15px;
+  height: 4px;
+  top: calc(50% - 2px);
+}
+/*  */
+
+/* Search Bar Container */
+.search-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Search Form */
+.search-form {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 25px;
+    padding: 5px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Search Input Field */
+.search-input {
+    flex: 1;
+    border: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    border-radius: 25px 0 0 25px;
+    outline: none;
+}
+
+/* Search Button */
+.search-btn {
+    background: #d4af37;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 0 25px 25px 0;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease;
+}
+
+/* Search Button Hover Effect */
+.search-btn:hover {
+    background: #d4af37;
+}
 
     </style>
     <script>
@@ -390,13 +543,15 @@
                 <li><a href="{% url 'admin_user_home' %}" class="sidebar-link"><i class="fas fa-user-shield"></i> Users</a></li>
                 <li>
                     <a href="{% url 'project_list' %}" class="sidebar-link">
-                        <i class="fas fa-user-shield"></i> Projects
+                        <i class="fas fa-project-diagram"></i> Projects
                     </a>
                 </li>
                 <li><a href="{% url 'logout' %}" class="sidebar-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
-            <div class="logo">
+              <div class="logo">
+
                 <img src="{% static 'images/logo.svg' %}" alt="Logo">
+
             </div>
         </div>
 
@@ -413,59 +568,78 @@
         </button>
     </div>
 
-    <!-- Users Table -->
-    <div id="user-table-content">
-        <table>
-            <thead>
-                <tr>
-                    <th>User ID</th>
-                    <th>Username</th>
-                    <th>Total Invested</th>
-                    <th>Total Returns</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                {% for user in page_obj.object_list %}
-                <tr>
-                    <td>#{{ user.user_id }}</td>
-                    <td>{{ user.username }}</td>
-                    <td>${{ user.credit_total }}</td>
-                    <td>${{ user.total_returns }}</td>
-                    <td>{{ user.status }}</td>
-                    <td><a href="{% url 'user_ledger' user.user_id %}" class="fas fa-eye view-icon"></a></td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6">No users.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div><br>
-
-    <!-- Pagination Controls -->
-    <div class="pagination">
-        <span class="step-links">
-            {% if page_obj.has_previous %}
-                <a href="?page=1">&laquo; first</a>
-                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-            {% endif %}
-
-            <span class="current">
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-            </span>
-
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">next</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-            {% endif %}
-        </span>
-    </div>
+   <!-- Search Bar -->
+   <div class="search-container">
+    <form method="GET" action="{% url 'admin_user_home' %}" class="search-form">
+        <input type="text" name="search" placeholder="Search users..." value="{{ search_query }}" class="search-input">
+        <button type="submit" class="search-btn">Search</button>
+    </form>
 </div>
 
+
+
+<!-- Users Table -->
+<div id="user-table-content">
+    <table>
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Total Invested</th>
+                <th>Total Returns</th>
+                <th>Status</th>
+                <th>Actions</th>
+                <th>Assign Project</th> 
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for user in page_obj.object_list %}
+            <tr>
+                <td>#{{ user.user_id }}</td>
+                <td>{{ user.username }}</td>
+                <td>${{ user.credit_total }}</td>
+                <td>${{ user.total_returns }}</td>
+                <td>{{ user.status }}</td>
+                <td><a href="{% url 'user_ledger' user.user_id %}" class="fas fa-eye view-icon"></a></td>
+                <td>
+                    <a href="{% url 'manage_project_assignments' user.user_id %}">  
+                        <button class="icon-btn add-btn">
+                            <div class="add-icon">
+                                <div class="btn-txt">Assign project</div>
+                            </div>
+                        </button>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">No users found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination Controls -->
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?q={{ search_query }}&page=1">&laquo; first</a>
+            <a href="?q={{ search_query }}&page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?q={{ search_query }}&page={{ page_obj.next_page_number }}">next</a>
+            <a href="?q={{ search_query }}&page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+</div>
 <!-- Ledger Modal -->
 {% if ledger_data %}
 <div class="ledger-modal">

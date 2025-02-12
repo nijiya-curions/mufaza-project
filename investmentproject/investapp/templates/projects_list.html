@@ -11,66 +11,21 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</head>
+
 <style>
-     :root {
-            --glass-bg: rgba(255, 255, 255, 0.15);
-            --glass-border: rgba(255, 255, 255, 0.18);
-            --glass-shadow: rgba(0, 0, 0, 0.1);
-            --primary-dark: #1a3d37;
-            --primary-light: #2c5851;
-            --accent-gold: #d4af37;
-            --success: #2c7a51;
-            --info: #2c5178;
-            --warning: #7a632c;
-            --danger: #7a2c2c;
-            --text-primary: #2d3436;
-            --text-light: rgba(255, 255, 255, 0.9);
-        }
+    :root {
+        --primary-dark: #1a3d37;
+        --primary-light: #2c5851;
+        --accent-gold: #d4af37;
+        --text-light: rgba(255, 255, 255, 0.9);
+    }
 
-       
-    .logo {
-             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            
-            padding: 1rem 5%;            
-             position: fixed;
-            top: 525px;
-            right: 0;
-            left: -80px;
-            z-index: 1000;
-            width: 100vw;
-        }
-      
-@media (max-width: 2560px) {
-    .logo {
-        margin-left: -31px;
-        left: -50px;
+    body {
+        font-family: 'Segoe UI', sans-serif;
     }
-   
-}
-@media (max-width: 1440px) {
-    .logo {
-        margin-left: 20px;
-    }
-   
-}
-@media (max-width: 1024px) {
-    .logo {
-        margin-left: 50px;
-    }
-}
-/* Media query for large screens */
-@media (max-width: 768px) {
-    
-    .logo{
-        margin-left: 20px;
-    }
-}  
- /* Sidebar Styles */
 
- .sidebar {
+    /* Sidebar */
+    .sidebar {
             position: fixed;
             top: 0;
             left: 0;
@@ -80,16 +35,14 @@
             padding: 20px;
             color: var(--text-light);
             display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
+            flex-direction: column; 
             z-index: 1000;
+          
+            overflow-x: hidden;
             height: 100%;
             transition: transform 0.3s ease;
         }
 
-        .sidebar h2{
-            font-size: 25px;
-        }
         .sidebar-menu {
             list-style: none;
             padding: 0;
@@ -104,6 +57,7 @@
             display: flex;
             align-items: center;
             padding: 12px 20px;
+            gap: 10px;
             color: var(--text-light);
             text-decoration: none;
             border-radius: 12px;
@@ -113,74 +67,85 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .sidebar-menu a i {
-            margin-right: 10px;
-            font-size: 1.2em;
-        }
 
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
-            background: var(--accent-gold);
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
+    .sidebar a.active, .sidebar a:hover {
+        background: var(--accent-gold);
+        color: white;
+    }
 
-        /* Sidebar Toggle Button Styles */
-        .sidebar-toggle {
-            display: none; /* Hidden by default */
+    /* Sidebar Toggle Button */
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: var(--accent-gold);
+        color: white;
+        border: none;
+        padding: 10px 12px;
+        border-radius: 5px;
+        z-index: 1100;
+    }
+
+    /* Content */
+    .content {
+        margin-left: 270px;
+        padding: 20px;
+    }
+
+    /* Button */
+    .btn-gold {
+        background: var(--accent-gold);
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+    }
+
+    .btn-gold:hover {
+        background: #b39429;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .sidebar {
+            transform: translateX(-100%);
             position: fixed;
-            top: 20px;
-            left: 20px;           
-            background: var(--accent-gold);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            font-size: 1.2em;
-            border-radius: 5px;
-            z-index: 1001;
-            cursor: pointer;
         }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar-toggle {
+            display: block;
+        }
+
+        .content {
+            margin-left: 0;
+        }
+    }
 </style>
-<body>
 
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
 
+    document.addEventListener('DOMContentLoaded', function () {
+        const links = document.querySelectorAll('.sidebar-link');
+        const currentPath = window.location.pathname;
 
-    <script>
-        // Wait for the DOM to load
-        document.addEventListener('DOMContentLoaded', function () {
-            // Select all sidebar links
-            const links = document.querySelectorAll('.sidebar-link');
-    
-            // Add click event listener to each link
-            links.forEach(link => {
-                link.addEventListener('click', function () {
-                    // Remove 'active' class from all links
-                    links.forEach(l => l.classList.remove('active'));
-    
-                    // Add 'active' class to the clicked link
-                    this.classList.add('active');
-                });
-            });
-    
-            // Optionally, add logic to highlight the active link based on the current URL
-            const currentPath = window.location.pathname;
-            links.forEach(link => {
-                if (link.getAttribute('href') === currentPath) {
-                    link.classList.add('active');
-                }
-            });
+        links.forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
         });
-      
-
-    </script>
-
+    });
+</script>
 </head>
 <body>
 
-    <div class="main-container">
-
-        <!-- Sidebar -->
+<!-- Sidebar Toggle Button -->
 <button class="sidebar-toggle" onclick="toggleSidebar()">
     <i class="fas fa-bars"></i>
 </button>
@@ -189,99 +154,57 @@
 <div class="sidebar" id="sidebar">
     <h2>Admin Panel</h2>
     <ul class="sidebar-menu">
-        <li>
-            <a href="{% url 'transaction_list' %}" class="sidebar-link">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'admin-user-list' %}" class="sidebar-link">
-                <i class="fas fa-users"></i> Admins
-            </a>
-        </li>
-        
-        <li>
-            <a href="{% url 'pending_transactions' %}" class="sidebar-link">
-                <i class="fas fa-exchange-alt"></i> Transactions
-            </a>
-        </li>
-
-        <li>
-            <a href="{% url 'admin_user_home' %}" class="sidebar-link">
-                <i class="fas fa-user-shield"></i> Users
-            </a>
-        </li>
+        <li><a href="{% url 'transaction_list' %}" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="{% url 'admin-user-list' %}" class="sidebar-link"><i class="fas fa-users"></i> Admins</a></li>
+        <li><a href="{% url 'pending_transactions' %}" class="sidebar-link"><i class="fas fa-exchange-alt"></i> Transactions</a></li>
+        <li><a href="{% url 'admin_user_home' %}" class="sidebar-link"><i class="fas fa-user-shield"></i> Users</a></li>
         <li>
             <a href="{% url 'project_list' %}" class="sidebar-link">
-                <i class="fas fa-user-shield"></i> Projects
+                <i class="fas fa-project-diagram"></i> Projects
             </a>
         </li>
-
-        <li>
-            <a href="{% url 'logout' %}" class="sidebar-link">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </li>
-
+        <li><a href="{% url 'logout' %}" class="sidebar-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
     </ul>
     <div class="logo">
         <img src="{% static 'images/logo.svg' %}" alt="Logo">
     </div>
 </div>
 
-
-<div class="container mt-4 " style=" margin-left: 350px;">
+<!-- Main Content -->
+<div class="content container mt-4">
     <h2 class="mb-3">Projects</h2>
 
-    <!-- Search Bar -->
-    <input type="text" id="searchBar" class="form-control mb-3" placeholder="Search projects..." onkeyup="filterProjects()" style="width: auto;">
+    <!-- Search & Create Button -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <input type="text" id="searchBar" class="form-control" placeholder="Search projects..." onkeyup="filterProjects()">
+        </div>
+        <div class="col-md-6 text-md-end mt-2 mt-md-0">
+            <a href="{% url 'project_create' %}" class="btn btn-gold"><i class="fa fa-plus"></i> Create Project</a>
+        </div>
+    </div>
 
-    <!-- Create Project Button -->
-    <a href="{% url 'project_create' %}">  <button class="btn btn-primary mb-3">
-        <i class="fa fa-plus"></i> Create Project
-    </button></a>
-
-    <!-- Project List -->
+    <!-- Project Cards -->
     <div class="row">
         {% for project in projects %}
-        <div class="col-md-4 project-card">
+        <div class="col-lg-4 col-md-6 col-sm-12 project-card">
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <h5 class="card-title">{{ project.project_name }}</h5>
-    
-                    <!-- Status -->
-                    <p class="card-text">
-                        <strong>Status:</strong> 
-                        <span class="badge {% if project.status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
-                            {{ project.status|capfirst }}
-                        </span>
-                    </p>
-    
-                    <!-- Return Type -->
-                    <p class="card-text"><strong>Return Type:</strong> {{ project.return_type|capfirst }}</p>
-    
-                    <!-- Investment & Returns -->
-                    <p class="card-text"><strong>Total Investments:</strong> ${{ project.total_investments }}</p>
-                    <p class="card-text"><strong>Total Returns:</strong> ${{ project.total_returns }}</p>
-    
-                    <!-- Allocated Percentage -->
+                    <p><strong>Status:</strong> <span class="badge {% if project.status == 'active' %}bg-success{% else %}bg-danger{% endif %}">{{ project.status|capfirst }}</span></p>
+                    <p><strong>Return Type:</strong> {{ project.return_type|capfirst }}</p>
+                    <p><strong>Total Investments:</strong> ${{ project.total_investments }}</p>
+                    <p><strong>Total Returns:</strong> ${{ project.total_returns }}</p>
                     {% if project.return_type == "fixed" %}
-                        <p class="card-text"><strong>Return Percentage:</strong> {{ project.fixed_return_percentage }}%</p>
+                        <p><strong>Return Percentage:</strong> {{ project.fixed_return_percentage }}%</p>
                     {% elif project.return_type == "variable" %}
-                        <p class="card-text"><strong>Return Range:</strong> {{ project.min_return_percentage }}% - {{ project.max_return_percentage }}%</p>
+                        <p><strong>Return Range:</strong> {{ project.min_return_percentage }}% - {{ project.max_return_percentage }}%</p>
                     {% endif %}
-    
-                    <!-- Edit & Delete Buttons -->
                     <div class="d-flex justify-content-between">
-                        <a href="{% url 'project_edit' project.id %}" class="btn btn-sm btn-warning">
-                            <i class="fa fa-pencil-square-o"></i> Edit
-                        </a>
-                        
+                        <a href="{% url 'project_edit' project.id %}" class="btn btn-sm btn-gold"><i class="fa fa-pencil-alt"></i> Edit</a>
                         <form method="POST" action="{% url 'project_delete' project.id %}" onsubmit="return confirm('Are you sure?');">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-danger">
-                                <i class="fa fa-trash"></i> Delete
-                            </button>
+                            <button type="submit" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> Delete</button>
                         </form>
                     </div>
                 </div>
@@ -291,26 +214,15 @@
         <p>No projects found.</p>
         {% endfor %}
     </div>
-    
+</div>
 
-
-
-
-<!-- JavaScript for Search Function -->
 <script>
 function filterProjects() {
-    var input, filter, cards, cardContainer, title, i;
-    input = document.getElementById("searchBar");
-    filter = input.value.toUpperCase();
-    cardContainer = document.getElementsByClassName("project-card");
-    
-    for (i = 0; i < cardContainer.length; i++) {
-        title = cardContainer[i].getElementsByClassName("card-title")[0];
-        if (title.innerText.toUpperCase().indexOf(filter) > -1) {
-            cardContainer[i].style.display = "";
-        } else {
-            cardContainer[i].style.display = "none";
-        }
+    let input = document.getElementById("searchBar").value.toUpperCase();
+    let cards = document.getElementsByClassName("project-card");
+    for (let i = 0; i < cards.length; i++) {
+        let title = cards[i].querySelector(".card-title").innerText.toUpperCase();
+        cards[i].style.display = title.includes(input) ? "" : "none";
     }
 }
 </script>

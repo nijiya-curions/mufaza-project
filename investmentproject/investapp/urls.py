@@ -22,7 +22,7 @@ urlpatterns = [
     path('pendingapproval', views.pendingapproval, name='pendingapproval'),
     path('get-all-users/', views.get_all_users, name='get_all_users'),
     path('export-transactions/',views.export_transactions_pdf, name='export_transactions'),
-path('admin/users/download/pdf/',views.download_users_pdf, name='download-users-pdf'),
+    path('admin/users/download/pdf/',views.download_users_pdf, name='download-users-pdf'),
     path('admin/users/download/excel/',views.download_users_excel, name='download-users-excel'),
 
 
@@ -33,10 +33,13 @@ path('admin/users/download/pdf/',views.download_users_pdf, name='download-users-
 
 
 
+    path('assign-project/<int:user_id>/', views.manage_project_assignments, name='manage_project_assignments'),
+    path('projects-edit/<int:assignment_id>/', views.edit_assignment, name='edit_assignment'),
+    path('projects-delete/<int:assignment_id>/', views.delete_assignment, name='delete_assignment'),
+
+
     path('documents/', views.document_list, name='document_list'),
-    path('documents/upload/', views.upload_document, name='upload_document'),
-    path('documents/edit/<int:document_id>/', views.edit_document, name='edit_document'),
-    path('documents/delete/<int:document_id>/',views.delete_document, name='delete_document'),
+    path('delete-document/<int:document_id>/', views.delete_document, name='delete_document'),
 
 
 # 
